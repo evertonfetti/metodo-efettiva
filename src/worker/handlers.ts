@@ -1,6 +1,7 @@
 import type { BackgroundJob, Prisma } from "@/generated/prisma/client";
 import { runExport } from "@/features/documents/service";
 import { runCommit } from "@/features/imports/service";
+import { runGeneration } from "@/features/ai/service";
 
 export type HandlerContext = {
   job: BackgroundJob;
@@ -29,5 +30,12 @@ export const handlers: Record<string, JobHandler> = {
     if (!batchId) throw new Error("payload sem batchId");
     await setProgress(10);
     return runCommit(batchId, job.clientId);
+  },
+  /** IA supervisionada: gera rascunho estruturado de uma seção; nada é aplicado sem decisão do consultor. */
+  "ai.generate": async ({ job, setProgress }) => {
+    const generationId = (job.payloadJson as { generationId?: string } | null)?.generationId;
+    if (!generationId) throw new Error("payload sem generationId");
+    await setProgress(10);
+    return runGeneration(generationId, job.clientId);
   },
 };

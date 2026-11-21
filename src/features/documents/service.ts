@@ -346,3 +346,30 @@ export async function downloadExport(user: SessionUser, clientId: string, export
   await audit({ actorUserId: user.id, clientId, entityType: "DocumentExport", entityId: exp.id, action: "document.download", meta: { audience: exp.audience, format: exp.format } });
   return { file, data };
 }
+
+/**
+ * Aplica conteúdo revisado de uma sugestão de IA numa seção de revisão em edição:
+ * seção volta a "Em revisão" (precisa de aprovação humana), origem registra a IA, revisão marcada `generatedByAi`
+ * e as evidências citadas entram nas fontes da revisão (para a QA validar as referências).
+ */
+export async function applyAiContent(user: SessionUser, clientId: string, documentId: string, revisionId: string, key: string, input: { blocks: unknown; aiGenerationId: string; originNote: string; evidence: { ref: string; label: string; kind: string }[] }) {
+  await assertClientAccess(user, clientId, "EDIT");
+  await loadDoc(clientId, documentId);
+  const rev = await loadRevision(clientId, documentId, revisionId);
+  if (!isOpen(rev.state)) throw new AppError("INVALID_STATE", "Versão aprovada é imutável: crie uma nova versão para aplicar a sugestão.");
+  const blocks = z.array(blockSchema).max(400).parse(input.blocks);
+  const content = parseContent(rev.contentJson);
+  findSection(content, key);
+  const next = contentSchema.parse({ sections: content.sections.map((s): Section => (s.key === key ? { ...s, blocks, state: "IN_REVIEW", manuallyEdited: true, aiGenerationId: input.aiGenerationId, origin: input.originNote, approvedAt: undefined, approvedBy: undefined } : s)) });
+  const sources = rev.structuredSourcesJson as unknown as Sources;
+  const known = new Set((sources.evidence ?? []).map((e) => e.ref));
+  const mergedSources = { ...sources, evidence: [...(sources.evidence ?? []), ...input.evidence.filter((e) => !known.has(e.ref))] };
+  const res = await prisma.documentRevision
+    .updateMany({
+      where: { id: rev.id, lockVersion: rev.lockVersion, state: { in: ["DRAFT", "READY_FOR_REVIEW"] } },
+      data: { contentJson: next as unknown as Prisma.InputJsonValue, structuredSourcesJson: mergedSources as unknown as Prisma.InputJsonValue, lockVersion: { increment: 1 }, state: "DRAFT", generatedByAi: true },
+    })
+    .catch(immutableGuard);
+  if (res.count === 0) throw new AppError("CONFLICT", "O documento foi alterado por outra pessoa. Recarregue.");
+  return { lockVersion: rev.lockVersion + 1 };
+}

@@ -114,6 +114,7 @@ model Client {
   saleItems            SaleItem[]
   quotes               Quote[]
   metricSnapshots      MetricSnapshot[]
+  aiGenerations        AiGeneration[]
 
   @@index([status])
   @@index([name])
@@ -1119,4 +1120,58 @@ model MetricSnapshot {
   client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
   @@index([clientId, metricCode, periodStart])
+}
+
+// ───────────────────────── Fase 5: IA supervisionada ─────────────────────────
+
+enum AiGenerationStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+enum AiDecision {
+  PENDING
+  ACCEPTED
+  EDITED
+  REJECTED
+}
+
+/// Log de geração (RF-095): quem, cliente, tarefa, modelo, versão do prompt, hash da entrada, tokens, custo, validação e decisão.
+model AiGeneration {
+  id                  String             @id @default(uuid()) @db.Uuid
+  clientId            String             @db.Uuid
+  actorUserId         String             @db.Uuid
+  documentId          String?            @db.Uuid
+  revisionId          String?            @db.Uuid
+  sectionKey          String?
+  taskType            String
+  provider            String
+  model               String
+  promptVersion       String
+  inputHash           String
+  inputJson           Json
+  evidenceRefsJson    Json               @default("[]")
+  outputSchemaVersion String
+  outputJson          Json?
+  validationJson      Json?
+  status              AiGenerationStatus @default(QUEUED)
+  decision            AiDecision         @default(PENDING)
+  decidedBy           String?            @db.Uuid
+  decidedAt           DateTime?          @db.Timestamptz(3)
+  decisionNote        String?
+  tokensIn            Int?
+  tokensOut           Int?
+  costEstimate        Decimal?           @db.Decimal(10, 4)
+  errorCode           String?
+  errorMessage        String?
+  jobId               String?            @db.Uuid
+  createdAt           DateTime           @default(now()) @db.Timestamptz(3)
+  finishedAt          DateTime?          @db.Timestamptz(3)
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, documentId, createdAt])
+  @@index([actorUserId, createdAt])
 }

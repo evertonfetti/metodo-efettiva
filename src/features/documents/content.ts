@@ -33,6 +33,8 @@ export const sectionSchema = z.object({
   manuallyEdited: z.boolean().default(false),
   approvedBy: z.string().optional(),
   approvedAt: z.string().optional(),
+  /** Seção com conteúdo vindo de sugestão de IA revisada (8.1: mostrar IA × template). */
+  aiGenerationId: z.string().optional(),
   blocks: z.array(blockSchema).max(400),
 });
 export type Section = z.infer<typeof sectionSchema>;

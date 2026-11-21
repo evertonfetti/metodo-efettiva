@@ -62,11 +62,34 @@ export const DEFAULT_BRAND: z.infer<typeof brandSchema> = {
   logoFileId: null,
 };
 
+/** IA supervisionada (8.6): modelo, esforço e limites. A chave fica só em ANTHROPIC_API_KEY (nunca no banco). */
+export const aiSettingsSchema = z.object({
+  enabled: z.boolean(),
+  model: z.enum(["claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5"]),
+  effort: z.enum(["low", "medium", "high"]),
+  maxOutputTokens: z.coerce.number().int().min(1000).max(32000),
+  maxRequestsPerHour: z.coerce.number().int().min(1).max(500),
+  maxCostUsdPerTask: z.coerce.number().min(0.01).max(20),
+  timeoutSeconds: z.coerce.number().int().min(20).max(600),
+  providerNotes: z.string().trim().max(2000).default(""),
+});
+export const DEFAULT_AI: z.infer<typeof aiSettingsSchema> = {
+  enabled: true,
+  model: "claude-opus-5-5",
+  effort: "medium",
+  maxOutputTokens: 12000,
+  maxRequestsPerHour: 20,
+  maxCostUsdPerTask: 0.6,
+  timeoutSeconds: 180,
+  providerNotes: "",
+};
+
 export const SETTINGS = {
   methodPhases: { key: "method.phases", schema: methodPhasesSchema, default: DEFAULT_METHOD_PHASES },
   scaleLabels: { key: "assessment.scaleLabels", schema: scaleLabelsSchema, default: DEFAULT_SCALE_LABELS },
   parameters: { key: "system.parameters", schema: parametersSchema, default: DEFAULT_PARAMETERS },
   brand: { key: "brand.identity", schema: brandSchema, default: DEFAULT_BRAND },
+  ai: { key: "ai.settings", schema: aiSettingsSchema, default: DEFAULT_AI },
 } as const;
 
 export type SettingName = keyof typeof SETTINGS;
