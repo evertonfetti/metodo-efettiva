@@ -98,3 +98,22 @@ Uma linha por decisão: **decisão** — motivo.
 - **KPIs de recompra, reativação, cobertura de pipeline, tarefas no prazo, aderência e ROI ficam para a Fase 6** — dependem de coorte, baseline e registro de abordagens.
 - **Gráfico mensal em SVG próprio (sem Recharts por ora)** — um único gráfico de barras; Recharts entra se a Fase 6 precisar de séries múltiplas.
 - **Playbook passa a citar indicadores importados (valor, período, fonte) e alertas de qualidade; versões aprovadas não mudam — só versão nova regenerada** — aceite da Fase 4.
+
+## Fase 5
+- **SDK oficial `@anthropic-ai/sdk` 1.6.0 (versão mais recente com ≥ 2 semanas)** — Output Requirement do provedor; nada de HTTP manual.
+- **Modelo padrão `claude-opus-5-5`, esforço `medium`, configuráveis (Opus/Sonnet/Haiku 5.5) em Configurações** — o mais capaz como padrão; troca por custo é decisão do usuário.
+- **Saída estruturada via `beta.messages.parse` + `betaZodOutputFormat` com blocos "planos" (campos anuláveis) revalidados no schema de blocos do documento** — RF-091; sem HTML/Markdown livre como documento final.
+- **Fallback do servidor em caso de recusa (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`)** — recomendação do provedor para Opus 5.5; recusa final vira falha com motivo e o editor segue manual.
+- **Sem chave ou cliente não autorizado → IA indisponível com motivo; nenhum fluxo depende de IA** — princípio 0.2 e aceite.
+- **`externalAiAllowed` por cliente, padrão desligado, autorização exige ciência explícita e é auditada** — 8.6.
+- **Pseudonimização reversível: empresa, patrocinador, equipe Efettiva e responsáveis viram [EMPRESA], [PATROCINADOR], [EQUIPE_EFETTIVA], [RESP_…]; o texto final é restaurado no servidor** — RF-096; o modelo nunca vê os nomes.
+- **Valores em R$ omitidos por padrão (opt-in na prévia); só agregados/indicadores, nunca a base de vendas** — 8.6 "não enviar todas as vendas".
+- **Prévia obrigatória do JSON exato a enviar, com custo estimado, antes do botão "Enviar ao provedor"** — 8.6 "prévia clara".
+- **Dados do cliente delimitados em `<dados_nao_confiaveis>`; instrução do consultor fora do bloco; prompt versionado (`secao-1.0`)** — 8.2 passo 5 e defesa contra prompt injection; sem ferramentas conectadas ao modelo.
+- **BusinessValidator: evidência fora da lista, código de processo fora do projeto ou número que não consta dos dados enviados = erro que bloqueia "Aceitar"; consultor pode "Editar" (aceite registrado como EDITED) ou rejeitar** — RF-097, 8.2 passo 8 e aceite "sem números inventados".
+- **Sugestão aceita volta a seção para "Em revisão" (precisa de aprovação humana), marca a revisão `generatedByAi` e mostra "Conteúdo de IA revisado" × "Template sem IA"** — RF-094 e 8.1.
+- **Evidências citadas pela IA (indicadores, oportunidades) são incorporadas às fontes da revisão ao aceitar** — a QA do documento continua validando as referências.
+- **Entrada enviada guardada em `AiGeneration.inputJson` (banco, por cliente) e nunca nos logs da aplicação** — reprodutibilidade/auditoria (RF-095) sem prompt integral em log de sistema.
+- **Limites: custo estimado por tarefa (bloqueia antes do envio), gerações por hora por usuário, máximo de tokens, tempo limite; custo real calculado pelos tokens retornados** — 8.6.
+- **Tarefas cobertas pela reescrita de seção: PLAYBOOK_SECTION_REWRITE/BUILD (até 8 seções), SOP_BUILD (POP), SCRIPT_BUILD, TRAINING_PLAN_BUILD, ASSESSMENT_SUMMARY, OPPORTUNITY_EXPLANATION, PROCESS_RECOMMENDATION_EXPLANATION; REPORT_NARRATIVE_BUILD e MEETING_SUMMARY ficam para a Fase 6** — dependem de relatórios e reuniões.
+- **Testes com provedor falso injetado (`setAiProviderForTests`); nenhuma chamada paga em testes automatizados** — chamada real só no aceite com `ACCEPT_AI=1`.

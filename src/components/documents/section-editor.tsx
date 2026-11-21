@@ -2,17 +2,19 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Plus, Sparkles, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select, Textarea } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import { Chip } from "@/components/status-badge";
 import { BlocksView } from "./blocks-view";
+import { AiRequestButton, AiSuggestionPanel, type AiSuggestion } from "./ai-assist";
+import { decideAiAction } from "@/features/ai/actions";
 import { regenerateSectionAction, saveSectionAction, setSectionStateAction } from "@/features/documents/actions";
 import type { Block, Section } from "@/features/documents/content";
 import { cn } from "@/lib/utils";
 
-type Props = { clientId: string; documentId: string; revisionId: string; section: Section; lockVersion: number; readOnly: boolean; readOnlyReason?: string };
+type Props = { clientId: string; documentId: string; revisionId: string; section: Section; lockVersion: number; readOnly: boolean; readOnlyReason?: string; ai: { available: boolean; reason: string | null; model: string }; sections: { key: string; title: string }[]; suggestions: AiSuggestion[] };
 
 const NEW_BLOCK: Record<string, Block> = {
   paragraph: { type: "paragraph", text: "" },
@@ -22,7 +24,8 @@ const NEW_BLOCK: Record<string, Block> = {
   callout: { type: "callout", tone: "info", text: "" },
 };
 
-export function SectionEditor({ clientId, documentId, revisionId, section, lockVersion, readOnly, readOnlyReason }: Props) {
+export function SectionEditor({ clientId, documentId, revisionId, section, lockVersion, readOnly, readOnlyReason, ai, sections, suggestions }: Props) {
+  const [fromAi, setFromAi] = useState<string | null>(null);
   const router = useRouter();
   const [title, setTitle] = useState(section.title);
   const [visibility, setVisibility] = useState(section.visibility);
@@ -52,7 +55,9 @@ export function SectionEditor({ clientId, documentId, revisionId, section, lockV
     setDirty(false);
     router.refresh();
   };
-  const save = () => start(async () => finish(await saveSectionAction(clientId, documentId, revisionId, section.key, { lockVersion, title, visibility, blocks: blocks.map((b) => (b.type === "list" ? { ...b, items: b.items.map((x) => x.trim()).filter(Boolean) } : b)) })));
+  const cleanBlocks = () => blocks.map((b) => (b.type === "list" ? { ...b, items: b.items.map((x) => x.trim()).filter(Boolean) } : b));
+  // conteúdo vindo de "Editar" numa sugestão de IA é salvo como aceite editado (registra a decisão)
+  const save = () => start(async () => finish(fromAi ? await decideAiAction(clientId, documentId, fromAi, { decision: "ACCEPT", blocks: cleanBlocks() }) : await saveSectionAction(clientId, documentId, revisionId, section.key, { lockVersion, title, visibility, blocks: cleanBlocks() })));
   const setState = (s: "APPROVED" | "IN_REVIEW") => start(async () => finish(await setSectionStateAction(clientId, documentId, revisionId, section.key, s, lockVersion)));
   const regenerate = (confirm: boolean) =>
     start(async () => {
@@ -67,7 +72,8 @@ export function SectionEditor({ clientId, documentId, revisionId, section, lockV
       <div className="flex flex-wrap items-center gap-2 border-b border-border px-5 py-3">
         <Chip tone={visibility === "INTERNO" ? "blocked" : "neutral"} symbol={visibility === "INTERNO" ? "⊘" : "○"}>Visibilidade: {visibility === "INTERNO" ? "INTERNO" : "Cliente"}</Chip>
         <Chip tone="neutral">Origem: {section.origin}</Chip>
-        {section.manuallyEdited ? <Chip tone="info" symbol="✎">Editada manualmente</Chip> : null}
+        {section.aiGenerationId ? <Chip tone="info" symbol="✦">Conteúdo de IA revisado</Chip> : section.manuallyEdited ? <Chip tone="info" symbol="✎">Editada manualmente</Chip> : <Chip tone="neutral">Template sem IA</Chip>}
+        {fromAi ? <Chip tone="warn" symbol="!">Editando sugestão de IA: salvar aplica e registra</Chip> : null}
         <span className="ml-auto flex items-center gap-2">
           {!readOnly ? (
             <div className="flex rounded-[8px] border border-border p-0.5" role="group" aria-label="Modo">
@@ -76,8 +82,7 @@ export function SectionEditor({ clientId, documentId, revisionId, section, lockV
               ))}
             </div>
           ) : null}
-          <Button size="sm" variant="secondary" disabled aria-describedby="ai-off"><Sparkles className="size-4" aria-hidden="true" /> Sugerir com IA</Button>
-          <span id="ai-off" className="text-xs font-semibold text-text-subtle">IA desativada (Fase 5)</span>
+          {!readOnly ? <AiRequestButton ctx={{ clientId, documentId, revisionId }} status={ai} sections={sections} currentKey={section.key} /> : null}
         </span>
       </div>
 
@@ -124,6 +129,13 @@ export function SectionEditor({ clientId, documentId, revisionId, section, lockV
         )}
       </div>
 
+      <AiSuggestionPanel
+        ctx={{ clientId, documentId, revisionId }}
+        current={section.blocks}
+        suggestions={suggestions}
+        canEdit={!readOnly}
+        onEdit={(s) => { if (s.blocks) { setBlocks(s.blocks); setFromAi(s.id); setPreview(false); setDirty(true); } }}
+      />
       {!readOnly ? (
         <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
           <Button size="sm" variant="secondary" disabled={pending} onClick={() => regenerate(false)}>Regenerar seção do template</Button>
@@ -131,7 +143,7 @@ export function SectionEditor({ clientId, documentId, revisionId, section, lockV
           {msg.err ? <span role="alert" className="text-sm font-semibold text-err">{msg.err}</span> : null}
           {msg.ok && !dirty ? <span role="status" className="text-sm font-semibold text-ok">✓ {msg.ok}</span> : null}
           {dirty ? <span className="text-sm font-semibold text-warn">Alterações não salvas</span> : null}
-          <Button size="sm" variant="secondary" disabled={pending || !dirty} onClick={save}>{pending ? "Salvando…" : "Salvar seção"}</Button>
+          <Button size="sm" variant="secondary" disabled={pending || !dirty} onClick={save}>{pending ? "Salvando…" : fromAi ? "Aplicar sugestão editada" : "Salvar seção"}</Button>
           {section.state === "APPROVED" ? (
             <Button size="sm" variant="ghost" disabled={pending || dirty} onClick={() => setState("IN_REVIEW")}>Reabrir revisão</Button>
           ) : (

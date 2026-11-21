@@ -6,6 +6,9 @@ import { ClientForm } from "@/components/clients/client-form";
 import { updateClientAction } from "@/features/clients/actions";
 import { getClientView } from "@/features/clients/service";
 import { requirePageUser } from "@/lib/security/session";
+import { ExternalAiCard } from "@/components/ai/external-ai-card";
+import { getSetting } from "@/features/settings/service";
+import { prisma } from "@/lib/db";
 
 export const metadata: Metadata = { title: "Editar cliente" };
 
@@ -14,6 +17,7 @@ export default async function EditClientPage({ params }: { params: Promise<{ cli
   const { clientId } = await params;
   if (user.role === "VIEWER") redirect(`/clientes/${clientId}`);
   const c = await getClientView(user, clientId);
+  const [ai, flags] = await Promise.all([getSetting("ai"), prisma.client.findUniqueOrThrow({ where: { id: clientId }, select: { externalAiAllowed: true } })]);
   return (
     <>
       <Topbar crumbs={[{ label: "Clientes", href: "/clientes" }, { label: c.name, href: `/clientes/${clientId}` }, { label: "Editar cadastro" }]} />
@@ -30,6 +34,7 @@ export default async function EditClientPage({ params }: { params: Promise<{ cli
             typicalPurchaseFrequencyDays: c.typicalPurchaseFrequencyDays, mainChallenges: c.mainChallenges ?? "", tags: c.tags,
           }}
         />
+        <ExternalAiCard clientId={clientId} allowed={flags.externalAiAllowed} providerNotes={ai.providerNotes} canEdit />
       </PageContent>
     </>
   );

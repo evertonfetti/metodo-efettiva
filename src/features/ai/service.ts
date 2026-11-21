@@ -101,7 +101,7 @@ export async function runGeneration(generationId: string, jobClientId: string | 
   const g = await prisma.aiGeneration.findUnique({ where: { id: generationId } });
   if (!g) throw new Error("Geração não encontrada");
   if (g.clientId !== jobClientId) throw new Error("clientId do job diverge da geração");
-  if (g.status === "COMPLETED") return { status: g.status };
+  if (g.status !== "QUEUED") return { status: g.status };
   const fail = async (code: string, message: string) => {
     await prisma.aiGeneration.update({ where: { id: g.id }, data: { status: "FAILED", errorCode: code, errorMessage: message.slice(0, 500), finishedAt: new Date() } });
     return { status: "FAILED", code };
@@ -111,7 +111,9 @@ export async function runGeneration(generationId: string, jobClientId: string | 
   const provider = await getAiProvider();
   const s = await getSetting("ai");
   if (!provider || !s.enabled) return fail("DISABLED", "IA desativada ou sem chave configurada.");
-  await prisma.aiGeneration.update({ where: { id: g.id }, data: { status: "RUNNING" } });
+  // reserva atômica: só uma execução passa de QUEUED para RUNNING (retries/execuções concorrentes não duplicam chamada paga)
+  const claimed = await prisma.aiGeneration.updateMany({ where: { id: g.id, status: "QUEUED" }, data: { status: "RUNNING" } });
+  if (claimed.count === 0) return { status: "SKIPPED" };
   const input = g.inputJson as unknown as { sent: Record<string, unknown>; local: Local & { instruction: string | null } };
   let res;
   try {
@@ -140,6 +142,8 @@ export async function runGeneration(generationId: string, jobClientId: string | 
     data: {
       ...usage,
       status: "COMPLETED",
+      errorCode: null,
+      errorMessage: null,
       finishedAt: new Date(),
       outputJson: { draft: parsed.data, blocks: restored, cited: v.cited } as unknown as Prisma.InputJsonValue,
       validationJson: v.issues as unknown as Prisma.InputJsonValue,
@@ -202,3 +206,19 @@ export function sameTarget(g: { revisionId: string | null; sectionKey: string | 
   return g.revisionId === revisionId && g.sectionKey === key;
 }
 export { contentSchema };
+
+/** Autorização por cliente para envio a provedor externo (8.6: padrão desligado; exige ciência da política). */
+export async function setExternalAi(user: SessionUser, clientId: string, input: unknown) {
+  await assertClientAccess(user, clientId, "EDIT");
+  const d = z.object({ allowed: z.boolean(), acknowledged: z.boolean().default(false) }).parse(input);
+  if (d.allowed && !d.acknowledged) throw new AppError("VALIDATION", "Confirme a ciência da política de envio de dados ao provedor.", { acknowledged: "Confirme a ciência da política." });
+  await prisma.client.update({ where: { id: clientId }, data: { externalAiAllowed: d.allowed } });
+  await audit({ actorUserId: user.id, clientId, entityType: "Client", entityId: clientId, action: d.allowed ? "ai.client_allowed" : "ai.client_revoked" });
+  return { externalAiAllowed: d.allowed };
+}
+
+/** Resumo de uso dos últimos 30 dias (Configurações → Provedor de IA). */
+export async function aiUsageSummary() {
+  const stats = await prisma.aiGeneration.groupBy({ by: ["decision"], where: { createdAt: { gte: new Date(Date.now() - 30 * 86_400_000) } }, _count: { _all: true }, _sum: { costEstimate: true } });
+  return { total: stats.reduce((t, x) => t + x._count._all, 0), cost: stats.reduce((t, x) => t + Number(x._sum.costEstimate ?? 0), 0), byDecision: stats.map((x) => ({ decision: x.decision, count: x._count._all })) };
+}

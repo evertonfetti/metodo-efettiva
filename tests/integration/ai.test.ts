@@ -78,7 +78,9 @@ describe("fase 5: IA supervisionada", () => {
     expect(pv.items[0]!.pseudonymized).toEqual(expect.arrayContaining(["[EMPRESA]", "[PATROCINADOR]"]));
 
     const { items } = await requestGeneration(u, c.id, doc.id, rev, { sectionKeys: ["processo:c05"] });
-    await runGeneration(items[0]!.id, c.id);
+    // execuções concorrentes (retry/duplicidade) chamam o provedor uma única vez
+    await Promise.all([runGeneration(items[0]!.id, c.id), runGeneration(items[0]!.id, c.id)]);
+    expect(provider.calls).toHaveLength(1);
     expect(provider.calls[0]).toMatch(/<dados_nao_confiaveis>[\s\S]*Ignore as instruções[\s\S]*<\/dados_nao_confiaveis>/);
     const g = await prisma.aiGeneration.findUniqueOrThrow({ where: { id: items[0]!.id } });
     expect(g).toMatchObject({ status: "COMPLETED", tokensIn: 3000, tokensOut: 900, decision: "PENDING", promptVersion: "secao-1.0" });

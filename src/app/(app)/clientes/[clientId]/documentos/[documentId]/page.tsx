@@ -11,6 +11,8 @@ import { requirePageUser } from "@/lib/security/session";
 import { orNotFound } from "@/lib/page";
 import { getClientView } from "@/features/clients/service";
 import { getDocument } from "@/features/documents/service";
+import { aiStatus, listGenerations } from "@/features/ai/service";
+import type { AiSuggestion } from "@/components/documents/ai-assist";
 import { countPending, type Section } from "@/features/documents/content";
 import { formatDateTime, formatShortDate, formatTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -27,7 +29,7 @@ export default async function DocumentEditorPage({ params, searchParams }: { par
   const user = await requirePageUser();
   const { clientId, documentId } = await params;
   const sp = await searchParams;
-  const [client, view] = await Promise.all([getClientView(user, clientId), orNotFound(getDocument(user, clientId, documentId, sp.rev))]);
+  const [client, view, ai, gens] = await Promise.all([getClientView(user, clientId), orNotFound(getDocument(user, clientId, documentId, sp.rev)), aiStatus(clientId), orNotFound(listGenerations(user, clientId, documentId))]);
   const { doc, revision: rev, revisions, qa, exports, project } = view;
   const sections = rev.content.sections;
   const current = sections.find((s) => s.key === sp.s) ?? sections[0]!;
@@ -36,6 +38,30 @@ export default async function DocumentEditorPage({ params, searchParams }: { par
   const latest = revisions[0]!;
   const lastApproved = revisions.find((r) => r.state === "APPROVED" || r.state === "PUBLISHED");
   const base = `/clientes/${clientId}/documentos/${documentId}`;
+  type Out = { draft?: { assumptions: string[]; missingData: string[]; openQuestions: string[]; reviewRequests: string[]; confidence: string }; blocks?: AiSuggestion["blocks"]; cited?: string[] };
+  const suggestions: AiSuggestion[] = gens
+    .filter((g) => g.revisionId === rev.id && g.sectionKey === current.key)
+    .map((g) => {
+      const out = (g.outputJson ?? {}) as Out;
+      const ev = ((g.inputJson as { local?: { evidence?: { ref: string; label: string }[] } }).local?.evidence ?? []).filter((e) => out.cited?.includes(e.ref));
+      return {
+        id: g.id,
+        status: g.status,
+        decision: g.decision,
+        model: g.model,
+        createdLabel: formatDateTime(g.createdAt),
+        errorMessage: g.errorMessage,
+        blocks: out.blocks ?? null,
+        issues: (g.validationJson ?? []) as AiSuggestion["issues"],
+        evidence: ev.map((e) => ({ ref: e.ref, label: e.label })),
+        assumptions: out.draft?.assumptions ?? [],
+        missingData: out.draft?.missingData ?? [],
+        openQuestions: out.draft?.openQuestions ?? [],
+        reviewRequests: out.draft?.reviewRequests ?? [],
+        confidence: out.draft?.confidence ?? null,
+        usage: g.tokensIn != null ? `${g.tokensIn.toLocaleString("pt-BR")} + ${(g.tokensOut ?? 0).toLocaleString("pt-BR")} tokens${g.costEstimate != null ? ` · US$ ${Number(g.costEstimate).toFixed(3)}` : ""}` : null,
+      };
+    });
   const href = (s: string) => `${base}?${new URLSearchParams({ ...(sp.rev ? { rev: sp.rev } : {}), s }).toString()}`;
   const notApproved = sections.filter((s) => s.state !== "APPROVED").length;
   const errors = qa.filter((q) => q.level === "error");
@@ -81,6 +107,7 @@ export default async function DocumentEditorPage({ params, searchParams }: { par
                         <span className="text-text-subtle"> · </span>
                         {s.visibility === "INTERNO" ? <span className="font-bold text-blocked">INTERNO</span> : <span className="text-text-subtle">Cliente</span>}
                         {pend ? <span className="font-semibold text-amber-900"> · {pend} pend.</span> : null}
+                        {s.aiGenerationId ? <span className="font-semibold text-info"> · ✦ IA</span> : null}
                       </span>
                     </Link>
                   </li>
@@ -98,6 +125,9 @@ export default async function DocumentEditorPage({ params, searchParams }: { par
             lockVersion={rev.lockVersion}
             readOnly={!open || !canEdit}
             readOnlyReason={!canEdit ? "Perfil somente leitura." : !open ? `Versão ${rev.state === "PUBLISHED" ? "publicada" : "aprovada"}: imutável. Use “Nova versão” para alterar.` : undefined}
+            ai={{ available: ai.available, reason: ai.reason, model: ai.model }}
+            sections={sections.map((s, i) => ({ key: s.key, title: `${i + 1} · ${s.title}` }))}
+            suggestions={suggestions}
           />
 
           <aside className="flex flex-col gap-4" aria-label="Painel do documento">

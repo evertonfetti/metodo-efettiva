@@ -92,10 +92,10 @@ curl localhost:3100/api/health
 ## Fase 5 — IA supervisionada
 | Item | Status | Evidência |
 |---|---|---|
-| AiProvider + adaptador Anthropic, config segura | TODO | |
-| Context assembly, evidências EV-xxx, minimização | TODO | |
-| Geração de seção/playbook, revisão, bloqueios de publicação | TODO | |
-| **Aceite:** sem chave o sistema segue; com chave gera rascunho com referências válidas | TODO | |
+| AiProvider + adaptador Anthropic, config segura | DONE | `features/ai/provider.ts` + `anthropic.ts` (SDK oficial 1.6.0, `beta.messages.parse` com schema Zod, `fallbacks: "default"`, timeout/retry); chave só em `ANTHROPIC_API_KEY`; modelo/esforço/limites em Configurações → Provedor de IA; autorização por cliente (`externalAiAllowed`, padrão desligado, exige ciência) |
+| Context assembly, evidências EV-xxx, minimização | DONE | `features/ai/context.ts`: só dados do cliente/projeto, agregados, empresa/pessoas pseudonimizadas, R$ omitido por padrão, evidências EV-xxx (diagnóstico, indicadores, oportunidades); prévia exata do envio antes de enviar |
+| Geração de seção/playbook, revisão, bloqueios de publicação | DONE | job `ai.generate`; até 8 seções por pedido (playbook, POP, roteiros, treinamento, diagnóstico, oportunidades); validação de evidência/processo/número (`validate.ts`); antes/depois com Aceitar/Editar/Rejeitar; seção aceita volta a "Em revisão" e exige aprovação humana; log `AiGeneration` com hash, tokens, custo e decisão |
+| **Aceite:** sem chave o sistema segue; com chave gera rascunho com referências válidas | PARTIAL | sem chave: `scripts/acceptance/fase5.ts` → OK (pedido recusado com motivo, playbook e exportação seguem). Com chave: fluxo validado com provedor falso em `tests/integration/ai.test.ts`; **chamada real BLOCKED: não há ANTHROPIC_API_KEY neste ambiente** — rodar `ACCEPT_AI=1 npx tsx scripts/acceptance/fase5.ts` após configurar a chave |
 
 ## Fase 6 — Acompanhamento, resultados e relatórios
 | Item | Status | Evidência |
@@ -122,9 +122,9 @@ curl localhost:3100/api/health
 | 6 | Questionário: não sei/não se aplica | DONE | `tests/unit/scoring.test.ts` |
 | 7 | Versão aprovada imutável | DONE | `tests/integration/documents.test.ts` (serviço 409 + trigger do banco) |
 | 8 | Audiência INTERNO fora do arquivo CLIENTE | DONE | `tests/unit/documents.test.ts` + `tests/integration/documents.test.ts` (MD, DOCX, HTML/PDF) |
-| 9 | IA: evidência inexistente rejeitada | TODO | |
+| 9 | IA: evidência inexistente rejeitada | DONE | `tests/unit/ai.test.ts` + `tests/integration/ai.test.ts` |
 | 10 | E2E cliente → relatório | TODO | |
 
 ---
 
-PRÓXIMO PASSO: Fase 5 — IA supervisionada. Ler SPEC_INDEX: M09 (254), 5.5 AiGeneration (471), 8.1–8.6 (618–746) e UI_LAYOUT tela 06 (bloco de diferença "Aceitar/Editar/Rejeitar"). Construir AiProvider + adaptador Anthropic (SDK oficial, modelo configurável, timeout/retry, sem chave → desativado), ContextAssembler com evidências EV-xxx e minimização (respeitar `Client.externalAiAllowed`), saída JSON validada por Zod (PlaybookDraft 8.4), log em AiGeneration (hash de entrada, tokens, custo), job no worker, sugestão por seção no editor sem publicar nada automaticamente; teste 9 (evidência inexistente rejeitada). Sem chave configurada, o sistema segue 100% funcional.
+PRÓXIMO PASSO: (1) quando houver chave: definir `ANTHROPIC_API_KEY` no `.env`, reiniciar web e worker e rodar `ACCEPT_AI=1 npx tsx scripts/acceptance/fase5.ts` para fechar o aceite da Fase 5. (2) Fase 6 — acompanhamento e resultados. Ler SPEC_INDEX: M10 (266), 5.4 ProjectBaseline/Meeting/Risk (454), 5.5 ReportPeriod (471), 7 KPIs restantes e 7.4 (568–617), 9.3 (792) e UI_LAYOUT `…/indicadores` e `/relatorios`. Construir baseline congelado por projeto (MetricSnapshot com projectId + ProjectBaseline), snapshots periódicos, reuniões/decisões/impedimentos, evidências por processo, score de adoção, KPIs de recompra/reativação/tarefas no prazo/aderência, relatório periódico (11 seções, frase de não causalidade) usando o editor/exportador da Fase 3, REPORT_NARRATIVE_BUILD com IA opcional; aceite com 60 dias fictícios (DEMO).

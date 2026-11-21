@@ -12,6 +12,9 @@ import { formatDateTime } from "@/lib/format";
 import { jobLabel } from "@/lib/jobs/labels";
 import { cn } from "@/lib/utils";
 import { BrandForm, MethodForm, ParametersForm, PingQueueButton } from "./forms";
+import { AiSettingsForm } from "@/components/ai/ai-settings-form";
+import { aiConfigured } from "@/features/ai/provider";
+import { aiUsageSummary } from "@/features/ai/service";
 import { RuleForm, RuleToggle, type RuleDefaults } from "./rules-ui";
 import { describeCondition, listRules } from "@/features/assessments/rules";
 import { conditionSchema, type Condition } from "@/features/assessments/conditions";
@@ -67,7 +70,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             {tab === "metodo" ? <MethodTab canEdit={canEdit} /> : null}
             {tab === "diagnostico" ? <RulesTab canEdit={canEdit} editId={regra} /> : null}
             {tab === "parametros" ? <ParametersTab canEdit={canEdit} /> : null}
-            {tab === "ia" ? <AiTab /> : null}
+            {tab === "ia" ? <AiTab canEdit={canEdit} /> : null}
             {tab === "usuarios" ? <UsersTab /> : null}
             {tab === "saude" ? <HealthTab canEdit={canEdit} /> : null}
           </div>
@@ -112,20 +115,23 @@ async function ParametersTab({ canEdit }: { canEdit: boolean }) {
   );
 }
 
-function AiTab() {
-  const configured = !!process.env.ANTHROPIC_API_KEY;
+async function AiTab({ canEdit }: { canEdit: boolean }) {
+  const configured = aiConfigured();
+  const [s, usage] = await Promise.all([getSetting("ai"), aiUsageSummary()]);
+  const { total, cost } = usage;
+  const stats = usage.byDecision;
+  const label: Record<string, string> = { PENDING: "aguardando revisão", ACCEPTED: "aceitas", EDITED: "aceitas com edição", REJECTED: "rejeitadas" };
   return (
     <Card>
       <CardHeader title="Provedor de IA" />
-      <div className="flex flex-col gap-3 p-5 text-sm">
-        <p className="flex items-center gap-2">
+      <div className="flex flex-col gap-4 p-5 text-sm">
+        <p className="flex flex-wrap items-center gap-2">
           <span className="font-bold">Chave Anthropic:</span>
-          {configured ? <Chip tone="ok" symbol="✓">Configurada via variável de ambiente</Chip> : <Chip tone="neutral" symbol="○">Não configurada</Chip>}
+          {configured ? <Chip tone="ok" symbol="✓">Configurada via variável de ambiente</Chip> : <Chip tone="neutral" symbol="○">Não configurada (defina ANTHROPIC_API_KEY no .env e reinicie web e worker)</Chip>}
         </p>
-        <p className="text-text-muted">
-          A chave nunca é exibida nem salva no banco. O sistema funciona integralmente sem IA, usando templates determinísticos.
-          A geração supervisionada (modelo, limites de tokens, custo e consentimento por cliente) é entregue na Fase 5.
-        </p>
+        <p className="text-text-muted">A chave nunca é exibida nem salva no banco. Sem chave, o sistema segue integralmente com templates determinísticos. Com chave, cada cliente ainda precisa de autorização explícita (Editar cadastro → IA externa).</p>
+        <p className="text-text-muted">Últimos 30 dias: {total} geração(ões){total ? ` (${stats.map((x) => `${x.count} ${label[x.decision]}`).join(", ")})` : ""} · custo estimado US$ {cost.toFixed(2)}.</p>
+        <AiSettingsForm s={s} canEdit={canEdit} />
       </div>
     </Card>
   );

@@ -67,6 +67,10 @@ Em **Dados e importações** baixe os modelos (CSV/XLSX) e importe nesta ordem: 
 Fluxo: upload → mapeamento (salvo por cliente) → validação de todas as linhas com prévia e arquivo de erros → confirmação (gravada no worker) → recálculo automático dos indicadores.
 Reimportar o mesmo arquivo não duplica (origem + ID externo); linhas alteradas são atualizadas. Parâmetros de inatividade, ABC e orçamentos parados ficam em Configurações → Parâmetros.
 
+### IA supervisionada (Fase 5, opcional)
+Sem `ANTHROPIC_API_KEY` o sistema funciona por inteiro com templates. Para ativar: defina a chave no `.env`, reinicie web e worker, ajuste modelo/limites em Configurações → Provedor de IA e autorize cada cliente em Editar cadastro → IA externa.
+No editor do documento, "Sugerir com IA" mostra exatamente o que será enviado (dados minimizados e pseudonimizados) antes de enviar; a sugestão volta como rascunho com antes/depois, evidências e problemas de validação, e só entra no documento ao ser aceita.
+
 ### Documentos (Fase 3)
 Playbooks e POPs são gerados **sem IA** a partir do cadastro, do diagnóstico fechado, das oportunidades, do projeto e das fichas versionadas.
 Fluxo: gerar → revisar/editar por seção → aprovar seções → aprovar versão (imutável; trigger no banco) → publicar → exportar.
