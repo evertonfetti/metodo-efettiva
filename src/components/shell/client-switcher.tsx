@@ -1,5 +1,6 @@
 "use client";
 
+import { segmentLabel } from "@/features/clients/catalog";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,7 +29,7 @@ export function ClientSwitcher({ active, clients, onNavigate }: { active: Switch
               <span className="truncate text-sm font-bold">{active.name}</span>
               <span className="truncate text-xs font-semibold text-amber">
                 {active.isDemo ? "DEMO · " : ""}
-                {active.industry}
+                {segmentLabel(active.industry)}
               </span>
             </span>
             <ChevronsUpDown className="size-4 shrink-0 text-on-navy-label" aria-hidden="true" />
@@ -69,7 +70,7 @@ export function ClientSwitcher({ active, clients, onNavigate }: { active: Switch
                       <span className="truncate text-sm font-bold">{c.name}</span>
                       <span className="truncate text-xs text-text-muted">
                         {c.isDemo ? "DEMO · " : ""}
-                        {c.industry}
+                        {segmentLabel(c.industry)}
                       </span>
                     </span>
                     {active?.id === c.id ? <Check className="size-4 text-navy" aria-hidden="true" /> : null}

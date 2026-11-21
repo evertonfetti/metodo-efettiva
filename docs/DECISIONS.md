@@ -37,3 +37,21 @@ Uma linha por decisão: **decisão** — motivo.
 - **Upload: tipo detectado pela assinatura do arquivo, executáveis e OOXML com macro rejeitados, nome sanitizado, prefixo `clients/<clientId>/`** — RF-031 e seção 12.1.
 - **Resumo exportado em Markdown na Fase 1** — "resumo simples"; DOCX/PDF chegam com o exportador da Fase 3.
 - **Playwright instalado já na Fase 1** — usado para revisão visual por screenshot; será o renderizador de PDF na Fase 3.
+
+## Fase 2
+- **Ficha detalhada em `ProcessDefinition.contentJson` (schema Zod único) em vez de colunas requirements/kpis/steps/templates** — um formato versionável inteiro em `ProcessRevision`; 10 fichas extraídas do Anexo C para `prisma/seed-data/processos-detalhados.json`.
+- **Ficha do Anexo C vira v2 sobre a v1 do catálogo; seed nunca sobrescreve processo personalizado** — preserva seed original e personalizações (RF-063).
+- **Edição da biblioteca por OWNER e CONSULTANT, com nota de mudança obrigatória e lock otimista** — catálogo é global; VIEWER só lê.
+- **Projeto guarda snapshot da versão da ficha (`ProjectProcess.snapshotJson`)** — edição posterior da biblioteca não altera projetos em andamento.
+- **Sugestão de processos: área do diagnóstico → letra do catálogo + âncoras do Anexo C; sugestões ficam "não selecionadas"** — RF-064 determinístico; consultor decide.
+- **"Registrar achado" na tela de oportunidades cria achado CONSULTANT + oportunidade** — mantém rastreabilidade achado → oportunidade mesmo sem diagnóstico.
+- **Fluxo DETECTED → REVIEWED → APPROVED; aprovar exige revisão; motivo obrigatório em descarte, reabertura e retirada de aprovação; LINKED_TO_PROJECT só via projeto** — seção 5.6/RF-048.
+- **Ordenação: risco crítico primeiro, descartadas por último, depois score** — seção 7.3.
+- **Plano 30/60/90: janelas proporcionais à duração real; ~60% dos passos da ficha na janela 1 (piloto), restantes + POP/treino na 2, validação + transferência na 3; processo sem ficha recebe 5 tarefas genéricas** — RF-071; idempotente por `planKey`.
+- **Prazos em dia útil (fins de semana e feriados nacionais fixos + Carnaval, Sexta-feira Santa, Corpus Christi); feriados locais fora do MVP** — calendário integrado é F2 (RF-077).
+- **Validado = tarefas vinculadas concluídas + indicadores verificados com nota + ≥1 evidência; Sustentado = Validado + responsável do cliente treinado + auditoria com data posterior** — RF-076 com critérios verificados no servidor.
+- **Tarefa exige responsável interno ou do cliente; bloqueio exige impedimento; tarefa concluída ou com evidência não é excluída** — RF-072.
+- **Jornada do método: Ativar concluída com processo em piloto+, Estruturar com processo Validado; Escalar/Sustentar sem critério objetivo até a Fase 6** — nunca marcar fase sem dado.
+- **Colunas `@db.Date` formatadas em UTC (`formatDay`)** — evita exibir o dia anterior no fuso de São Paulo.
+- **404 de página com streaming responde HTTP 200 com tela "não encontrado" + noindex** — comportamento do Next com `loading.tsx`; nenhum dado é exposto; APIs respondem 404 real.
+- **Kanban com até 8 cartões por coluna e "Mostrar mais"** — planos de 4 processos geram ~50 tarefas.

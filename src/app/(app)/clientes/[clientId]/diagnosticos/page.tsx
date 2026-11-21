@@ -13,7 +13,7 @@ import { requirePageUser } from "@/lib/security/session";
 import { getClientView } from "@/features/clients/service";
 import { getActiveTemplate, listAssessments } from "@/features/assessments/service";
 import { segmentLabel } from "@/features/clients/catalog";
-import { formatDate, formatDateTime, formatDecimal } from "@/lib/format";
+import { formatDateTime, formatDay, formatDecimal } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Diagnósticos" };
 
@@ -71,7 +71,7 @@ export default async function AssessmentsPage({ params, searchParams }: { params
                         </td>
                         <td className="px-3 py-3.5"><StatusBadge context="assessment" value={a.status} /></td>
                         <td className="px-3 py-3.5">{segmentLabel(a.segment)}</td>
-                        <td className="px-3 py-3.5">{a.periodStart ? `${formatDate(a.periodStart)} – ${formatDate(a.periodEnd)}` : "Não definido"}</td>
+                        <td className="px-3 py-3.5">{a.periodStart ? `${formatDay(a.periodStart)} – ${formatDay(a.periodEnd)}` : "Não definido"}</td>
                         <td className="px-3 py-3.5">{a.status === "FINALIZED" ? (answered > 0 ? `${formatDecimal(sum / answered)} / 5` : "Indisponível") : <span className="text-text-subtle">Calculado ao fechar</span>}</td>
                         <td className="px-5 py-3.5">{formatDateTime(a.finalizedAt ?? a.updatedAt)}</td>
                       </tr>

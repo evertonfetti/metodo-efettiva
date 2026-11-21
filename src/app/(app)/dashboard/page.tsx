@@ -10,7 +10,8 @@ import { StatusBadge } from "@/components/status-badge";
 import { DataQualityBanner } from "@/components/data-banner";
 import { requirePageUser } from "@/lib/security/session";
 import { getDashboardData } from "@/features/dashboard/service";
-import { formatDateTime, formatLongDate, DEFAULT_TZ } from "@/lib/format";
+import { formatDateTime, formatLongDate, formatShortDay, DEFAULT_TZ } from "@/lib/format";
+import { diffDays } from "@/lib/dates";
 import { jobLabel } from "@/lib/jobs/labels";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -36,8 +37,8 @@ export default async function DashboardPage() {
 
         <section aria-label="Indicadores operacionais" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCardWithSource label="Clientes ativos" value={data.activeClients} source="cadastro de clientes" period="agora" />
-          <MetricCardWithSource label="Projetos em andamento" value={null} source="projetos" period="agora" unavailableReason="módulo de projetos chega na Fase 2" />
-          <MetricCardWithSource label="Tarefas vencidas" value={null} source="tarefas" period="agora" unavailableReason="plano de ação chega na Fase 2" />
+          <MetricCardWithSource label="Projetos em andamento" value={data.activeProjects} source="projetos aprovados ou ativos" period="agora" />
+          <MetricCardWithSource label="Tarefas vencidas" value={data.overdueCount} alert={data.overdueCount > 0} source="tarefas de projetos abertos" period="hoje" />
           <MetricCardWithSource label="Jobs com falha" value={data.failedJobs} alert={data.failedJobs > 0} source="fila de processamento" period="últimas 24 h" />
         </section>
         <p className="text-[13px] text-text-muted">
@@ -89,11 +90,19 @@ export default async function DashboardPage() {
           <div className="flex min-w-0 flex-[1_1_300px] flex-col gap-6">
             <Card aria-labelledby="dash-tarefas">
               <CardHeader id="dash-tarefas" title="Tarefas vencidas" className="py-3.5 [&_h2]:text-[15px]" />
-              <EmptyState icon={ListChecks} title="Sem tarefas" description="Tarefas de projetos aparecem aqui quando o plano de ação estiver disponível (Fase 2)." />
+              {data.overdueTasks.length === 0 ? (
+                <EmptyState icon={ListChecks} title="Nenhuma tarefa vencida" description="Tarefas de projetos com prazo vencido aparecem aqui." />
+              ) : (
+                <TaskList tasks={data.overdueTasks} today={data.today} overdue />
+              )}
             </Card>
             <Card aria-labelledby="dash-agenda">
               <CardHeader id="dash-agenda" title="Próximos compromissos" className="py-3.5 [&_h2]:text-[15px]" />
-              <EmptyState icon={CalendarClock} title="Sem compromissos" description="Prazos de tarefas e reuniões de projeto aparecem aqui a partir da Fase 2." />
+              {data.upcomingTasks.length === 0 ? (
+                <EmptyState icon={CalendarClock} title="Sem prazos nos próximos 14 dias" description="Prazos de tarefas de projetos aparecem aqui. Reuniões entram na Fase 6." />
+              ) : (
+                <TaskList tasks={data.upcomingTasks} today={data.today} />
+              )}
             </Card>
             <Card aria-labelledby="dash-jobs">
               <CardHeader id="dash-jobs" title="Processamentos recentes" className="py-3.5 [&_h2]:text-[15px]" />
@@ -119,5 +128,26 @@ export default async function DashboardPage() {
         </div>
       </PageContent>
     </>
+  );
+}
+
+type DashTask = { id: string; title: string; dueDate: Date | null; projectId: string; clientId: string; client: { name: string }; project: { name: string } };
+
+function TaskList({ tasks, today, overdue }: { tasks: DashTask[]; today: Date; overdue?: boolean }) {
+  return (
+    <ul className="divide-y divide-border">
+      {tasks.map((t) => {
+        const d = t.dueDate ? diffDays(t.dueDate, today) : 0;
+        return (
+          <li key={t.id} className="flex flex-col gap-0.5 px-5 py-3">
+            <Link href={`/clientes/${t.clientId}/projetos/${t.projectId}/acoes`} className="truncate text-sm font-bold text-navy hover:underline">{t.title}</Link>
+            <span className="text-xs text-text-subtle">{t.client.name} · {t.project.name}</span>
+            <span className={overdue ? "text-xs font-bold text-err" : "text-xs text-text-muted"}>
+              {overdue ? `Vencida há ${d} ${d === 1 ? "dia" : "dias"}` : `Prazo ${formatShortDay(t.dueDate)}`}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

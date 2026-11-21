@@ -21,7 +21,7 @@ const lines = z.preprocess(
   z.array(z.string().max(500)).max(30),
 );
 const codes = z.preprocess(
-  (v) => (Array.isArray(v) ? v : String(v ?? "").split(/[\s,;]+/)).map((s) => String(s).trim().toUpperCase()).filter(Boolean),
+  (v) => (Array.isArray(v) ? v : [v]).flatMap((x) => String(x ?? "").split(/[\s,;]+/)).map((s) => s.trim().toUpperCase()).filter(Boolean),
   z.array(z.string().regex(/^[A-Z]\d{2}$/, "Código de processo inválido.")).max(30),
 );
 const bool = z.preprocess((v) => v === true || v === "on" || v === "true", z.boolean());

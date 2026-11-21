@@ -114,3 +114,7 @@ export function initials(name: string): string {
   const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? "") : "";
   return (first + last).toUpperCase();
 }
+
+/** Colunas `@db.Date` (UTC 00:00): formatar sem conversão de fuso para não exibir o dia anterior. */
+export const formatDay = (d: Date | string | null | undefined, empty = UNAVAILABLE) => formatDate(d, "UTC", empty);
+export const formatShortDay = (d: Date | string | null | undefined, empty = UNAVAILABLE) => formatShortDate(d, "UTC", empty);

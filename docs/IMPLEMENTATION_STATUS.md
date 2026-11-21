@@ -62,13 +62,13 @@ curl localhost:3100/api/health
 ## Fase 2 — Biblioteca, oportunidades e implantação
 | Item | Status | Evidência |
 |---|---|---|
-| Seed 146 processos + 10 fichas completas (Anexo C) | TODO | |
-| Biblioteca e ficha versionada | TODO | |
-| Mapa de oportunidades + priorização I×C÷E + risco crítico | TODO | |
-| Vínculo oportunidade ↔ processos | TODO | |
-| Projetos, processos no projeto, tarefas, kanban/lista | TODO | |
-| Cronograma 30/60/90 | TODO | |
-| **Aceite:** 3 achados, 2 oportunidades aprovadas, processos, projeto com tarefas | TODO | |
+| Seed 146 processos + 10 fichas completas (Anexo C) | DONE | `prisma/seed-data/processos-detalhados.json`; `seedProcesses` idempotente (teste `projects.test.ts`: 146/10, reexecução cria 0) |
+| Biblioteca e ficha versionada | DONE | `/biblioteca`, `/biblioteca/[code]` (histórico `?v=N`), edição gera revisão imutável com lock otimista (409) |
+| Mapa de oportunidades + priorização I×C÷E + risco crítico | DONE | `/clientes/[id]/oportunidades` (matriz, detalhe, tabela, filtros); `scoring.ts` + `tests/unit/plan.test.ts` |
+| Vínculo oportunidade ↔ processos | DONE | seleção manual + sugestões determinísticas (`mapping.ts`); código inexistente → 422 |
+| Projetos, processos no projeto, tarefas, kanban/lista | DONE | `/projetos`, `/projetos/[id]`, `/acoes` (quadro/lista, filtros vencidas/bloqueadas/concluídas/cliente), tarefas com checklist e evidências; Validado/Sustentado com critérios (`rules.ts`) |
+| Cronograma 30/60/90 | DONE | `plan.ts`: janelas proporcionais, dias úteis com feriados nacionais, idempotente por `planKey` |
+| **Aceite:** 3 achados, 2 oportunidades aprovadas, processos, projeto com tarefas | DONE | `scripts/acceptance/fase2.ts` → "ACEITE FASE 2: OK" (34 checagens, inclui isolamento A×B) |
 
 ## Fase 3 — Playbook sem IA (MARCO CENTRAL)
 | Item | Status | Evidência |
@@ -114,7 +114,7 @@ curl localhost:3100/api/health
 ## Testes obrigatórios (seção 15)
 | # | Teste | Status | Arquivo |
 |---|---|---|---|
-| 1 | Isolamento por troca de ID | PARTIAL | access/clients/assessments tests + aceite fase 1 (diagnóstico e arquivo); ampliar a projetos/documentos/exports |
+| 1 | Isolamento por troca de ID | PARTIAL | access/clients/assessments/projects tests + aceites F1/F2 (diagnóstico, arquivo, oportunidade, projeto, tarefa); falta documentos/exports (Fase 3) |
 | 2 | Importação idempotente | TODO | |
 | 3 | Moeda `1.234,56` | TODO | |
 | 4 | Cancelamentos não inflam vendas | TODO | |
@@ -127,4 +127,4 @@ curl localhost:3100/api/health
 
 ---
 
-PRÓXIMO PASSO: Fase 2 — schema de ProcessDefinition/ProcessRevision, Opportunity, OpportunityProcess, Project, ProjectProcess, ActionTask etc.; seed dos 146 processos + `prisma/seed-data/processos-detalhados.json` (Anexo C, linhas 1510–1615 da especificação).
+PRÓXIMO PASSO: Fase 3 (marco central) — ler SPEC_INDEX: M08 (241), 5.5 (471), 5.6, 9.1–9.4 (747–804), seção 11 (rotas de documentos) e mockup `docs/design/06-playbook.html`. Construir Document/DocumentRevision/DocumentExport, geração determinística do playbook a partir de diagnóstico + projeto + snapshots das fichas (`ProjectProcess.snapshotJson`), editor por seções com aprovação, audiência INTERNO/CLIENTE filtrada no servidor, exportação DOCX (lib `docx`), PDF (Playwright já instalado) e MD via job BullMQ, QA pré-exportação. Dados de inspeção: cliente "Aceite F2 A …" (KEEP=1) com projeto de 54 tarefas.

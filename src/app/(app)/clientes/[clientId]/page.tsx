@@ -19,7 +19,10 @@ import { getClientView } from "@/features/clients/service";
 import { getClientJourney } from "@/features/clients/journey";
 import { getAssessmentDetail } from "@/features/assessments/service";
 import { channelLabel, salesModelLabel, segmentLabel, sizeLabel } from "@/features/clients/catalog";
-import { formatDate, formatDateTime } from "@/lib/format";
+import { formatDate, formatDateTime, formatDay, formatDecimal } from "@/lib/format";
+import { todayDateOnly } from "@/lib/dates";
+import { overdueDays } from "@/features/projects/rules";
+import { formatCode } from "@/features/opportunities/scoring";
 
 export const metadata: Metadata = { title: "Visão 360°" };
 
@@ -29,12 +32,24 @@ export default async function Client360Page({ params }: { params: Promise<{ clie
   const client = await getClientView(user, clientId);
   const canEdit = user.role !== "VIEWER";
 
-  const [journey, contacts, notes, lastAssessment] = await Promise.all([
+  const [journey, contacts, notes, lastAssessment, approvedOpps, activeProject] = await Promise.all([
     getClientJourney(clientId),
     prisma.clientContact.findMany({ where: { clientId }, orderBy: { createdAt: "asc" } }),
     prisma.clientNote.findMany({ where: { clientId }, orderBy: { createdAt: "desc" }, take: 10, include: { author: { select: { name: true } } } }),
     prisma.assessment.findFirst({ where: { clientId }, orderBy: [{ number: "desc" }, { revision: "desc" }] }),
+    prisma.opportunity.findMany({
+      where: { clientId, status: { in: ["APPROVED", "LINKED_TO_PROJECT"] } },
+      select: { id: true, number: true, title: true, priorityScore: true, criticalRisk: true, status: true },
+      orderBy: [{ criticalRisk: "desc" }, { priorityScore: "desc" }],
+      take: 5,
+    }),
+    prisma.project.findFirst({
+      where: { clientId, status: { in: ["ACTIVE", "APPROVED", "DRAFT", "PAUSED"] } },
+      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
+      select: { id: true, name: true, status: true, startDate: true, targetDate: true, tasks: { select: { status: true, dueDate: true } } },
+    }),
   ]);
+  const today = todayDateOnly();
   const detail = lastAssessment ? await getAssessmentDetail(user, clientId, lastAssessment.id) : null;
   const domainName = new Map(detail?.domains.map((d) => [d.code, d.name]) ?? []);
 
@@ -99,11 +114,50 @@ export default async function Client360Page({ params }: { params: Promise<{ clie
           <div className="flex flex-col gap-6">
             <Card aria-labelledby="c360-opps">
               <CardHeader id="c360-opps" title="Oportunidades aprovadas" className="[&_h2]:text-[15px]" />
-              <EmptyState icon={Target} title="Sem oportunidades" description="O mapa de oportunidades e a priorização chegam na Fase 2." />
+              {approvedOpps.length === 0 ? (
+                <EmptyState
+                  icon={Target}
+                  title="Nenhuma oportunidade aprovada"
+                  description="Registre achados, priorize por impacto × confiança ÷ esforço e aprove as oportunidades."
+                  action={<Button asChild variant="secondary"><Link href={`/clientes/${clientId}/oportunidades`}>Abrir oportunidades</Link></Button>}
+                />
+              ) : (
+                <ul className="divide-y divide-border">
+                  {approvedOpps.map((o) => (
+                    <li key={o.id} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
+                      <Link href={`/clientes/${clientId}/oportunidades?sel=${o.id}`} className="min-w-0 truncate font-bold text-navy hover:underline">{formatCode(o.number)} · {o.title}</Link>
+                      <span className="flex shrink-0 items-center gap-2">
+                        {o.criticalRisk ? <Chip tone="err" symbol="!">Crítico</Chip> : null}
+                        <span className="font-bold tabular-nums">{formatDecimal(Number(o.priorityScore))}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </Card>
             <Card aria-labelledby="c360-proj">
               <CardHeader id="c360-proj" title="Projeto ativo" className="[&_h2]:text-[15px]" />
-              <EmptyState icon={FolderKanban} title="Sem projeto" description="Projetos de implantação, tarefas e cronograma chegam na Fase 2." />
+              {activeProject ? (
+                <div className="flex flex-col gap-2 px-5 py-4 text-sm">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Link href={`/clientes/${clientId}/projetos/${activeProject.id}/acoes`} className="font-bold text-navy hover:underline">{activeProject.name}</Link>
+                    <StatusBadge context="project" value={activeProject.status} />
+                  </div>
+                  <p className="text-text-muted">{formatDay(activeProject.startDate)} → {formatDay(activeProject.targetDate)}</p>
+                  <p>
+                    {activeProject.tasks.filter((t) => t.status === "DONE").length} de {activeProject.tasks.length} tarefas concluídas
+                    {(() => { const n = activeProject.tasks.filter((t) => overdueDays(t.dueDate, t.status, today) > 0).length; return n ? <span className="font-bold text-err"> · {n} vencida(s)</span> : null; })()}
+                  </p>
+                  <p className="text-xs text-text-subtle">Fonte: tarefas do projeto</p>
+                </div>
+              ) : (
+                <EmptyState
+                  icon={FolderKanban}
+                  title="Sem projeto em aberto"
+                  description="Crie um projeto a partir das oportunidades aprovadas para gerar o plano 30/60/90."
+                  action={canEdit ? <Button asChild variant="secondary"><Link href={`/clientes/${clientId}/projetos/novo`}>Novo projeto</Link></Button> : undefined}
+                />
+              )}
             </Card>
           </div>
         </div>

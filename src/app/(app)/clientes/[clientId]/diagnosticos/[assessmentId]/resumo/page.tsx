@@ -11,6 +11,7 @@ import { DemoBadge } from "@/components/demo-badge";
 import { EmptyState } from "@/components/empty-state";
 import { DomainBars } from "@/components/domain-bars";
 import { MetricCardWithSource } from "@/components/metric-card";
+import { formatCode } from "@/features/opportunities/scoring";
 import { FindingActions, GenerateFindingsButton, ManualFindingForm } from "@/components/assessments/findings";
 import { requirePageUser } from "@/lib/security/session";
 import { buildSummary } from "@/features/assessments/summary";
@@ -117,7 +118,14 @@ export default async function SummaryPage({ params }: { params: Promise<{ client
                   </div>
                   <p className="text-[15px] font-bold">{f.title}</p>
                   <p className="text-sm text-text-muted">{f.description}</p>
-                  {canEdit ? <FindingActions clientId={clientId} findingId={f.id} status={f.status} /> : null}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {canEdit ? <FindingActions clientId={clientId} findingId={f.id} status={f.status} /> : null}
+                    {f.opportunities[0] ? (
+                      <Link href={`/clientes/${clientId}/oportunidades?sel=${f.opportunities[0].id}`} className="text-sm font-bold text-navy hover:underline">Ver oportunidade {formatCode(f.opportunities[0].number)}</Link>
+                    ) : canEdit && f.type !== "STRENGTH" ? (
+                      <Button asChild size="sm" variant="secondary"><Link href={`/clientes/${clientId}/oportunidades/nova?achado=${f.id}`}>Gerar oportunidade</Link></Button>
+                    ) : null}
+                  </div>
                 </li>
               ))}
             </ul>
