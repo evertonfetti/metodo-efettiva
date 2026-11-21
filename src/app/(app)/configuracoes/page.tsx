@@ -179,7 +179,8 @@ async function HealthTab({ canEdit }: { canEdit: boolean }) {
     checkHealth(),
     prisma.backgroundJob.findMany({ where: { clientId: null }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
-  const failed = await prisma.backgroundJob.findMany({ where: { status: "FAILED" }, include: { client: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 20 });
+  // jobs de todos os clientes: visível só ao OWNER (evita expor nomes de clientes a quem não tem acesso)
+  const failed = canEdit ? await prisma.backgroundJob.findMany({ where: { status: "FAILED" }, include: { client: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 20 }) : [];
   return (
     <div className="flex flex-col gap-6">
       <Card>
@@ -214,7 +215,7 @@ async function HealthTab({ canEdit }: { canEdit: boolean }) {
           )}
         </div>
       </Card>
-      <Card>
+      {canEdit ? <Card>
         <CardHeader title={`Jobs com falha (${failed.length})`} />
         {failed.length === 0 ? <p className="px-5 py-4 text-sm text-text-muted">Nenhum job com falha. Jobs presos por queda do worker são recuperados automaticamente a cada 5 minutos.</p> : (
           <ul className="divide-y divide-border text-sm">
@@ -226,7 +227,7 @@ async function HealthTab({ canEdit }: { canEdit: boolean }) {
             ))}
           </ul>
         )}
-      </Card>
+      </Card> : null}
       <Card>
         <CardHeader title="Backups" />
         <div className="p-5 text-sm text-text-muted">
