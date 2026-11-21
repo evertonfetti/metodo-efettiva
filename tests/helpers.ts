@@ -19,3 +19,8 @@ export async function createUser(role: UserRole = "CONSULTANT", password = "senh
 export async function createClient(ownerUserId: string, name = "Empresa Teste") {
   return prisma.client.create({ data: { name, industry: "Distribuição", ownerUserId } });
 }
+
+/** Limpa dados de clientes/usuários preservando catálogos globais (processos, questionário). */
+export async function resetClientData() {
+  await prisma.$executeRawUnsafe(`TRUNCATE "Client", "User", "AuditEvent", "BackgroundJob" CASCADE`);
+}

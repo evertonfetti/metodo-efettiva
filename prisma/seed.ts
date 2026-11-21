@@ -5,10 +5,13 @@
 import "dotenv/config";
 import { prisma } from "@/lib/db";
 import { seedQuestionnaire } from "@/features/assessments/seed";
+import { seedProcesses } from "@/features/processes/seed";
 
 async function main() {
   const q = await seedQuestionnaire(prisma);
   console.log(`[seed] questionário: ${q.totalQuestions} perguntas (${q.questionsCreated} novas), ${q.rulesCreated} regras novas`);
+  const p = await seedProcesses(prisma);
+  console.log(`[seed] processos: ${p.total} no catálogo (${p.created} novos), ${p.full} fichas completas (${p.sheetsApplied} aplicadas agora)`);
 }
 
 main()

@@ -1,0 +1,288 @@
+{
+  "version": "1.0",
+  "source": "ESPECIFICACAO_MESTRA_EFETTIVA_OS.md — Anexo C",
+  "note": "Templates canônicos: validar requisitos, custos, prazos, pessoas, sistema e políticas de comunicação ao aplicar no cliente.",
+  "processes": [
+    {
+      "code": "C05",
+      "title": "Recuperação de clientes inativos",
+      "objective": "recuperar contas que deixaram de comprar dentro do intervalo habitual, entendendo as causas e evitando nova perda.",
+      "trigger": "análise semanal identifica cliente elegível com recência acima do limite configurado.",
+      "inputs": "cadastro, histórico de pedidos, periodicidade típica, responsável, último contato, restrição de crédito, margem quando disponível.",
+      "roles": "gerente comercial aprova prioridades; vendedor executa; consultor desenha e audita; financeiro valida restrições.",
+      "steps": [
+        "Calcular e validar lista de inativos",
+        "Remover clientes encerrados, duplicados, bloqueados ou com sazonalidade conhecida",
+        "Classificar por potencial e motivo conhecido",
+        "Distribuir contas",
+        "Preparar abordagem contextualizada",
+        "Tentar contato respeitando canal/preferência e registrar",
+        "Investigar razão da interrupção e propor solução viável",
+        "Registrar proposta, pedido ou motivo de perda",
+        "Realizar acompanhamento autorizado",
+        "Incluir recuperados em rotina de recompra"
+      ],
+      "approach": "“Percebi que faz algum tempo desde o último pedido de [categoria]. Queria entender se houve alguma mudança na operação ou no fornecimento e verificar se podemos ajudar.” Ajustar ao relacionamento e ao canal, sem pressupor problema.",
+      "kpis": [
+        "Clientes elegíveis",
+        "Abordados",
+        "Reativados",
+        "Taxa de reativação",
+        "Receita/MC elegível",
+        "Segunda compra"
+      ],
+      "exceptions": "cliente não deseja contato, crédito bloqueado, fim do negócio, sazonalidade, histórico insuficiente. Não insistir indevidamente.",
+      "validation": "duas rotinas semanais completas auditadas, registros sem lacunas críticas, vendedor treinado e gerente capaz de operar sozinho."
+    },
+    {
+      "code": "V11",
+      "title": "Recuperação de oportunidades comerciais",
+      "objective": "recuperar cotações paradas ou perdidas que ainda podem ter demanda real.",
+      "trigger": "revisão de orçamentos com status aberto, sem próximo passo ou com motivo reversível de perda.",
+      "inputs": "valor, data, validade, itens, margem, decisores, histórico de conversa, preço e condições atualizadas.",
+      "roles": "vendedor conduz; gerente autoriza exceções; consultor mede o experimento.",
+      "steps": [
+        "Separar aberto, vencido e perdido",
+        "Excluir venda concluída e oportunidade sem base legal/relacional para contato",
+        "Classificar valor, margem, potencial e motivo",
+        "Atualizar disponibilidade e condição comercial",
+        "Abordar com pergunta de situação atual",
+        "Registrar nova necessidade e obstáculos",
+        "Ajustar proposta com aprovação de margem",
+        "Definir data e critério de decisão",
+        "Fechar ou registrar causa final",
+        "Analisar aprendizados em reunião semanal"
+      ],
+      "approach": "“Retomei a proposta de [solução] que conversamos. Ela ainda faz sentido para sua operação ou as prioridades mudaram?”",
+      "kpis": [
+        "Taxa de contato",
+        "Propostas revisitadas",
+        "Negócios recuperados",
+        "Valor e margem elegíveis",
+        "Motivos de não conversão"
+      ],
+      "validation": "backlog revisado, responsável por cada proposta, rastreio de resultado e análise de motivos."
+    },
+    {
+      "code": "V05",
+      "title": "Follow-up de propostas",
+      "objective": "garantir acompanhamento útil, pontual e não invasivo de toda proposta ativa.",
+      "trigger": "proposta enviada ou cliente solicita orçamento.",
+      "inputs": "proposta, data de envio, pessoa decisora, prazo de decisão, canal preferido, próximo passo.",
+      "steps": [
+        "Conferir proposta",
+        "Registrar cliente, valor, etapa e owner",
+        "Alinhar quando/como ocorrerá retorno",
+        "Criar tarefa no CRM",
+        "Contatar com contexto e valor, não cobrança genérica",
+        "Resolver objeções e atualizar condições",
+        "Registrar próximo passo ou motivo do desfecho",
+        "Ao fechar, repassar requisitos à operação",
+        "Ao perder, categorizar causa",
+        "Semanalmente auditar oportunidades sem ação"
+      ],
+      "cadence": "dia 0 confirmação; dia 2 esclarecimentos; dia 5 material relevante; dia 10 revisão de decisão; dia 15 status. Ajustar ao ciclo e preferência do cliente.",
+      "kpis": [
+        "Oportunidades com próxima ação",
+        "Atraso no follow-up",
+        "Taxa de conversão",
+        "Ciclo",
+        "Motivo de perda"
+      ],
+      "validation": ">= 90% das oportunidades ativas com próximo passo registrado em duas auditorias sucessivas; meta ajustável."
+    },
+    {
+      "code": "C01",
+      "title": "Carteira por responsável",
+      "objective": "atribuir responsabilidade, reduzir abandono e estabelecer plano para clientes.",
+      "trigger": "implantação da gestão de carteira ou mudança de equipe/cobertura.",
+      "inputs": "cadastro, região, histórico, potencial, capacidade dos vendedores, estratégia territorial.",
+      "steps": [
+        "Deduplicar clientes",
+        "Definir critérios de segmentação",
+        "Dimensionar carga por vendedor",
+        "Atribuir owner e substituto",
+        "Revisar contas estratégicas",
+        "Estabelecer carteira e rotina por classe",
+        "Registrar dono no CRM",
+        "Comunicar critérios à equipe",
+        "Revisar cobertura e produtividade semanalmente",
+        "Rebalancear com justificativa"
+      ],
+      "kpis": [
+        "% clientes com owner",
+        "Clientes sem contato conforme política",
+        "Clientes ativos",
+        "Receita/MC por carteira",
+        "Cobertura"
+      ],
+      "validation": "100% dos clientes elegíveis com owner e regra de reatribuição documentada; nenhuma conta crítica sem gestor responsável."
+    },
+    {
+      "code": "C04",
+      "title": "Recompra programada",
+      "objective": "antecipar necessidades de reposição, aumentando frequência e previsibilidade sem pressionar clientes.",
+      "trigger": "previsão da próxima compra, derivada de histórico ou calendário informado pelo cliente.",
+      "inputs": "datas de pedidos, categorias, periodicidade, estoque do cliente se informado, sazonalidade.",
+      "steps": [
+        "Calcular janela típica por cliente/produto",
+        "Classificar confiabilidade",
+        "Validar grandes exceções",
+        "Criar agenda de contato",
+        "Preparar mensagem relevante e consentida",
+        "Confirmar necessidade real",
+        "Abrir pedido ou proposta",
+        "Atualizar previsão após conversa",
+        "Medir recompra e evitar alerta repetitivo"
+      ],
+      "kpis": [
+        "Clientes com periodicidade confiável",
+        "Alertas atendidos",
+        "Recompras",
+        "Variação do intervalo",
+        "Pedidos gerados"
+      ],
+      "exceptions": "cliente sazonal, compra única, contrato já automatizado, contato não desejado.",
+      "validation": "agenda funcionando por ao menos dois ciclos e processo transferido ao gestor."
+    },
+    {
+      "code": "C06",
+      "title": "Cross-selling",
+      "objective": "aumentar adequação e amplitude do fornecimento por conta com produtos complementares relevantes.",
+      "trigger": "revisão de carteira ou identificação de grupo de produtos com baixa penetração.",
+      "inputs": "matriz cliente×categoria, compatibilidades, margem, capacidade logística, dados de consumo quando houver.",
+      "steps": [
+        "Montar matriz de categorias",
+        "Identificar lacunas plausíveis",
+        "Validar pertinência técnica/comercial",
+        "Selecionar contas",
+        "Preparar diagnóstico e argumento",
+        "Abordar como solução",
+        "Registrar interesse, objeções e venda",
+        "Acompanhar satisfação e margem",
+        "Revisar ofertas que não performam"
+      ],
+      "kpis": [
+        "Clientes com nova categoria",
+        "Margem incremental",
+        "Receita por conta",
+        "Taxa de aceitação",
+        "Recompra da categoria"
+      ],
+      "validation": "abordagem treinada, portfólio recomendado validado e medição sem dupla contagem dos pedidos."
+    },
+    {
+      "code": "L05",
+      "title": "Gestão de descontos",
+      "objective": "preservar margem sem retirar autonomia comercial necessária.",
+      "trigger": "negociação que solicita preço diferente de tabela ou exceção de condição.",
+      "inputs": "preço, custo variável, impostos, comissão, frete, prazo, margem-alvo e limites.",
+      "steps": [
+        "Revisar disponibilidade e confiabilidade dos custos",
+        "Definir margem de contribuição por tipo de venda",
+        "Classificar limites por segmento/produto",
+        "Instituir alçadas aprovadoras",
+        "Registrar motivo/contrapartida de desconto",
+        "Exibir impacto estimado da concessão",
+        "Bloquear exceções sem autorização no fluxo de controle",
+        "Treinar negociação por valor",
+        "Auditar descontos e resultado"
+      ],
+      "kpis": [
+        "Desconto ponderado",
+        "MC por venda e cliente",
+        "Exceções aprovadas",
+        "Vendas abaixo de limite",
+        "Taxa de conversão"
+      ],
+      "exceptions": "custo desconhecido impede cálculo confiável; casos contratuais/estratégicos precisam aprovação explícita.",
+      "validation": "política assinada pelo responsável, mecanismo de aprovação testado e duas auditorias de amostra."
+    },
+    {
+      "code": "P04",
+      "title": "Prospecção multicanal",
+      "objective": "criar oportunidades qualificadas por abordagem ativa e relevante.",
+      "trigger": "prospector recebe conta priorizada no ICP.",
+      "inputs": "lista qualificada, dados públicos/legítimos, segmento, hipótese de problema, histórico de contatos, política de canais.",
+      "steps": [
+        "Qualificar empresa e responsável",
+        "Definir motivo concreto de contato",
+        "Escolher canais adequados e permitidos",
+        "Criar cadência com número razoável de tentativas",
+        "Fazer primeiro contato personalizado",
+        "Registrar resultado e objeções",
+        "Qualificar necessidade e momento",
+        "Agendar conversa com pauta",
+        "Transferir contexto para executivo",
+        "Analisar qualidade/conversão e ajustar"
+      ],
+      "approach": "“Atendemos empresas de [setor] que precisam [resultado]. Vi que vocês atuam com [contexto público verificável]. Faz sentido conversar para entender se existe essa oportunidade?”",
+      "kpis": [
+        "Contatos válidos",
+        "Conversas úteis",
+        "Reuniões qualificadas",
+        "Oportunidades",
+        "Vendas",
+        "Margem",
+        "Tempo de conversão"
+      ],
+      "controls": "respeitar opt-out, políticas de comunicação e privacidade; não gerar disparos automáticos no sistema.",
+      "validation": "ICP, cadência, campos do CRM, treinamento e reunião de revisão implantados."
+    },
+    {
+      "code": "A03",
+      "title": "Revisão semanal de vendas",
+      "objective": "usar indicadores para destravar negócios, corrigir perdas e acompanhar compromissos.",
+      "trigger": "reunião semanal fixa do líder com equipe.",
+      "inputs": "KPIs da semana, metas, oportunidades por etapa, contas em risco, perdas e tarefas.",
+      "steps": [
+        "Distribuir relatório antes da reunião",
+        "Checar qualidade dos dados",
+        "Revisar realizado vs meta",
+        "Avaliar gargalos do funil",
+        "Aprofundar oportunidades críticas",
+        "Revisar inativos/follow-ups",
+        "Escolher até cinco ações prioritárias",
+        "Definir dono, prazo e evidência",
+        "Publicar decisões",
+        "Começar próxima reunião cobrando decisões anteriores"
+      ],
+      "cadence": "30–60 minutos, adaptável ao porte; evitar reunião sem dados e sem decisões.",
+      "kpis": [
+        "Decisões no prazo",
+        "Tempo de ciclo",
+        "Cobertura de follow-up",
+        "Previsão vs realizado",
+        "Evolução dos gargalos"
+      ],
+      "validation": "quatro reuniões consecutivas com pauta, decisões e fechamento de pendências."
+    },
+    {
+      "code": "G05",
+      "title": "Treinamento de vendas",
+      "objective": "desenvolver habilidades diretamente relacionadas aos processos implantados.",
+      "trigger": "lacuna de competência identificada no diagnóstico ou auditoria.",
+      "inputs": "comportamento esperado, exemplos de vendas, dados de conversão, playbook e objeções reais.",
+      "steps": [
+        "Definir competência a desenvolver",
+        "Medir situação inicial",
+        "Criar treinamento curto aplicado ao contexto",
+        "Demonstrar técnica",
+        "Realizar role-play",
+        "Fornecer material e checklist",
+        "Acompanhar aplicação em campo",
+        "Dar feedback individual",
+        "Comparar indicadores e evidências após período suficiente",
+        "Reforçar ou ajustar"
+      ],
+      "kpis": [
+        "Participação",
+        "Domínio demonstrado",
+        "Adesão à rotina",
+        "Conversão/margem quando observáveis",
+        "Qualidade das interações"
+      ],
+      "validation": "equipe treinada, gestor apto a reforçar rotina e evidência de aplicação; presença sozinha não encerra implantação."
+    }
+  ]
+}

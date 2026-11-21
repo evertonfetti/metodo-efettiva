@@ -36,6 +36,8 @@ model User {
   clientAccess   ClientAccess[]
   auditEvents    AuditEvent[]
   notes          ClientNote[]
+  ownedProjects  Project[]      @relation("ProjectOwner")
+  assignedTasks  ActionTask[]   @relation("TaskAssignee")
 }
 
 model Session {
@@ -94,6 +96,12 @@ model Client {
   notes       ClientNote[]
   assessments Assessment[]
   findings    Finding[]
+  opportunities        Opportunity[]
+  opportunityProcesses OpportunityProcess[]
+  projects             Project[]
+  projectProcesses     ProjectProcess[]
+  tasks                ActionTask[]
+  actionEvidences      ActionEvidence[]
 
   @@index([status])
   @@index([name])
@@ -153,7 +161,8 @@ model FileAsset {
   createdAt    DateTime        @default(now()) @db.Timestamptz(3)
 
   client    Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  evidences AssessmentEvidence[]
+  evidences       AssessmentEvidence[]
+  actionEvidences ActionEvidence[]
 
   @@index([clientId])
 }
@@ -489,9 +498,271 @@ model Finding {
   createdAt     DateTime        @default(now()) @db.Timestamptz(3)
   updatedAt     DateTime        @updatedAt @db.Timestamptz(3)
 
-  client     Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  assessment Assessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  client        Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessment    Assessment?   @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+  opportunities Opportunity[]
 
   @@unique([assessmentId, ruleKey])
   @@index([clientId, status])
+}
+
+// ───────────────────────── Fase 2: biblioteca, oportunidades, projetos ─────────────────────────
+
+/// Catálogo global de processos (146 do Anexo A). Ficha detalhada em contentJson (schema Zod em features/processes).
+model ProcessDefinition {
+  id             String   @id @default(uuid()) @db.Uuid
+  code           String   @unique
+  domainCode     String
+  domainName     String
+  name           String
+  objective      String
+  seedStatus     String   @default("BASIC") // BASIC | CORE (seed)
+  hasFullSheet   Boolean  @default(false)
+  contentJson    Json?
+  industryTagsJson Json?
+  active         Boolean  @default(true)
+  baseVersion    Int      @default(1)
+  currentVersion Int      @default(1)
+  customized     Boolean  @default(false)
+  createdAt      DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime @updatedAt @db.Timestamptz(3)
+
+  revisions     ProcessRevision[]
+  opportunities OpportunityProcess[]
+  projects      ProjectProcess[]
+
+  @@index([domainCode])
+}
+
+/// Histórico imutável: cada edição cria uma revisão com o conteúdo completo.
+model ProcessRevision {
+  id                  String   @id @default(uuid()) @db.Uuid
+  processDefinitionId String   @db.Uuid
+  version             Int
+  changeNotes         String
+  contentJson         Json
+  source              String   @default("SEED") // SEED | EDIT
+  changedBy           String?  @db.Uuid
+  createdAt           DateTime @default(now()) @db.Timestamptz(3)
+
+  process ProcessDefinition @relation(fields: [processDefinitionId], references: [id], onDelete: Cascade)
+
+  @@unique([processDefinitionId, version])
+}
+
+enum OpportunityStatus {
+  DETECTED
+  REVIEWED
+  APPROVED
+  DISMISSED
+  LINKED_TO_PROJECT
+}
+
+model Opportunity {
+  id                       String            @id @default(uuid()) @db.Uuid
+  clientId                 String            @db.Uuid
+  number                   Int
+  findingId                String?           @db.Uuid
+  projectId                String?           @db.Uuid
+  title                    String
+  explanation              String
+  expectedOutcome          String?
+  domainCode               String
+  origin                   FindingOrigin
+  impactScore              Int
+  confidenceScore          Int
+  effortScore              Int
+  priorityScore            Decimal           @db.Decimal(5, 2)
+  criticalRisk             Boolean           @default(false)
+  criticalRiskReason       String?
+  urgency                  Int?
+  dependency               String?
+  costEstimate             Decimal?          @db.Decimal(14, 2)
+  timeToImpact             String?
+  consultantOverrideReason String?
+  estimatedValue           Decimal?          @db.Decimal(14, 2)
+  estimateType             String?
+  assumptionsJson          Json              @default("[]")
+  evidenceJson             Json              @default("[]")
+  missingData              String?
+  status                   OpportunityStatus @default(DETECTED)
+  statusReason             String?
+  reviewerId               String?           @db.Uuid
+  reviewedAt               DateTime?         @db.Timestamptz(3)
+  approvedAt               DateTime?         @db.Timestamptz(3)
+  isDemo                   Boolean           @default(false)
+  createdBy                String?           @db.Uuid
+  createdAt                DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt                DateTime          @updatedAt @db.Timestamptz(3)
+
+  client    Client               @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  finding   Finding?             @relation(fields: [findingId], references: [id], onDelete: SetNull)
+  project   Project?             @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  processes OpportunityProcess[]
+
+  @@unique([clientId, number])
+  @@index([clientId, status])
+}
+
+model OpportunityProcess {
+  id                  String   @id @default(uuid()) @db.Uuid
+  clientId            String   @db.Uuid
+  opportunityId       String   @db.Uuid
+  processDefinitionId String   @db.Uuid
+  rationale           String?
+  rank                Int      @default(0)
+  selected            Boolean  @default(true)
+  suggested           Boolean  @default(false)
+  selectedBy          String?  @db.Uuid
+  createdAt           DateTime @default(now()) @db.Timestamptz(3)
+
+  client      Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  opportunity Opportunity       @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  process     ProcessDefinition @relation(fields: [processDefinitionId], references: [id])
+
+  @@unique([opportunityId, processDefinitionId])
+  @@index([clientId])
+}
+
+enum ProjectStatus {
+  DRAFT
+  APPROVED
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+model Project {
+  id               String        @id @default(uuid()) @db.Uuid
+  clientId         String        @db.Uuid
+  number           Int
+  name             String
+  scope            String?
+  objectivesJson   Json          @default("[]")
+  startDate        DateTime      @db.Date
+  targetDate       DateTime      @db.Date
+  status           ProjectStatus @default(DRAFT)
+  ownerUserId      String        @db.Uuid
+  sponsorName      String?
+  baselineLockedAt DateTime?     @db.Timestamptz(3)
+  isDemo           Boolean       @default(false)
+  createdBy        String        @db.Uuid
+  createdAt        DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime      @updatedAt @db.Timestamptz(3)
+
+  client        Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  owner         User             @relation("ProjectOwner", fields: [ownerUserId], references: [id])
+  processes     ProjectProcess[]
+  tasks         ActionTask[]
+  opportunities Opportunity[]
+
+  @@unique([clientId, number])
+  @@index([clientId, status])
+}
+
+enum ProjectProcessStatus {
+  PLANNED
+  IN_PROGRESS
+  PILOT
+  ACTIVE
+  VALIDATED
+  SUSTAINED
+  BLOCKED
+  CANCELLED
+}
+
+/// Processo dentro do projeto, com snapshot da versão da ficha usada.
+model ProjectProcess {
+  id                  String               @id @default(uuid()) @db.Uuid
+  clientId            String               @db.Uuid
+  projectId           String               @db.Uuid
+  processDefinitionId String               @db.Uuid
+  processVersion      Int
+  snapshotJson        Json
+  status              ProjectProcessStatus @default(PLANNED)
+  statusReason        String?
+  ownerName           String?
+  successCriteriaJson Json                 @default("[]")
+  validationJson      Json?
+  startDate           DateTime?            @db.Date
+  targetDate          DateTime?            @db.Date
+  validatedAt         DateTime?            @db.Timestamptz(3)
+  sustainedAt         DateTime?            @db.Timestamptz(3)
+  createdAt           DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime             @updatedAt @db.Timestamptz(3)
+
+  client    Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project   Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  process   ProcessDefinition @relation(fields: [processDefinitionId], references: [id])
+  tasks     ActionTask[]
+  evidences ActionEvidence[]
+
+  @@unique([projectId, processDefinitionId])
+  @@index([clientId])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model ActionTask {
+  id                String       @id @default(uuid()) @db.Uuid
+  clientId          String       @db.Uuid
+  projectId         String       @db.Uuid
+  projectProcessId  String?      @db.Uuid
+  title             String
+  description       String?
+  assigneeUserId    String?      @db.Uuid
+  externalOwnerName String?
+  dueDate           DateTime?    @db.Date
+  window            Int?         // 1 = dias 1–30, 2 = 31–60, 3 = 61–90
+  status            TaskStatus   @default(TODO)
+  priority          TaskPriority @default(MEDIUM)
+  checklistJson     Json         @default("[]")
+  blockedReason     String?
+  notes             String?
+  planKey           String?
+  completedAt       DateTime?    @db.Timestamptz(3)
+  createdBy         String?      @db.Uuid
+  createdAt         DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime     @updatedAt @db.Timestamptz(3)
+
+  client         Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project        Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectProcess ProjectProcess?  @relation(fields: [projectProcessId], references: [id], onDelete: SetNull)
+  assignee       User?            @relation("TaskAssignee", fields: [assigneeUserId], references: [id], onDelete: SetNull)
+  evidences      ActionEvidence[]
+
+  @@unique([projectId, planKey])
+  @@index([clientId, projectId, status])
+}
+
+model ActionEvidence {
+  id               String   @id @default(uuid()) @db.Uuid
+  clientId         String   @db.Uuid
+  actionTaskId     String?  @db.Uuid
+  projectProcessId String?  @db.Uuid
+  fileAssetId      String?  @db.Uuid
+  text             String?
+  url              String?
+  authorId         String   @db.Uuid
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+
+  client         Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  task           ActionTask?     @relation(fields: [actionTaskId], references: [id], onDelete: Cascade)
+  projectProcess ProjectProcess? @relation(fields: [projectProcessId], references: [id], onDelete: Cascade)
+  file           FileAsset?      @relation(fields: [fileAssetId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
 }
