@@ -8,7 +8,7 @@ const TABS = [
   { label: "Visão geral", seg: "" },
   { label: "Plano de ação", seg: "/acoes" },
   { label: "Indicadores", seg: "/indicadores", phase: 6 },
-  { label: "Playbooks", seg: "/playbooks", phase: 3 },
+  { label: "Playbooks", seg: "/playbooks" },
   { label: "Reuniões", seg: "/reunioes", phase: 6 },
   { label: "Arquivos", seg: "/arquivos", phase: 6 },
 ];

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import type { Block, DocContent } from "../content";
-import { audienceLabel, prepare, splitPending, WATERMARK, type RenderMeta } from "./meta";
+import { audienceLabel, logoBox, prepare, splitPending, WATERMARK, type RenderMeta } from "./meta";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const inline = (s: string) => splitPending(s).map((p) => (p.pending ? `<mark>${esc(p.text)}</mark>` : esc(p.text))).join("").replace(/\r?\n/g, "<br>");
@@ -63,7 +63,7 @@ export function renderHtml(raw: DocContent, meta: RenderMeta): string {
   .internal{display:inline-block;background:#ffedd5;color:#9a3412;font-size:8pt;font-weight:800;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
   .watermark{position:fixed;top:45%;left:0;right:0;text-align:center;transform:rotate(-30deg);font-size:96pt;font-weight:800;color:rgba(153,27,27,.10);z-index:1000;pointer-events:none}
   .draftnote{color:#991b1b;font-weight:800}`;
-  const cover = `<div class="cover"><div><div class="bar"></div><div class="brand">${esc(meta.brand.companyName)}</div><div class="tag">${esc(meta.brand.tagline)}</div></div>
+  const cover = `<div class="cover"><div><div class="bar"></div>${meta.brand.logo ? (() => { const b = logoBox(meta.brand.logo.data); return `<img alt="" src="data:${meta.brand.logo.mime};base64,${meta.brand.logo.data.toString("base64")}" style="margin-top:12mm;width:${b.width}px;height:${b.height}px">`; })() : ""}<div class="brand">${esc(meta.brand.companyName)}</div><div class="tag">${esc(meta.brand.tagline)}</div></div>
   <div><h1>${esc(meta.title)}</h1><table class="meta"><tr><td>Empresa</td><td>${esc(meta.clientName)}</td></tr>${meta.projectName ? `<tr><td>Projeto</td><td>${esc(meta.projectName)}</td></tr>` : ""}<tr><td>Versão</td><td>v${meta.version} · ${esc(meta.stateLabel)}</td></tr><tr><td>Data</td><td>${esc(meta.dateLabel)}</td></tr><tr><td>Audiência</td><td>${audienceLabel(meta.audience)}</td></tr><tr><td>Classificação</td><td>${esc(meta.brand.confidentiality)}</td></tr></table>
   ${meta.isDraft ? `<p class="draftnote">${WATERMARK} — documento não aprovado; não usar como versão final.</p>` : ""}</div>
   <div class="tag">${esc(meta.brand.footerText)}</div></div>`;

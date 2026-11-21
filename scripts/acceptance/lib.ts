@@ -22,7 +22,12 @@ export function makeClient(base: string) {
     }
     return { status: res.status, text, json: json as any, headers: res.headers }; // eslint-disable-line @typescript-eslint/no-explicit-any
   }
-  return { call };
+  /** GET binário autenticado (downloads). */
+  async function bytes(path: string) {
+    const res = await fetch(base + path, { headers: { origin: base, ...(cookie ? { cookie } : {}) } });
+    return { status: res.status, data: Buffer.from(await res.arrayBuffer()), headers: res.headers };
+  }
+  return { call, bytes };
 }
 
 export function check(cond: unknown, msg: string) {

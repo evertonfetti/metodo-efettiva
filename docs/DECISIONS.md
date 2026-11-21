@@ -55,3 +55,23 @@ Uma linha por decisão: **decisão** — motivo.
 - **Colunas `@db.Date` formatadas em UTC (`formatDay`)** — evita exibir o dia anterior no fuso de São Paulo.
 - **404 de página com streaming responde HTTP 200 com tela "não encontrado" + noindex** — comportamento do Next com `loading.tsx`; nenhum dado é exposto; APIs respondem 404 real.
 - **Kanban com até 8 cartões por coluna e "Mostrar mais"** — planos de 4 processos geram ~50 tarefas.
+
+## Fase 3
+- **Conteúdo como AST de blocos JSON (título, parágrafo, lista, tabela, destaque) validado por Zod, em vez de TipTap/HTML** — editor seguro sem HTML (sem XSS), mesmo conteúdo renderizado em editor, MD, DOCX e PDF; TipTap pode entrar depois sem migrar dados.
+- **Texto puro com marcadores `[PENDENTE: …]` onde falta dado validado** — "separação entre instrução validada e sugestão pendente" (9.1); destacados em âmbar no editor e nos arquivos; contam como alerta na QA.
+- **Fórmulas dos KPIs das 10 fichas adicionadas ao seed (`kpiFormulas`), aplicadas como nova revisão da ficha** — QA 9.4 bloqueia KPI sem fórmula; processos personalizados não são alterados.
+- **Tipos de documento: PLAYBOOK (geral, 9.1) e POP (por processo, 9.2); checklist, script, agenda de rotinas e plano de treinamento entram como seções do playbook** — cobre RF-080/081/082 sem multiplicar tipos.
+- **Estados: seção PENDING/IN_REVIEW/APPROVED; revisão DRAFT → READY_FOR_REVIEW (todas as seções aprovadas) → APPROVED → PUBLISHED** — editar seção volta a revisão para DRAFT; aprovar versão exige todas as seções aprovadas e QA sem erros.
+- **Imutabilidade em duas camadas: serviço (409) + trigger PostgreSQL que rejeita alteração de conteúdo/fontes/hash de revisão APPROVED/PUBLISHED** — nem bug nem acesso direto ao banco alteram versão aprovada.
+- **Nova versão copia a última aprovada mantendo a aprovação das seções até serem editadas** — revisão incremental, como no mockup (v3 com seções já aprovadas).
+- **Regenerar seção substitui só aquela seção; se editada à mão, exige confirmação explícita** — RF-087.
+- **Lock otimista por `lockVersion` na revisão** — duas abas não sobrescrevem silenciosamente.
+- **Audiências: CLIENTE e INTERNO (mockup cita "gestor/equipe do cliente", unificados em CLIENTE)** — RF-085 exige só a distinção interno × cliente; visibilidade por seção.
+- **Exportação sempre no worker (job `document.export` com só o ID); worker revalida clientId do job contra a exportação** — seção 4.3; download só por rota autenticada.
+- **Versão não aprovada exporta como RASCUNHO com marca d'água; versão aprovada/publicada exporta como final** — RF-086.
+- **PDF via Playwright/Chromium com HTML autocontido (fonte Manrope embutida em base64, JS desligado, rede bloqueada)** — paginação previsível e sem dependência externa; Chromium instalado na imagem Docker.
+- **DOCX com `docx` 9.15.1 (não 9.16.0, publicado há 2 dias)** — política de versão estável com ≥ 2 semanas.
+- **Marca d'água no DOCX como cabeçalho textual "RASCUNHO" em todas as páginas** — a lib não suporta marca d'água diagonal; atende "marca d'água textual" (RF-086).
+- **Logo da marca como arquivo de sistema privado (`system/…`, sem clientId), servido só autenticado** — RF-084 sem URL pública.
+- **Editor abre em "Prévia" (formato de documento) e edita por blocos ao clicar "Editar"** — capítulos de processo são longos; leitura primeiro, como no mockup 06.
+- **Comparação de versões por seção com diff de linhas (LCS) sobre o Markdown de cada seção** — sem dependência; mostra alterada/nova/removida.

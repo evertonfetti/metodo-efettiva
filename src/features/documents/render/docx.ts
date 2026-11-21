@@ -5,6 +5,7 @@ import {
   Footer,
   Header,
   HeadingLevel,
+  ImageRun,
   LevelFormat,
   Packer,
   PageBreak,
@@ -18,7 +19,7 @@ import {
   WidthType,
 } from "docx";
 import type { Block, DocContent } from "../content";
-import { audienceLabel, prepare, splitPending, WATERMARK, type RenderMeta } from "./meta";
+import { audienceLabel, logoBox, prepare, splitPending, WATERMARK, type RenderMeta } from "./meta";
 
 const NAVY = "0B2545";
 const AMBER = "D9A441";
@@ -55,6 +56,10 @@ export async function renderDocx(raw: DocContent, meta: RenderMeta): Promise<Buf
   const children: (Paragraph | Table)[] = [];
 
   // Capa
+  if (meta.brand.logo) {
+    const box = logoBox(meta.brand.logo.data);
+    children.push(new Paragraph({ spacing: { after: 200 }, children: [new ImageRun({ type: meta.brand.logo.mime === "image/png" ? "png" : "jpg", data: meta.brand.logo.data, transformation: box })] }));
+  }
   children.push(
     new Paragraph({ children: [new TextRun({ text: meta.brand.companyName, bold: true, color: NAVY, size: 28 })], border: { bottom: { style: BorderStyle.SINGLE, size: 18, color: AMBER, space: 4 } } }),
     new Paragraph({ children: [new TextRun({ text: meta.brand.tagline, color: "475569", size: 20 })], spacing: { after: 1600 } }),

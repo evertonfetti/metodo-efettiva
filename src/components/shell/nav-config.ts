@@ -38,7 +38,7 @@ export function clientNav(clientId: string): NavItem[] {
     { label: "Dados e importações", href: `${base}/dados`, icon: Database, matchPrefix: true, availableInPhase: 4 },
     { label: "Oportunidades", href: `${base}/oportunidades`, icon: Target, matchPrefix: true },
     { label: "Projetos", href: `${base}/projetos`, icon: FolderKanban, matchPrefix: true },
-    { label: "Documentos", href: `${base}/documentos`, icon: FileText, matchPrefix: true, availableInPhase: 3 },
+    { label: "Documentos", href: `${base}/documentos`, icon: FileText, matchPrefix: true },
     { label: "Relatórios", href: `${base}/relatorios`, icon: LineChart, matchPrefix: true, availableInPhase: 6 },
   ];
 }

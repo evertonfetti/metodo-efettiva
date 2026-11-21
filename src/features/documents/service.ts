@@ -4,7 +4,7 @@ import { audit } from "@/lib/audit";
 import { AppError, notFound } from "@/lib/errors";
 import { assertClientAccess, isUuid } from "@/lib/security/access";
 import { enqueueJob } from "@/lib/jobs/queue";
-import { FILE_TYPES, putFile, readClientFile } from "@/lib/storage";
+import { FILE_TYPES, putFile, readClientFile, readSystemFile } from "@/lib/storage";
 import { formatDay } from "@/lib/format";
 import { Prisma } from "@/generated/prisma/client";
 import type { SessionUser } from "@/features/auth/service";
@@ -304,6 +304,7 @@ export async function runExport(exportId: string, jobClientId: string | null) {
     const rev = await prisma.documentRevision.findFirstOrThrow({ where: { id: exp.revisionId, documentId: doc.id, clientId: exp.clientId } });
     const content = parseContent(rev.contentJson);
     const brand = await getSetting("brand");
+    const logo = brand.logoFileId ? await readSystemFile(brand.logoFileId).then((f) => ({ data: f.data, mime: f.file.mime })).catch(() => null) : null;
     const meta: RenderMeta = {
       title: doc.title,
       clientName: doc.client.name,
@@ -313,7 +314,7 @@ export async function runExport(exportId: string, jobClientId: string | null) {
       dateLabel: formatDay(rev.approvedAt ?? rev.updatedAt),
       audience: exp.audience,
       isDraft: exp.isDraft,
-      brand,
+      brand: { ...brand, logo },
     };
     let data: Buffer;
     if (exp.format === "MD") data = Buffer.from((await import("./render/markdown")).renderMarkdown(content, meta), "utf8");

@@ -46,7 +46,8 @@ npx prisma migrate deploy               # aplica migrations
 npm run db:seed                         # seeds idempotentes (catálogo, questionário…)
 npm run bootstrap:owner                 # cria o OWNER a partir do .env
 npm run dev                             # http://localhost:3000  (ou: npx next dev -p 3100)
-npm run worker                          # em outro terminal: worker BullMQ
+npm run worker                          # em outro terminal: worker BullMQ (exportações DOCX/PDF/MD)
+npx playwright install chromium         # uma vez: Chromium usado para gerar PDF (na imagem Docker já vem instalado)
 ```
 
 Comandos úteis:
@@ -59,6 +60,13 @@ Comandos úteis:
 | `npm run db:migrate -- --name x` | Cria nova migration (desenvolvimento) |
 | `npx prisma migrate deploy` | Aplica migrations pendentes (produção) |
 | `npx tsx scripts/check-queue.ts` | Verifica fila ponta a ponta (precisa do worker rodando) |
+| `npx tsx scripts/acceptance/faseN.ts` | Aceite automatizado da fase N contra o servidor (`ACCEPT_EMAIL`, `ACCEPT_PASSWORD`, `BASE`); fase 3 precisa do worker |
+
+### Documentos (Fase 3)
+Playbooks e POPs são gerados **sem IA** a partir do cadastro, do diagnóstico fechado, das oportunidades, do projeto e das fichas versionadas.
+Fluxo: gerar → revisar/editar por seção → aprovar seções → aprovar versão (imutável; trigger no banco) → publicar → exportar.
+Exportações rodam no worker; arquivo de audiência **Cliente** nunca contém seções INTERNO; rascunho sai com marca d'água “RASCUNHO”.
+A marca (nome, assinatura, classificação, rodapé e logo) fica em Configurações → Marca. A fonte Manrope (OFL) está em `assets/fonts`.
 
 ## Migrations
 

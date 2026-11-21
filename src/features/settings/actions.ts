@@ -92,3 +92,32 @@ export async function toggleRuleAction(ruleId: string, active: boolean): Promise
     return toState(err);
   }
 }
+
+/** Identidade visual dos documentos: textos + logo opcional (PNG/JPG até 2 MB, arquivo de sistema privado). */
+export async function saveBrandAction(_: FormState, fd: FormData): Promise<FormState> {
+  try {
+    const user = await requireUser();
+    assertRole(user, "OWNER");
+    const { getSetting } = await import("./service");
+    const { putFile } = await import("@/lib/storage");
+    const current = await getSetting("brand");
+    let logoFileId = fd.get("removeLogo") === "on" ? null : current.logoFileId;
+    const logo = fd.get("logo");
+    if (logo instanceof File && logo.size > 0) {
+      const asset = await putFile({ clientId: null, uploadedBy: user.id, originalName: logo.name, data: Buffer.from(await logo.arrayBuffer()), maxBytes: 2 * 1_048_576 });
+      if (asset.mime !== "image/png" && asset.mime !== "image/jpeg") throw new AppError("VALIDATION", "Envie o logo em PNG ou JPG.");
+      logoFileId = asset.id;
+    }
+    await updateSetting(user, "brand", {
+      companyName: String(fd.get("companyName") ?? ""),
+      tagline: String(fd.get("tagline") ?? ""),
+      footerText: String(fd.get("footerText") ?? ""),
+      confidentiality: String(fd.get("confidentiality") ?? ""),
+      logoFileId,
+    });
+    revalidatePath("/configuracoes");
+    return { ok: true, message: "Marca salva. Vale para as próximas exportações." };
+  } catch (err) {
+    return toState(err);
+  }
+}

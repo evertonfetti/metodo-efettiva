@@ -9,7 +9,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  serverExternalPackages: ["@node-rs/argon2", "pino", "bullmq", "ioredis"],
+  serverExternalPackages: ["@node-rs/argon2", "pino", "bullmq", "ioredis", "playwright", "docx"],
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

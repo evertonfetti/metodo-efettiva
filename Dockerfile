@@ -19,7 +19,11 @@ RUN DATABASE_URL=postgresql://build:build@localhost:5432/build npx prisma genera
 
 FROM base AS runner
 ENV NODE_ENV=production
+# Chromium do Playwright (renderização de PDF no worker), em caminho fixo legível pelo usuário node.
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 COPY --from=build --chown=node:node /app /app
+RUN npx playwright install --with-deps chromium \
+    && rm -rf /var/lib/apt/lists/* && chmod -R a+rX /ms-playwright
 RUN mkdir -p /app/storage && chown -R node:node /app/storage
 USER node
 EXPOSE 3000

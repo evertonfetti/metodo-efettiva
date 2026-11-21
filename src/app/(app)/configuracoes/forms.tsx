@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label } from "@/components/ui/input";
-import { saveMethodAction, saveParametersAction, pingQueueAction, type FormState } from "@/features/settings/actions";
+import { saveBrandAction, saveMethodAction, saveParametersAction, pingQueueAction, type FormState } from "@/features/settings/actions";
 import type { Parameters } from "@/features/settings/defaults";
 
 function Feedback({ state }: { state: FormState }) {
@@ -111,6 +111,44 @@ export function PingQueueButton() {
         <Button type="submit" variant="secondary" disabled={pending}>{pending ? "Enviando…" : "Testar fila de processamento"}</Button>
       </div>
       <Feedback state={state} />
+    </form>
+  );
+}
+
+type Brand = { companyName: string; tagline: string; footerText: string; confidentiality: string; logoFileId: string | null };
+
+export function BrandForm({ brand, canEdit }: { brand: Brand; canEdit: boolean }) {
+  const [state, action, pending] = useActionState<FormState, FormData>(saveBrandAction, {});
+  const field = (name: keyof Brand, label: string, help: string) => (
+    <div className="flex flex-col gap-1">
+      <Label htmlFor={`b-${name}`}>{label}</Label>
+      <Input id={`b-${name}`} name={name} defaultValue={String(brand[name] ?? "")} aria-describedby={`b-${name}-help`} aria-invalid={!!state.fieldErrors?.[name]} />
+      <span id={`b-${name}-help`} className="text-xs text-text-subtle">{help}</span>
+      <FieldError message={state.fieldErrors?.[name]} />
+    </div>
+  );
+  return (
+    <form action={action} className="flex flex-col gap-4">
+      <fieldset disabled={!canEdit} className="grid gap-4 md:grid-cols-2">
+        {field("companyName", "Nome na capa", "Aparece na capa e nos metadados dos arquivos.")}
+        {field("tagline", "Assinatura", "Linha abaixo do nome na capa.")}
+        {field("confidentiality", "Classificação", "Ex.: Confidencial. Vai na capa e no rodapé.")}
+        {field("footerText", "Texto do rodapé", "Texto institucional no fim da capa e do Markdown.")}
+        <div className="flex flex-col gap-1 md:col-span-2">
+          <Label htmlFor="b-logo">Logo (PNG ou JPG, até 2 MB)</Label>
+          {brand.logoFileId ? (
+            <span className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/api/v1/settings/brand/logo" alt="Logo atual" className="h-12 w-auto rounded-[4px] border border-border bg-white p-1" />
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="removeLogo" className="size-4 accent-navy" /> Remover logo</label>
+            </span>
+          ) : <span className="text-xs text-text-subtle">Sem logo: a capa usa o nome em navy com a faixa âmbar.</span>}
+          <Input id="b-logo" name="logo" type="file" accept="image/png,image/jpeg" className="py-1.5" />
+        </div>
+      </fieldset>
+      <p className="text-xs text-text-subtle">Cores fixas da identidade: navy #0B2545, âmbar #D9A441 (só destaque) e branco; fonte Manrope embutida no PDF.</p>
+      <Feedback state={state} />
+      {canEdit ? <div><Button type="submit" disabled={pending}>{pending ? "Salvando…" : "Salvar marca"}</Button></div> : null}
     </form>
   );
 }

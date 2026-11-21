@@ -121,3 +121,10 @@ export async function readClientFile(clientId: string, fileId: string) {
 export async function deleteFile(storageKey: string) {
   await rm(absolutePath(storageKey), { force: true });
 }
+
+/** Arquivo global do sistema (ex.: logo da marca), sem clientId. */
+export async function readSystemFile(fileId: string) {
+  const file = await prisma.fileAsset.findFirst({ where: { id: fileId, clientId: null } });
+  if (!file || !file.storageKey.startsWith("system/")) throw new AppError("NOT_FOUND", "Arquivo não encontrado.");
+  return { file, data: await readFile(absolutePath(file.storageKey)) };
+}

@@ -73,12 +73,12 @@ curl localhost:3100/api/health
 ## Fase 3 — Playbook sem IA (MARCO CENTRAL)
 | Item | Status | Evidência |
 |---|---|---|
-| Geração determinística do playbook (diagnóstico + biblioteca + projeto) | TODO | |
-| Editor por seções, revisão, aprovação, versões imutáveis | TODO | |
-| Audiência INTERNO/CLIENTE filtrada no servidor | TODO | |
-| Exportação DOCX, PDF, MD (marca d'água em rascunho) | TODO | |
-| QA pré-exportação | TODO | |
-| **Aceite:** playbook real exportado nos 3 formatos com POPs, KPIs, responsáveis e cronograma | TODO | |
+| Geração determinística do playbook (diagnóstico + biblioteca + projeto) | DONE | `features/documents/generate.ts`: 18 seções da 9.1 + capítulo 9.2 por processo; POP avulso; `[PENDENTE: …]` onde falta dado validado; fórmulas de KPI das 10 fichas no seed |
+| Editor por seções, revisão, aprovação, versões imutáveis | DONE | `/clientes/[id]/documentos/[docId]` (3 colunas, prévia/edição por blocos, regenerar com confirmação, lock otimista), comparação `/comparar`; trigger `document_revision_immutable` no Postgres |
+| Audiência INTERNO/CLIENTE filtrada no servidor | DONE | `filterForAudience` aplicado no worker antes de renderizar; testes unitário + integração + aceite (MD, DOCX, HTML) |
+| Exportação DOCX, PDF, MD (marca d'água em rascunho) | DONE | job `document.export` no worker (`docx` 9.15.1, Playwright/Chromium, Manrope embutida); download autenticado `/exports/[id]/download`; aba Marca com logo |
+| QA pré-exportação | DONE | `qa.ts` (erros bloqueiam aprovação: cliente, processo, KPI sem fórmula, valor sem fonte, evidência inválida, promessa, INTERNO, imutabilidade, POP sem responsável/passos; alertas da 9.4) |
+| **Aceite:** playbook real exportado nos 3 formatos com POPs, KPIs, responsáveis e cronograma | DONE | `scripts/acceptance/fase3.ts` → "ACEITE FASE 3: OK" (fila real + worker; PDF 23 páginas A4) |
 
 ## Fase 4 — Importações e KPIs reais
 | Item | Status | Evidência |
@@ -114,17 +114,17 @@ curl localhost:3100/api/health
 ## Testes obrigatórios (seção 15)
 | # | Teste | Status | Arquivo |
 |---|---|---|---|
-| 1 | Isolamento por troca de ID | PARTIAL | access/clients/assessments/projects tests + aceites F1/F2 (diagnóstico, arquivo, oportunidade, projeto, tarefa); falta documentos/exports (Fase 3) |
+| 1 | Isolamento por troca de ID | DONE | testes access/clients/assessments/projects/documents + aceites F1–F3 (diagnóstico, arquivo, oportunidade, projeto, tarefa, documento, exportação, download, job com clientId divergente) |
 | 2 | Importação idempotente | TODO | |
 | 3 | Moeda `1.234,56` | TODO | |
 | 4 | Cancelamentos não inflam vendas | TODO | |
 | 5 | Ausência de custo → margem indisponível | TODO | |
 | 6 | Questionário: não sei/não se aplica | DONE | `tests/unit/scoring.test.ts` |
-| 7 | Versão aprovada imutável | TODO | |
-| 8 | Audiência INTERNO fora do arquivo CLIENTE | TODO | |
+| 7 | Versão aprovada imutável | DONE | `tests/integration/documents.test.ts` (serviço 409 + trigger do banco) |
+| 8 | Audiência INTERNO fora do arquivo CLIENTE | DONE | `tests/unit/documents.test.ts` + `tests/integration/documents.test.ts` (MD, DOCX, HTML/PDF) |
 | 9 | IA: evidência inexistente rejeitada | TODO | |
 | 10 | E2E cliente → relatório | TODO | |
 
 ---
 
-PRÓXIMO PASSO: Fase 3 (marco central) — ler SPEC_INDEX: M08 (241), 5.5 (471), 5.6, 9.1–9.4 (747–804), seção 11 (rotas de documentos) e mockup `docs/design/06-playbook.html`. Construir Document/DocumentRevision/DocumentExport, geração determinística do playbook a partir de diagnóstico + projeto + snapshots das fichas (`ProjectProcess.snapshotJson`), editor por seções com aprovação, audiência INTERNO/CLIENTE filtrada no servidor, exportação DOCX (lib `docx`), PDF (Playwright já instalado) e MD via job BullMQ, QA pré-exportação. Dados de inspeção: cliente "Aceite F2 A …" (KEEP=1) com projeto de 54 tarefas.
+PRÓXIMO PASSO: Fase 4 — importações e KPIs reais. Ler SPEC_INDEX: M04 (190), M05 (205), 5.3 (437), 6.1–6.3 (498–567), 7–7.2 (568–601) e UI_LAYOUT telas `/dados` e `/dados/importar`. Construir ImportBatch/ImportRowError/Customer/Product/Sale/SaleItem/Quote/Interaction/MetricSnapshot, upload CSV/XLSX (validar dependência de parsing), mapeamento de colunas, prévia de 20 linhas, commit idempotente por external_id no worker, moeda/data pt-BR, cancelados fora das vendas, KPIs determinísticos com `null` sem dado e alertas de qualidade (testes 2–5 da seção 15). Depois ligar baseline/fonte dos KPIs no playbook (hoje "Indisponível: base histórica não importada").

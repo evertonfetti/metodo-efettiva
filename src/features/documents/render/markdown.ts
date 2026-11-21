@@ -3,7 +3,7 @@ import { audienceLabel, prepare, WATERMARK, type RenderMeta } from "./meta";
 
 const esc = (s: string) => s.replace(/\r?\n/g, " ").replace(/\|/g, "\\|");
 
-function block(b: Block): string {
+export function blockToMarkdown(b: Block): string {
   switch (b.type) {
     case "heading":
       return `${"#".repeat(b.level + 1)} ${b.text}`;
@@ -34,7 +34,7 @@ export function renderMarkdown(raw: DocContent, meta: RenderMeta): string {
   ];
   content.sections.forEach((s, i) => {
     lines.push(`## ${i + 1}. ${s.title}`, "");
-    for (const b of s.blocks) lines.push(block(b), "");
+    for (const b of s.blocks) lines.push(blockToMarkdown(b), "");
   });
   lines.push("---", "", `${meta.brand.footerText || meta.brand.companyName} · ${meta.title} · v${meta.version}`, "");
   return lines.join("\n");

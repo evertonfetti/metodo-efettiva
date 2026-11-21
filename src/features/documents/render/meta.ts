@@ -10,7 +10,7 @@ export type RenderMeta = {
   dateLabel: string;
   audience: "INTERNO" | "CLIENTE";
   isDraft: boolean;
-  brand: { companyName: string; tagline: string; footerText: string; confidentiality: string };
+  brand: { companyName: string; tagline: string; footerText: string; confidentiality: string; logo?: { data: Buffer; mime: string } | null };
 };
 
 export const audienceLabel = (a: "INTERNO" | "CLIENTE") => (a === "INTERNO" ? "Interno Efettiva" : "Cliente");
@@ -32,4 +32,28 @@ export function splitPending(text: string): { text: string; pending: boolean }[]
   }
   if (last < text.length) out.push({ text: text.slice(last), pending: false });
   return out.length ? out : [{ text: "", pending: false }];
+}
+
+/** Dimensões de PNG/JPEG pelo cabeçalho (para dimensionar o logo sem dependências). */
+export function imageSize(buf: Buffer): { width: number; height: number } | null {
+  if (buf.length > 24 && buf.readUInt32BE(0) === 0x89504e47) return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+  if (buf[0] === 0xff && buf[1] === 0xd8) {
+    let i = 2;
+    while (i + 9 < buf.length) {
+      if (buf[i] !== 0xff) return null;
+      const marker = buf[i + 1]!;
+      const len = buf.readUInt16BE(i + 2);
+      if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) return { height: buf.readUInt16BE(i + 5), width: buf.readUInt16BE(i + 7) };
+      i += 2 + len;
+    }
+  }
+  return null;
+}
+
+/** Logo escalado para altura fixa (px), largura proporcional limitada. */
+export function logoBox(buf: Buffer, height = 48, maxWidth = 220) {
+  const s = imageSize(buf);
+  if (!s || !s.width || !s.height) return { width: height * 3, height };
+  const w = Math.round((s.width / s.height) * height);
+  return w > maxWidth ? { width: maxWidth, height: Math.round((s.height / s.width) * maxWidth) } : { width: w, height };
 }

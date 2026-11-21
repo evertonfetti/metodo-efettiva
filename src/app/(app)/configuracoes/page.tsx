@@ -11,7 +11,7 @@ import { prisma } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
 import { jobLabel } from "@/lib/jobs/labels";
 import { cn } from "@/lib/utils";
-import { MethodForm, ParametersForm, PingQueueButton } from "./forms";
+import { BrandForm, MethodForm, ParametersForm, PingQueueButton } from "./forms";
 import { RuleForm, RuleToggle, type RuleDefaults } from "./rules-ui";
 import { describeCondition, listRules } from "@/features/assessments/rules";
 import { conditionSchema, type Condition } from "@/features/assessments/conditions";
@@ -19,21 +19,22 @@ import { conditionSchema, type Condition } from "@/features/assessments/conditio
 export const metadata: Metadata = { title: "Configurações" };
 
 const TABS = [
+  { id: "marca", label: "Marca" },
   { id: "metodo", label: "Fases do método e escala do diagnóstico" },
   { id: "diagnostico", label: "Regras do diagnóstico" },
   { id: "parametros", label: "Parâmetros" },
   { id: "ia", label: "Provedor de IA" },
   { id: "usuarios", label: "Usuários" },
   { id: "saude", label: "Backups e saúde" },
-  { id: "marca", label: "Marca", availableInPhase: 3 },
-] as const;
+] as const satisfies readonly { id: string; label: string; availableInPhase?: number }[];
 
 type TabId = (typeof TABS)[number]["id"];
+type TabDef = { id: TabId; label: string; availableInPhase?: number };
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ aba?: string; regra?: string }> }) {
   const user = await requirePageUser();
   const { aba, regra } = await searchParams;
-  const tab: TabId = (TABS.find((t) => t.id === aba && !("availableInPhase" in t))?.id ?? "metodo") as TabId;
+  const tab: TabId = (TABS.find((t) => t.id === aba)?.id ?? "metodo") as TabId;
   const canEdit = user.role === "OWNER";
   const current = TABS.find((t) => t.id === tab)!;
 
@@ -44,8 +45,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         <PageHeader title="Configurações" subtitle="Marca, parâmetros, provedor de IA, acessos, backups e saúde do sistema." />
         <div className="flex flex-col gap-6 md:flex-row md:items-start">
           <nav aria-label="Seções de configuração" className="flex shrink-0 flex-row flex-wrap gap-1 md:w-64 md:flex-col">
-            {TABS.map((t) =>
-              "availableInPhase" in t ? (
+            {(TABS as readonly TabDef[]).map((t) =>
+              t.availableInPhase ? (
                 <span key={t.id} aria-disabled="true" className="flex min-h-11 cursor-not-allowed items-center justify-between gap-2 rounded-[8px] px-3 text-sm font-semibold text-text-subtle">
                   {t.label} <span className="text-[11px] font-bold">Fase {t.availableInPhase}</span>
                 </span>
@@ -62,6 +63,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             )}
           </nav>
           <div className="min-w-0 flex-1">
+            {tab === "marca" ? <BrandTab canEdit={canEdit} /> : null}
             {tab === "metodo" ? <MethodTab canEdit={canEdit} /> : null}
             {tab === "diagnostico" ? <RulesTab canEdit={canEdit} editId={regra} /> : null}
             {tab === "parametros" ? <ParametersTab canEdit={canEdit} /> : null}
@@ -72,6 +74,16 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </div>
       </PageContent>
     </>
+  );
+}
+
+async function BrandTab({ canEdit }: { canEdit: boolean }) {
+  const brand = await getSetting("brand");
+  return (
+    <Card>
+      <CardHeader title="Marca dos documentos" />
+      <div className="p-5"><BrandForm brand={brand} canEdit={canEdit} /></div>
+    </Card>
   );
 }
 
