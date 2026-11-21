@@ -1,13 +1,14 @@
 /**
  * Seeds idempotentes (podem rodar a cada deploy sem duplicar):
- * catálogo de processos, questionário-base e, opcionalmente, dados DEMO.
- * Cada fase acrescenta sua etapa aqui.
+ * questionário-base + regras condicionais; catálogo de processos (Fase 2); DEMO opcional.
  */
 import "dotenv/config";
 import { prisma } from "@/lib/db";
+import { seedQuestionnaire } from "@/features/assessments/seed";
 
 async function main() {
-  console.log("[seed] nada a semear nesta fase.");
+  const q = await seedQuestionnaire(prisma);
+  console.log(`[seed] questionário: ${q.totalQuestions} perguntas (${q.questionsCreated} novas), ${q.rulesCreated} regras novas`);
 }
 
 main()

@@ -35,6 +35,7 @@ model User {
   ownedClients   Client[]       @relation("ClientOwner")
   clientAccess   ClientAccess[]
   auditEvents    AuditEvent[]
+  notes          ClientNote[]
 }
 
 model Session {
@@ -86,9 +87,13 @@ model Client {
   deletedAt          DateTime?    @db.Timestamptz(3)
 
   owner   User           @relation("ClientOwner", fields: [ownerUserId], references: [id])
-  access  ClientAccess[]
-  files   FileAsset[]
-  jobs    BackgroundJob[]
+  access      ClientAccess[]
+  files       FileAsset[]
+  jobs        BackgroundJob[]
+  contacts    ClientContact[]
+  notes       ClientNote[]
+  assessments Assessment[]
+  findings    Finding[]
 
   @@index([status])
   @@index([name])
@@ -147,7 +152,8 @@ model FileAsset {
   accessLevel  FileAccessLevel @default(INTERNAL)
   createdAt    DateTime        @default(now()) @db.Timestamptz(3)
 
-  client Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  client    Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  evidences AssessmentEvidence[]
 
   @@index([clientId])
 }
@@ -189,4 +195,303 @@ model SystemSetting {
   valueJson Json
   updatedBy String?  @db.Uuid
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model ClientContact {
+  id                 String   @id @default(uuid()) @db.Uuid
+  clientId           String   @db.Uuid
+  name               String
+  role               String?
+  email              String?
+  phone              String?
+  notes              String?
+  dataProcessingNote String?
+  isDemo             Boolean  @default(false)
+  createdAt          DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(3)
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+}
+
+enum NoteVisibility {
+  INTERNO
+  CLIENTE
+}
+
+model ClientNote {
+  id         String         @id @default(uuid()) @db.Uuid
+  clientId   String         @db.Uuid
+  authorId   String         @db.Uuid
+  body       String
+  visibility NoteVisibility @default(INTERNO)
+  createdAt  DateTime       @default(now()) @db.Timestamptz(3)
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@index([clientId, createdAt])
+}
+
+// ───────────────────────── 5.2 Diagnósticos e questionários ─────────────────────────
+
+enum TemplateStatus {
+  DRAFT
+  ACTIVE
+  RETIRED
+}
+
+model AssessmentTemplate {
+  id        String         @id @default(uuid()) @db.Uuid
+  code      String
+  name      String
+  version   Int
+  industry  String         @default("GERAL")
+  status    TemplateStatus @default(ACTIVE)
+  createdAt DateTime       @default(now()) @db.Timestamptz(3)
+
+  domains     AssessmentDomain[]
+  questions   AssessmentQuestion[]
+  rules       AssessmentRule[]
+  assessments Assessment[]
+
+  @@unique([code, version])
+}
+
+model AssessmentDomain {
+  id         String @id @default(uuid()) @db.Uuid
+  templateId String @db.Uuid
+  code       String
+  name       String
+  sortOrder  Int
+
+  template AssessmentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, code])
+}
+
+enum QuestionType {
+  SCALE_0_5
+  BOOLEAN
+  SINGLE_CHOICE
+  MULTI_CHOICE
+  NUMBER
+  CURRENCY
+  PERCENT
+  DATE
+  TEXT
+}
+
+model AssessmentQuestion {
+  id                  String       @id @default(uuid()) @db.Uuid
+  templateId          String       @db.Uuid
+  domainCode          String
+  questionCode        String
+  title               String
+  type                QuestionType
+  required            Boolean      @default(false)
+  weight              Decimal      @default(1) @db.Decimal(6, 2)
+  sortOrder           Int
+  optionsJson         Json?
+  guidance            String?
+  allowUnknown        Boolean      @default(true)
+  allowNotApplicable  Boolean      @default(true)
+  allowEvidence       Boolean      @default(true)
+  allowNotes          Boolean      @default(true)
+  applicableByDefault Boolean      @default(true)
+
+  template AssessmentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  rules    AssessmentRule[]
+  answers  AssessmentAnswer[]
+
+  @@unique([templateId, questionCode])
+  @@index([templateId, domainCode, sortOrder])
+}
+
+enum RuleEffect {
+  SHOW
+  HIDE
+}
+
+/// Regra condicional editável: DSL limitada (and/or/not/equals/in/greaterThan/lessThan) sobre segmento e respostas.
+model AssessmentRule {
+  id               String     @id @default(uuid()) @db.Uuid
+  templateId       String     @db.Uuid
+  targetQuestionId String     @db.Uuid
+  code             String
+  effect           RuleEffect
+  conditionJson    Json
+  reason           String
+  active           Boolean    @default(true)
+  isSeed           Boolean    @default(false)
+  updatedBy        String?    @db.Uuid
+  createdAt        DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime   @updatedAt @db.Timestamptz(3)
+
+  template AssessmentTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  target   AssessmentQuestion @relation(fields: [targetQuestionId], references: [id], onDelete: Cascade)
+
+  @@unique([templateId, code])
+}
+
+enum AssessmentStatus {
+  DRAFT
+  IN_REVIEW
+  FINALIZED
+}
+
+model Assessment {
+  id                 String           @id @default(uuid()) @db.Uuid
+  clientId           String           @db.Uuid
+  templateId         String           @db.Uuid
+  number             Int
+  revision           Int              @default(0)
+  parentAssessmentId String?          @db.Uuid
+  segment            String
+  periodStart        DateTime?        @db.Date
+  periodEnd          DateTime?        @db.Date
+  status             AssessmentStatus @default(DRAFT)
+  isDemo             Boolean          @default(false)
+  startedAt          DateTime         @default(now()) @db.Timestamptz(3)
+  finalizedAt        DateTime?        @db.Timestamptz(3)
+  finalizedBy        String?          @db.Uuid
+  snapshotJson       Json?
+  createdBy          String           @db.Uuid
+  updatedAt          DateTime         @updatedAt @db.Timestamptz(3)
+
+  client   Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  template AssessmentTemplate @relation(fields: [templateId], references: [id])
+  parent   Assessment?        @relation("AssessmentRevision", fields: [parentAssessmentId], references: [id])
+  children Assessment[]       @relation("AssessmentRevision")
+  answers  AssessmentAnswer[]
+  scores   AssessmentScore[]
+  findings Finding[]
+
+  @@unique([clientId, number, revision])
+  @@index([clientId, startedAt])
+}
+
+enum AnswerConfidence {
+  VERIFIED
+  REPORTED
+  ESTIMATED
+}
+
+model AssessmentAnswer {
+  id           String           @id @default(uuid()) @db.Uuid
+  clientId     String           @db.Uuid
+  assessmentId String           @db.Uuid
+  questionId   String           @db.Uuid
+  valueJson    Json
+  confidence   AnswerConfidence @default(REPORTED)
+  respondent   String?
+  source       String?
+  notes        String?
+  updatedBy    String?          @db.Uuid
+  createdAt    DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime         @updatedAt @db.Timestamptz(3)
+
+  assessment Assessment           @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  question   AssessmentQuestion   @relation(fields: [questionId], references: [id])
+  evidences  AssessmentEvidence[]
+
+  @@unique([assessmentId, questionId])
+  @@index([clientId])
+}
+
+model AssessmentEvidence {
+  id                 String   @id @default(uuid()) @db.Uuid
+  clientId           String   @db.Uuid
+  assessmentAnswerId String   @db.Uuid
+  fileAssetId        String?  @db.Uuid
+  note               String?
+  url                String?
+  createdBy          String?  @db.Uuid
+  createdAt          DateTime @default(now()) @db.Timestamptz(3)
+
+  answer AssessmentAnswer @relation(fields: [assessmentAnswerId], references: [id], onDelete: Cascade)
+  file   FileAsset?       @relation(fields: [fileAssetId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+}
+
+model AssessmentScore {
+  id               String   @id @default(uuid()) @db.Uuid
+  clientId         String   @db.Uuid
+  assessmentId     String   @db.Uuid
+  domainCode       String
+  weightedScore    Decimal? @db.Decimal(6, 3)
+  answeredWeight   Decimal  @db.Decimal(10, 2)
+  applicableWeight Decimal  @db.Decimal(10, 2)
+  unknownCount     Int      @default(0)
+  coverage         Decimal  @db.Decimal(6, 4)
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@unique([assessmentId, domainCode])
+  @@index([clientId])
+}
+
+// ───────────────────────── 5.4 Achados ─────────────────────────
+
+enum FindingOrigin {
+  RULE
+  CONSULTANT
+  AI_SUGGESTION
+}
+
+enum FindingType {
+  PROBLEM
+  OPPORTUNITY
+  RISK
+  DATA_GAP
+  STRENGTH
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ConfidenceLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum FindingStatus {
+  DETECTED
+  REVIEWED
+  APPROVED
+  DISMISSED
+}
+
+model Finding {
+  id            String          @id @default(uuid()) @db.Uuid
+  clientId      String          @db.Uuid
+  assessmentId  String?         @db.Uuid
+  type          FindingType
+  domainCode    String
+  title         String
+  description   String
+  origin        FindingOrigin
+  severity      Severity        @default(MEDIUM)
+  confidence    ConfidenceLevel @default(MEDIUM)
+  evidenceJson  Json?
+  ruleKey       String?
+  status        FindingStatus   @default(DETECTED)
+  dismissReason String?
+  isDemo        Boolean         @default(false)
+  createdBy     String?         @db.Uuid
+  createdAt     DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime        @updatedAt @db.Timestamptz(3)
+
+  client     Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  assessment Assessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+
+  @@unique([assessmentId, ruleKey])
+  @@index([clientId, status])
 }

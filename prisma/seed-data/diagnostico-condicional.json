@@ -1,0 +1,346 @@
+{
+ "version": "1.0",
+ "note": "Regras e perguntas condicionais iniciais (DECISIONS.md). Editáveis em Configurações > Diagnóstico.",
+ "questions": [
+  {
+   "code": "DIST_01",
+   "domainCode": "DIAG08",
+   "title": "Existe controle de ruptura de estoque dos itens mais vendidos para os clientes-chave?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "DIST_02",
+   "domainCode": "DIAG05",
+   "title": "Há mix mínimo recomendado por tipo de cliente (positivação de categorias)?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "IND_01",
+   "domainCode": "DIAG08",
+   "title": "O prazo de produção prometido em proposta é validado com o PCP antes do envio?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "IND_02",
+   "domainCode": "DIAG04",
+   "title": "Propostas técnicas passam por revisão de especificação antes do envio ao cliente?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "SERV_01",
+   "domainCode": "DIAG08",
+   "title": "A capacidade da equipe de entrega (horas/pessoas) é planejada antes de vender novos contratos?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "SERV_02",
+   "domainCode": "DIAG06",
+   "title": "Existe medição de satisfação por contrato ou projeto entregue?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "REP_01",
+   "domainCode": "DIAG03",
+   "title": "Representantes e vendedores externos registram visitas e próximos passos em ferramenta comum?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "REP_02",
+   "domainCode": "DIAG10",
+   "title": "A comissão dos representantes considera margem e inadimplência, não só faturamento?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "REC_01",
+   "domainCode": "DIAG05",
+   "title": "A taxa de renovação e de cancelamento de contratos é medida mensalmente?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "VAR_01",
+   "domainCode": "DIAG02",
+   "title": "O fluxo de loja e a conversão de visitantes em vendas são medidos?",
+   "type": "SCALE_0_5",
+   "weight": 1,
+   "options": null,
+   "guidance": null,
+   "applicableByDefault": false
+  },
+  {
+   "code": "FU_CRM",
+   "domainCode": "DIAG11",
+   "title": "Qual ferramenta é usada hoje para registrar oportunidades e atividades?",
+   "type": "TEXT",
+   "weight": 0,
+   "options": null,
+   "guidance": "Pergunta complementar: não entra no score, registra contexto para o diagnóstico.",
+   "applicableByDefault": false
+  },
+  {
+   "code": "FU_ATIVOS",
+   "domainCode": "DIAG05",
+   "title": "Quantos clientes ativos a empresa tem hoje (estimativa do gestor)?",
+   "type": "NUMBER",
+   "weight": 0,
+   "options": null,
+   "guidance": "Pergunta complementar: não entra no score, registra contexto para o diagnóstico.",
+   "applicableByDefault": false
+  },
+  {
+   "code": "FU_ORCAMENTOS",
+   "domainCode": "DIAG04",
+   "title": "Quantos orçamentos estão abertos sem próximo passo definido (estimativa do gestor)?",
+   "type": "NUMBER",
+   "weight": 0,
+   "options": null,
+   "guidance": "Pergunta complementar: não entra no score, registra contexto para o diagnóstico.",
+   "applicableByDefault": false
+  },
+  {
+   "code": "FU_CUSTO",
+   "domainCode": "DIAG07",
+   "title": "Qual a principal fonte de custo usada hoje para calcular margem?",
+   "type": "SINGLE_CHOICE",
+   "weight": 0,
+   "options": [
+    "ERP",
+    "Planilha própria",
+    "Contabilidade",
+    "Não há cálculo"
+   ],
+   "guidance": "Pergunta complementar: não entra no score, registra contexto para o diagnóstico.",
+   "applicableByDefault": false
+  }
+ ],
+ "rules": [
+  {
+   "code": "SHOW_DIST_01",
+   "target": "DIST_01",
+   "effect": "SHOW",
+   "condition": {
+    "op": "in",
+    "field": "segment",
+    "values": [
+     "DISTRIBUICAO",
+     "VAREJO"
+    ]
+   },
+   "reason": "Pergunta exibida porque o segmento é Distribuição ou Varejo"
+  },
+  {
+   "code": "SHOW_DIST_02",
+   "target": "DIST_02",
+   "effect": "SHOW",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "DISTRIBUICAO"
+   },
+   "reason": "Pergunta exibida porque o segmento é Distribuição"
+  },
+  {
+   "code": "SHOW_IND_01",
+   "target": "IND_01",
+   "effect": "SHOW",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "INDUSTRIA_B2B"
+   },
+   "reason": "Pergunta exibida porque o segmento é Indústria B2B"
+  },
+  {
+   "code": "SHOW_IND_02",
+   "target": "IND_02",
+   "effect": "SHOW",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "INDUSTRIA_B2B"
+   },
+   "reason": "Pergunta exibida porque o segmento é Indústria B2B"
+  },
+  {
+   "code": "SHOW_SERV_01",
+   "target": "SERV_01",
+   "effect": "SHOW",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "SERVICOS_B2B"
+   },
+   "reason": "Pergunta exibida porque o segmento é Serviços B2B"
+  },
+  {
+   "code": "SHOW_SERV_02",
+   "target": "SERV_02",
+   "effect": "SHOW",
+   "condition": {
+    "op": "in",
+    "field": "segment",
+    "values": [
+     "SERVICOS_B2B",
+     "RECORRENTE"
+    ]
+   },
+   "reason": "Pergunta exibida porque o segmento é Serviços B2B ou Receita recorrente"
+  },
+  {
+   "code": "SHOW_REP_01",
+   "target": "REP_01",
+   "effect": "SHOW",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "REPRESENTACAO"
+   },
+   "reason": "Pergunta exibida porque o segmento é Representantes/vendedores externos"
+  },
+  {
+   "code": "SHOW_REP_02",
+   "target": "REP_02",
+   "effect": "SHOW",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "REPRESENTACAO"
+   },
+   "reason": "Pergunta exibida porque o segmento é Representantes/vendedores externos"
+  },
+  {
+   "code": "SHOW_REC_01",
+   "target": "REC_01",
+   "effect": "SHOW",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "RECORRENTE"
+   },
+   "reason": "Pergunta exibida porque o segmento é Receita recorrente"
+  },
+  {
+   "code": "SHOW_VAR_01",
+   "target": "VAR_01",
+   "effect": "SHOW",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "VAREJO"
+   },
+   "reason": "Pergunta exibida porque o segmento é Varejo"
+  },
+  {
+   "code": "SHOW_FU_CRM",
+   "target": "FU_CRM",
+   "effect": "SHOW",
+   "condition": {
+    "op": "lessThan",
+    "field": "answer:DIAG11_03",
+    "value": 3
+   },
+   "reason": "Pergunta exibida porque o rastreio de oportunidades no CRM/ERP recebeu nota abaixo de 3"
+  },
+  {
+   "code": "SHOW_FU_ATIVOS",
+   "target": "FU_ATIVOS",
+   "effect": "SHOW",
+   "condition": {
+    "op": "lessThan",
+    "field": "answer:DIAG05_04",
+    "value": 2
+   },
+   "reason": "Pergunta exibida porque a reativação de inativos recebeu nota abaixo de 2"
+  },
+  {
+   "code": "SHOW_FU_ORCAMENTOS",
+   "target": "FU_ORCAMENTOS",
+   "effect": "SHOW",
+   "condition": {
+    "op": "lessThan",
+    "field": "answer:DIAG04_01",
+    "value": 3
+   },
+   "reason": "Pergunta exibida porque o acompanhamento de orçamentos recebeu nota abaixo de 3"
+  },
+  {
+   "code": "SHOW_FU_CUSTO",
+   "target": "FU_CUSTO",
+   "effect": "SHOW",
+   "condition": {
+    "op": "lessThan",
+    "field": "answer:DIAG07_01",
+    "value": 3
+   },
+   "reason": "Pergunta exibida porque o cálculo de margem de contribuição recebeu nota abaixo de 3"
+  },
+  {
+   "code": "HIDE_DIAG08_03_SERV",
+   "target": "DIAG08_03",
+   "effect": "HIDE",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "SERVICOS_B2B"
+   },
+   "reason": "Oculta porque o segmento é Serviços B2B (sem estoque físico de produtos)"
+  },
+  {
+   "code": "HIDE_DIAG08_04_SERV",
+   "target": "DIAG08_04",
+   "effect": "HIDE",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "SERVICOS_B2B"
+   },
+   "reason": "Oculta porque o segmento é Serviços B2B (sem estoque físico de produtos)"
+  },
+  {
+   "code": "HIDE_DIAG03_07_VARE",
+   "target": "DIAG03_07",
+   "effect": "HIDE",
+   "condition": {
+    "op": "equals",
+    "field": "segment",
+    "value": "VAREJO"
+   },
+   "reason": "Oculta porque o segmento é Varejo (sem gestão de territórios de prospecção)"
+  }
+ ]
+}
