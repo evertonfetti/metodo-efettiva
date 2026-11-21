@@ -25,7 +25,7 @@ export type NavItem = {
 
 export const GLOBAL_NAV: NavItem[] = [
   { label: "Visão geral", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Clientes", href: "/clientes", icon: Building2, matchPrefix: false, availableInPhase: 1 },
+  { label: "Clientes", href: "/clientes", icon: Building2, matchPrefix: false },
   { label: "Biblioteca de processos", href: "/biblioteca", icon: BookOpen, matchPrefix: true, availableInPhase: 2 },
   { label: "Configurações", href: "/configuracoes", icon: SlidersHorizontal, matchPrefix: true },
 ];

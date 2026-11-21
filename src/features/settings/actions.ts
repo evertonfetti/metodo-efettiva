@@ -64,3 +64,31 @@ export async function pingQueueAction(): Promise<FormState> {
     return { error: "Fila indisponível: verifique o Redis." };
   }
 }
+
+export async function saveRuleAction(_: FormState, fd: FormData): Promise<FormState> {
+  try {
+    const user = await requireUser();
+    assertRole(user, "OWNER");
+    const { saveRule } = await import("@/features/assessments/rules");
+    const o: Record<string, unknown> = Object.fromEntries([...fd.entries()].filter(([k]) => !k.startsWith("$ACTION") && k !== "segments"));
+    o.segments = fd.getAll("segments").map(String);
+    o.active = fd.get("active") === "on";
+    await saveRule(user, o);
+    revalidatePath("/configuracoes");
+    return { ok: true, message: "Regra salva. Vale para diagnósticos em aberto; diagnósticos fechados mantêm o snapshot." };
+  } catch (err) {
+    return toState(err);
+  }
+}
+
+export async function toggleRuleAction(ruleId: string, active: boolean): Promise<FormState> {
+  try {
+    const user = await requireUser();
+    const { setRuleActive } = await import("@/features/assessments/rules");
+    await setRuleActive(user, ruleId, active);
+    revalidatePath("/configuracoes");
+    return { ok: true };
+  } catch (err) {
+    return toState(err);
+  }
+}

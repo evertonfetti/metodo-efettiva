@@ -12,11 +12,15 @@ import { formatDateTime } from "@/lib/format";
 import { jobLabel } from "@/lib/jobs/labels";
 import { cn } from "@/lib/utils";
 import { MethodForm, ParametersForm, PingQueueButton } from "./forms";
+import { RuleForm, RuleToggle, type RuleDefaults } from "./rules-ui";
+import { describeCondition, listRules } from "@/features/assessments/rules";
+import { conditionSchema, type Condition } from "@/features/assessments/conditions";
 
 export const metadata: Metadata = { title: "Configurações" };
 
 const TABS = [
   { id: "metodo", label: "Fases do método e escala do diagnóstico" },
+  { id: "diagnostico", label: "Regras do diagnóstico" },
   { id: "parametros", label: "Parâmetros" },
   { id: "ia", label: "Provedor de IA" },
   { id: "usuarios", label: "Usuários" },
@@ -26,9 +30,9 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ aba?: string }> }) {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ aba?: string; regra?: string }> }) {
   const user = await requirePageUser();
-  const { aba } = await searchParams;
+  const { aba, regra } = await searchParams;
   const tab: TabId = (TABS.find((t) => t.id === aba && !("availableInPhase" in t))?.id ?? "metodo") as TabId;
   const canEdit = user.role === "OWNER";
   const current = TABS.find((t) => t.id === tab)!;
@@ -59,6 +63,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           </nav>
           <div className="min-w-0 flex-1">
             {tab === "metodo" ? <MethodTab canEdit={canEdit} /> : null}
+            {tab === "diagnostico" ? <RulesTab canEdit={canEdit} editId={regra} /> : null}
             {tab === "parametros" ? <ParametersTab canEdit={canEdit} /> : null}
             {tab === "ia" ? <AiTab /> : null}
             {tab === "usuarios" ? <UsersTab /> : null}
@@ -195,6 +200,76 @@ async function HealthTab({ canEdit }: { canEdit: boolean }) {
           (cron/EasyPanel). Procedimento completo no README.
         </div>
       </Card>
+    </div>
+  );
+}
+
+function ruleDefaults(r: { id: string; effect: "SHOW" | "HIDE"; reason: string; active: boolean; conditionJson: unknown; target: { questionCode: string } }): RuleDefaults {
+  const c = conditionSchema.safeParse(r.conditionJson);
+  const base: RuleDefaults = { id: r.id, targetQuestionCode: r.target.questionCode, effect: r.effect, reason: r.reason, active: r.active };
+  if (!c.success) return base;
+  const cond = c.data as Condition;
+  if (cond.op === "equals" && cond.field === "segment") return { ...base, conditionType: "SEGMENT", segments: [String(cond.value)] };
+  if (cond.op === "in" && cond.field === "segment") return { ...base, conditionType: "SEGMENT", segments: cond.values.map(String) };
+  if ((cond.op === "lessThan" || cond.op === "greaterThan" || cond.op === "equals") && cond.field.startsWith("answer:"))
+    return { ...base, conditionType: "ANSWER", answerQuestionCode: cond.field.slice(7), operator: cond.op, value: Number(cond.value) };
+  return base;
+}
+
+async function RulesTab({ canEdit, editId }: { canEdit: boolean; editId?: string }) {
+  const { rules, questions, template } = await listRules();
+  const title = new Map(questions.map((q) => [q.questionCode, q.title]));
+  const editing = editId ? rules.find((r) => r.id === editId) : undefined;
+  return (
+    <div className="flex flex-col gap-6">
+      <Card>
+        <CardHeader title={`Regras condicionais · ${template.name} v${template.version}`} />
+        <p className="px-5 pt-4 text-sm text-text-muted">
+          Regras por segmento e por resposta anterior controlam quais perguntas aparecem. Perguntas ocultas não entram no score. Alterações valem para diagnósticos em aberto; diagnósticos fechados preservam o snapshot.
+        </p>
+        <div className="overflow-x-auto p-2">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead>
+              <tr className="text-left text-xs tracking-[0.5px] text-text-muted uppercase">
+                <th className="px-3 py-2 font-bold">Pergunta</th>
+                <th className="px-3 py-2 font-bold">Efeito</th>
+                <th className="px-3 py-2 font-bold">Condição</th>
+                <th className="px-3 py-2 font-bold">Status</th>
+                <th className="px-3 py-2 font-bold"><span className="sr-only">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rules.map((r) => {
+                const c = conditionSchema.safeParse(r.conditionJson);
+                return (
+                  <tr key={r.id} className="border-t border-border align-top">
+                    <td className="px-3 py-2.5"><b>{r.target.questionCode}</b><div className="text-xs text-text-muted">{r.target.title}</div></td>
+                    <td className="px-3 py-2.5">{r.effect === "SHOW" ? "Exibir" : "Ocultar"}</td>
+                    <td className="px-3 py-2.5">{c.success ? describeCondition(c.data, (code) => title.get(code) ?? code) : "Condição inválida (ignorada)"}<div className="text-xs text-text-subtle">{r.reason}</div></td>
+                    <td className="px-3 py-2.5">{r.active ? <Chip tone="ok" symbol="✓">Ativa</Chip> : <Chip tone="neutral" symbol="○">Inativa</Chip>}{r.isSeed ? <div className="mt-1 text-xs text-text-subtle">Padrão do seed</div> : null}</td>
+                    <td className="px-3 py-2.5">
+                      {canEdit ? (
+                        <span className="flex gap-1">
+                          <Link className="inline-flex min-h-8 items-center rounded-[8px] px-3 text-[13px] font-bold text-navy hover:bg-surface-sunken" href={`/configuracoes?aba=diagnostico&regra=${r.id}#editar-regra`}>Editar</Link>
+                          <RuleToggle id={r.id} active={r.active} />
+                        </span>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+      {canEdit ? (
+        <Card id="editar-regra">
+          <CardHeader title={editing ? `Editar regra · ${editing.target.questionCode}` : "Nova regra"} action={editing ? <Link className="text-sm font-bold text-navy hover:underline" href="/configuracoes?aba=diagnostico">Nova regra</Link> : null} />
+          <div className="p-5">
+            <RuleForm questions={questions} defaults={editing ? ruleDefaults(editing) : undefined} />
+          </div>
+        </Card>
+      ) : null}
     </div>
   );
 }

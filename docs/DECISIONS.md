@@ -23,3 +23,17 @@ Uma linha por decisão: **decisão** — motivo.
 - **Push via SSH (`url.git@github.com:.pushInsteadOf`) mantendo `origin` em HTTPS** — a máquina tem chave SSH autorizada e não tem credencial HTTPS.
 - **Neste host a porta 3000 já está ocupada por outra aplicação; validação local na 3100** — compose usa `WEB_PORT` (padrão 3000) configurável.
 - **docker-compose-v2 instalado via apt do Ubuntu** — o plugin compose não estava presente; Docker usado via sudo.
+
+## Fase 1
+- **Um template base (BASE_360 v1) + regras por segmento, em vez de 5 templates separados** — "modelo por segmento" = perfil de segmento do diagnóstico; evita duplicar 96 perguntas e mantém scores comparáveis.
+- **Regras condicionais em tabela `AssessmentRule` (efeito SHOW/HIDE + DSL JSON validada por Zod)** — o seed não trazia condições; regras iniciais em `prisma/seed-data/diagnostico-condicional.json` (10 perguntas por segmento, 4 complementares por resposta, 3 ocultações); editáveis em Configurações por formulário estruturado (sem JSON livre).
+- **HIDE prevalece sobre SHOW; regra com JSON inválido é ignorada** — nunca quebra o questionário.
+- **Perguntas complementares (texto/número/escolha) têm peso 0** — registram contexto sem distorcer o score.
+- **Score em escala 0–5 (média ponderada), cobertura separada; "não sei" vira lacuna e não zero** — RF-023/024.
+- **Diagnóstico fechado usa visibilidade/scores do snapshot** — edição posterior de regras não altera o passado.
+- **Seed não sobrescreve regras existentes** — preserva personalizações do consultor.
+- **Achados por regra: score < 2,0 com cobertura ≥ 50% → problema; cobertura < 50% → lacuna** — idempotentes por (diagnóstico, ruleKey); sempre "preliminar, validar".
+- **Evidência exige resposta prévia** — evita resposta fantasma que alteraria cobertura.
+- **Upload: tipo detectado pela assinatura do arquivo, executáveis e OOXML com macro rejeitados, nome sanitizado, prefixo `clients/<clientId>/`** — RF-031 e seção 12.1.
+- **Resumo exportado em Markdown na Fase 1** — "resumo simples"; DOCX/PDF chegam com o exportador da Fase 3.
+- **Playwright instalado já na Fase 1** — usado para revisão visual por screenshot; será o renderizador de PDF na Fase 3.

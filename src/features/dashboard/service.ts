@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { accessibleClientsWhere } from "@/lib/security/access";
 import type { SessionUser } from "@/features/auth/service";
+import { getClientJourney } from "@/features/clients/journey";
 
 /** Dados operacionais da Visão geral — somente contagens; nunca soma receitas entre clientes. */
 export async function getDashboardData(user: SessionUser) {
@@ -25,5 +26,11 @@ export async function getDashboardData(user: SessionUser) {
     prisma.client.count({ where: { ...clientWhere, isDemo: true } }),
   ]);
 
-  return { activeClients, clients, failedJobs, recentJobs, hasDemo: hasDemo > 0 };
+  const journeys = await Promise.all(clients.map((c) => getClientJourney(c.id)));
+  const clientsWithPhase = clients.map((c, i) => {
+    const j = journeys[i]!;
+    const current = j.find((p) => p.state === "CURRENT") ?? j.find((p) => p.state === "NOT_STARTED");
+    return { ...c, phase: current ? { name: current.name, gate: current.gate, index: j.indexOf(current) + 1, started: current.state === "CURRENT" } : null };
+  });
+  return { activeClients, clients: clientsWithPhase, failedJobs, recentJobs, hasDemo: hasDemo > 0 };
 }

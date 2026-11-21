@@ -3,7 +3,8 @@ import path from "node:path";
 import type { PrismaClient } from "@/generated/prisma/client";
 import { conditionSchema } from "./conditions";
 
-export const BASE_TEMPLATE = { code: "BASE_360", version: 1, name: "Questionário-base 360° (B2B)" };
+import { BASE_TEMPLATE } from "./constants";
+export { BASE_TEMPLATE };
 
 type SeedQuestion = { code: string; domainCode: string; domainName?: string; title: string; type: string; weight: number; options?: string[] | null; guidance?: string | null; applicableByDefault: boolean; allowUnknown?: boolean };
 type SeedRule = { code: string; target: string; effect: "SHOW" | "HIDE"; condition: unknown; reason: string };

@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requirePageUser();
   const clients = await prisma.client.findMany({
-    where: { ...accessibleClientsWhere(user), status: { not: "ARCHIVED" } },
+    where: accessibleClientsWhere(user),
     select: { id: true, name: true, industry: true, isDemo: true },
     orderBy: { name: "asc" },
     take: 200,

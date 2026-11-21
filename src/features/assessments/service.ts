@@ -7,9 +7,11 @@ import type { SessionUser } from "@/features/auth/service";
 import type { Prisma } from "@/generated/prisma/client";
 import { SEGMENT_CODES } from "@/features/clients/catalog";
 import { getSetting } from "@/features/settings/service";
-import { answerValueSchema, questionVisibility, type AnswerValue, type RuleLike } from "./conditions";
-import { scoreDomains, overallScore, type DomainScore } from "./scoring";
-import { BASE_TEMPLATE } from "./seed";
+import { answerValueSchema, type AnswerValue } from "./conditions";
+import type { DomainScore } from "./scoring";
+import { computeScores, type AnswerView, type QuestionView } from "./compute";
+export type { AnswerView, QuestionView };
+import { BASE_TEMPLATE } from "./constants";
 
 // ───────────────────────── leitura ─────────────────────────
 
@@ -35,33 +37,6 @@ async function loadOwned(clientId: string, assessmentId: string) {
   if (!a) throw notFound("Diagnóstico");
   return a;
 }
-
-export type QuestionView = {
-  id: string;
-  code: string;
-  domainCode: string;
-  title: string;
-  type: string;
-  weight: number;
-  options: string[] | null;
-  guidance: string | null;
-  allowUnknown: boolean;
-  allowNotApplicable: boolean;
-  allowEvidence: boolean;
-  allowNotes: boolean;
-  applicableByDefault: boolean;
-  rules: RuleLike[];
-};
-
-export type AnswerView = {
-  questionCode: string;
-  value: AnswerValue;
-  confidence: string;
-  respondent: string | null;
-  notes: string | null;
-  updatedAt: string;
-  evidences: { id: string; note: string | null; url: string | null; file: { id: string; name: string; bytes: number } | null; createdAt: string }[];
-};
 
 /** Diagnóstico completo para a tela: domínios, perguntas, regras, respostas, visibilidade e scores. */
 export async function getAssessmentDetail(user: SessionUser, clientId: string, assessmentId: string) {
@@ -112,22 +87,13 @@ export async function getAssessmentDetail(user: SessionUser, clientId: string, a
     };
   }
 
-  const computed = computeScores(assessment.segment, questionViews, answerViews);
+  let computed = computeScores(assessment.segment, questionViews, answerViews);
+  // Fechado: visibilidade e scores vêm do snapshot congelado (edições posteriores de regras não alteram o passado).
+  if (assessment.status === "FINALIZED" && assessment.snapshotJson) {
+    const snap = assessment.snapshotJson as unknown as Pick<typeof computed, "visibility" | "domainScores" | "overall">;
+    if (snap.visibility && snap.domainScores && snap.overall) computed = { visibility: snap.visibility, domainScores: snap.domainScores, overall: snap.overall };
+  }
   return { client: { id: client.id, name: client.name, isDemo: client.isDemo }, assessment, domains, questions: questionViews, answers: answerViews, scaleLabels, ...computed };
-}
-
-/** Visibilidade + scores (mesma função pura usada no navegador). */
-export function computeScores(segment: string, questions: QuestionView[], answers: Record<string, Pick<AnswerView, "value"> | undefined>) {
-  const answerValues: Record<string, AnswerValue | undefined> = {};
-  for (const [k, v] of Object.entries(answers)) answerValues[k] = v?.value;
-  const ctx = { segment, answers: answerValues };
-  const visibility: Record<string, { visible: boolean; reason?: string }> = {};
-  for (const q of questions) visibility[q.code] = questionVisibility(q.applicableByDefault, q.rules, ctx);
-  const domainScores = scoreDomains(
-    questions.map((q) => ({ code: q.code, domainCode: q.domainCode, type: q.type, weight: q.weight, visible: visibility[q.code]!.visible })),
-    answerValues,
-  );
-  return { visibility, domainScores, overall: overallScore(domainScores) };
 }
 
 // ───────────────────────── escrita ─────────────────────────

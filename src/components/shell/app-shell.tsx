@@ -13,8 +13,10 @@ export function AppShell({ sidebar, children }: { sidebar: Omit<SidebarProps, "o
   return (
     <MobileNavContext.Provider value={() => setOpen(true)}>
       <div className="flex min-h-screen">
-        <aside className="sticky top-0 hidden h-screen w-[248px] shrink-0 overflow-y-auto lg:block">
-          <AppSidebar {...sidebar} />
+        <aside className="hidden w-[248px] shrink-0 bg-navy lg:block">
+          <div className="sticky top-0 h-screen overflow-y-auto">
+            <AppSidebar {...sidebar} />
+          </div>
         </aside>
         <Dialog.Root open={open} onOpenChange={setOpen}>
           <Dialog.Portal>

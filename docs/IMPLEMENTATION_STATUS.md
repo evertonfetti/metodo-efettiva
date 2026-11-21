@@ -44,16 +44,20 @@ curl localhost:3100/api/health
 ## Fase 1 — Cadastro e diagnóstico operacional
 | Item | Status | Evidência |
 |---|---|---|
-| Clientes (CRUD, busca, filtros, paginação) | TODO | |
-| Visão 360° | TODO | |
-| Modelos de questionário versionados, 12 áreas, 96 perguntas seed | TODO | |
-| Regras condicionais (segmento/resposta) editáveis | TODO | |
-| Anexos/evidências e notas | TODO | |
-| Autosave | TODO | |
-| Score/cobertura (não sei / não se aplica não penalizam) | TODO | |
-| Achados manuais | TODO | |
-| Finalização com snapshot + revisão | TODO | |
-| **Aceite:** 2 empresas, diagnóstico completo em uma, fechar e exportar resumo sem misturar | TODO | |
+| Clientes: cadastro (RHF+Zod, revalidação no servidor), edição, busca, filtros, paginação, arquivamento | DONE | `/clientes`, `/clientes/novo`, `/clientes/[id]/editar`; `tests/integration/clients.test.ts` |
+| CPF/CNPJ cifrado (AES-256-GCM) e exibido mascarado | DONE | `src/lib/security/crypto.ts`; teste em clients.test.ts |
+| Contatos (com base de tratamento LGPD), notas com visibilidade, tags | DONE | Visão 360° |
+| Visão 360° (MethodJourney, banner de dados, KPIs "Indisponível" com motivo, barras por área) | DONE | `/clientes/[id]`; screenshot 1440/390 conferido |
+| Questionário versionado: 12 áreas, 96 perguntas-base + 14 condicionais, seed idempotente | DONE | `npm run db:seed` 2× → 0 novas; teste "seed" |
+| Regras condicionais (DSL limitada) por segmento e por resposta anterior, editáveis em Configurações | DONE | `/configuracoes?aba=diagnostico`; `tests/unit/conditions.test.ts` |
+| Tipos de resposta (escala, não sei, não se aplica, texto, número, escolha) + validação por tipo | DONE | assessments.test.ts |
+| Evidências (upload privado com detecção de tipo real, link, descrição) e notas | DONE | aceite: upload ok, .exe rejeitado, download cruzado 404 |
+| Autosave por resposta com indicador e "tentar de novo" | DONE | PATCH `/api/v1/clients/:id/assessments/:aid` |
+| Score/cobertura (não sei/não se aplica não penalizam; null quando sem resposta) | DONE | `tests/unit/scoring.test.ts` (teste obrigatório 6) |
+| Achados por regra (idempotentes) e manuais; revisar/aprovar/descartar com motivo | DONE | `/resumo`; assessments.test.ts |
+| Fechamento com snapshot imutável + revisões | DONE | edição após fechar → 409; revisão preserva original |
+| Exportar resumo simples (Markdown) | DONE | `GET …/summary?format=md` |
+| **Aceite:** 2 empresas, diagnóstico completo em uma, fechar e exportar resumo sem misturar | DONE | `npx tsx scripts/acceptance/fase1.ts` → "ACEITE FASE 1: OK" (17 verificações) |
 
 ## Fase 2 — Biblioteca, oportunidades e implantação
 | Item | Status | Evidência |
@@ -110,12 +114,12 @@ curl localhost:3100/api/health
 ## Testes obrigatórios (seção 15)
 | # | Teste | Status | Arquivo |
 |---|---|---|---|
-| 1 | Isolamento por troca de ID | PARTIAL | `tests/integration/access.test.ts` (base); ampliar por recurso nas fases |
+| 1 | Isolamento por troca de ID | PARTIAL | access/clients/assessments tests + aceite fase 1 (diagnóstico e arquivo); ampliar a projetos/documentos/exports |
 | 2 | Importação idempotente | TODO | |
 | 3 | Moeda `1.234,56` | TODO | |
 | 4 | Cancelamentos não inflam vendas | TODO | |
 | 5 | Ausência de custo → margem indisponível | TODO | |
-| 6 | Questionário: não sei/não se aplica | TODO | |
+| 6 | Questionário: não sei/não se aplica | DONE | `tests/unit/scoring.test.ts` |
 | 7 | Versão aprovada imutável | TODO | |
 | 8 | Audiência INTERNO fora do arquivo CLIENTE | TODO | |
 | 9 | IA: evidência inexistente rejeitada | TODO | |
@@ -123,4 +127,4 @@ curl localhost:3100/api/health
 
 ---
 
-PRÓXIMO PASSO: concluir validação Docker da Fase 0 (`sudo docker compose up -d --build` com `WEB_PORT=3100`, testar persistência após `docker compose restart`) e iniciar Fase 1 pelo schema de clientes/diagnóstico (`prisma/schema.prisma`) + seed do questionário.
+PRÓXIMO PASSO: Fase 2 — schema de ProcessDefinition/ProcessRevision, Opportunity, OpportunityProcess, Project, ProjectProcess, ActionTask etc.; seed dos 146 processos + `prisma/seed-data/processos-detalhados.json` (Anexo C, linhas 1510–1615 da especificação).

@@ -12,6 +12,9 @@ import { requirePageUser } from "@/lib/security/session";
 import { getDashboardData } from "@/features/dashboard/service";
 import { formatDateTime, formatLongDate, DEFAULT_TZ } from "@/lib/format";
 import { jobLabel } from "@/lib/jobs/labels";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { segmentLabel } from "@/features/clients/catalog";
 
 export const metadata: Metadata = { title: "Visão geral" };
 
@@ -21,7 +24,9 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <Topbar crumbs={[{ label: "Visão geral" }]} />
+      <Topbar crumbs={[{ label: "Visão geral" }]}>
+        {user.role !== "VIEWER" ? <Button asChild><Link href="/clientes/novo">+ Novo cliente</Link></Button> : null}
+      </Topbar>
       <PageContent>
         <PageHeader
           title="Visão geral"
@@ -41,35 +46,38 @@ export default async function DashboardPage() {
 
         <div className="flex flex-wrap items-start gap-6">
           <Card className="min-w-0 flex-[999_1_520px]" aria-labelledby="dash-clientes">
-            <CardHeader id="dash-clientes" title="Clientes" />
+            <CardHeader id="dash-clientes" title="Clientes" action={data.clients.length ? <Link href="/clientes" className="text-sm font-bold text-navy hover:underline">Ver todos</Link> : null} />
             {data.clients.length === 0 ? (
               <EmptyState
                 icon={Building2}
                 title="Nenhum cliente cadastrado"
-                description="Cadastre a primeira empresa-cliente para iniciar o diagnóstico 360°. O cadastro de clientes é entregue na Fase 1."
+                description="Cadastre a primeira empresa-cliente para iniciar o diagnóstico 360°."
+                action={user.role !== "VIEWER" ? <Button asChild><Link href="/clientes/novo">+ Novo cliente</Link></Button> : undefined}
               />
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[560px] border-collapse text-sm">
+                <table className="w-full min-w-[720px] border-collapse text-sm">
                   <thead>
                     <tr className="text-left text-xs tracking-[0.5px] text-text-muted uppercase">
                       <th className="px-5 py-3 font-bold">Empresa</th>
                       <th className="px-3 py-3 font-bold">Segmento</th>
-                      <th className="px-3 py-3 font-bold">Status</th>
-                      <th className="px-5 py-3 font-bold">Cliente desde</th>
+                      <th className="px-3 py-3 font-bold">Fase do método</th>
+                      <th className="px-3 py-3 font-bold">Próximo marco</th>
+                      <th className="px-5 py-3 font-bold">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.clients.map((c) => (
                       <tr key={c.id} className="border-t border-border">
-                        <td className="px-5 py-3.5 font-bold text-navy">
-                          {c.name} <DemoBadge show={c.isDemo} />
+                        <td className="px-5 py-3.5">
+                          <Link href={`/clientes/${c.id}`} className="font-bold text-navy hover:underline">{c.name}</Link> <DemoBadge show={c.isDemo} />
                         </td>
-                        <td className="px-3 py-3.5">{c.industry}</td>
-                        <td className="px-3 py-3.5">
+                        <td className="px-3 py-3.5">{segmentLabel(c.industry)}</td>
+                        <td className="px-3 py-3.5">{c.phase ? `${c.phase.index}. ${c.phase.name}${c.phase.started ? "" : " (não iniciada)"}` : "—"}</td>
+                        <td className="max-w-[260px] px-3 py-3.5 text-[13px] text-text-muted">{c.phase?.gate ?? "—"}</td>
+                        <td className="px-5 py-3.5">
                           <StatusBadge context="client" value={c.status} />
                         </td>
-                        <td className="px-5 py-3.5">{formatDateTime(c.createdAt)}</td>
                       </tr>
                     ))}
                   </tbody>
