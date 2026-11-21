@@ -100,6 +100,26 @@ bash scripts/restore.sh ./backups/efettiva-AAAAMMDD-HHMMSS   # pede confirmaçã
 - Guarde os backups fora do servidor, com acesso restrito (contêm dados de clientes).
 - Use `COMPOSE="sudo docker compose"` se o usuário não estiver no grupo docker.
 
+## Reinstalação do zero (servidor Linux limpo)
+
+1. Instale Docker Engine + plugin Compose e clone o repositório.
+2. `bash scripts/setup-env.sh` (gera `.env` com segredos aleatórios; anote a senha do OWNER exibida) — ou copie `.env.example` e preencha.
+3. `docker compose up -d --build` — o serviço `migrate` aplica migrations, roda os seeds idempotentes e cria o OWNER; `web` (porta `WEB_PORT`, padrão 3000) e `worker` sobem em seguida.
+4. Confira `curl http://localhost:3000/api/health` e faça login.
+5. Para restaurar um backup no servidor novo: copie o diretório do backup e rode `bash scripts/restore.sh <dir>` (os volumes `pgdata` e `storage` passam a conter os dados restaurados).
+6. Opcional: `docker compose exec web npx tsx scripts/seed-demo.ts` para os dados de demonstração.
+
+Publique atrás de um proxy reverso com TLS (EasyPanel/Caddy/Nginx), com `APP_URL` em `https://…` (cookies passam a `Secure`). Postgres e Redis ficam só em 127.0.0.1.
+
+## Operação contínua
+
+- **Jobs:** o worker recupera sozinho jobs presos (worker reiniciado) a cada 5 minutos; falhas aparecem em Configurações → Backups e saúde, com "Tentar de novo" (operações idempotentes, sem duplicar).
+- **Auditoria:** Configurações → Auditoria (OWNER) lista aprovações, importações, exportações, exclusões e edições críticas, com usuário e data.
+- **LGPD:** em Editar cadastro do cliente (OWNER): exportar todos os dados em JSON e exclusão assistida (nome + motivo; remove banco e arquivos, registra a eliminação na auditoria).
+- **Testes de aceite e E2E:** `scripts/acceptance/fase1..6.ts` e `scripts/e2e/fluxo.ts` (navegador) contra o servidor; `npm test` para unitários/integração.
+- **Atualização de dependências:** mensalmente `npm outdated` + `npm audit`; atualize versões fixas uma a uma (preferir versões publicadas há ≥ 2 semanas), rode `npm test`, `npm run build` e os aceites, e registre em `docs/DECISIONS.md`.
+- **Incidente de segurança/dados:** (1) revogue sessões (`DELETE FROM "Session"`) e troque `OWNER_PASSWORD`/chaves no `.env`; (2) preserve logs e a trilha de auditoria; (3) identifique clientes afetados pela auditoria (`clientId`); (4) restaure do último backup íntegro se houver corrupção; (5) comunique os responsáveis conforme contrato/LGPD.
+
 ## Segurança (resumo)
 
 Senhas Argon2id · sessão em cookie HTTP-only com hash do token no banco · bloqueio após 5 tentativas (15 min) · autorização por cliente no servidor (`assertClientAccess`) · verificação de origem nas rotas REST · headers de segurança · segredos só em `.env`.

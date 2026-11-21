@@ -53,7 +53,31 @@ export function parseCsv(text: string): Table {
   return { headers: headers.map((h) => h.trim()), rows: body };
 }
 
+/** Tamanho descompactado máximo de um XLSX (proteção contra "zip bomb"). */
+export const MAX_XLSX_UNCOMPRESSED = 200 * 1_048_576;
+
+/** Soma o tamanho descompactado declarado no diretório central do ZIP sem descompactar nada. */
+export function zipUncompressedSize(buf: Buffer): number {
+  // fim do diretório central (EOCD): assinatura 0x06054b50 nos últimos ~64 KB
+  const min = Math.max(0, buf.length - 65_557);
+  let eocd = -1;
+  for (let i = buf.length - 22; i >= min; i--) if (buf.readUInt32LE(i) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error("XLSX inválido");
+  const entries = buf.readUInt16LE(eocd + 10);
+  let off = buf.readUInt32LE(eocd + 16);
+  let total = 0;
+  for (let n = 0; n < entries && off + 46 <= buf.length; n++) {
+    if (buf.readUInt32LE(off) !== 0x02014b50) throw new Error("XLSX inválido");
+    const size = buf.readUInt32LE(off + 24);
+    if (size === 0xffffffff) return Number.POSITIVE_INFINITY; // ZIP64: tratar como grande demais
+    total += size;
+    off += 46 + buf.readUInt16LE(off + 28) + buf.readUInt16LE(off + 30) + buf.readUInt16LE(off + 32);
+  }
+  return total;
+}
+
 export async function readXlsx(buf: Buffer, sheet?: string): Promise<Table & { sheets: string[]; sheet: string }> {
+  if (zipUncompressedSize(buf) > MAX_XLSX_UNCOMPRESSED) throw new Error("XLSX descompactado excede o limite de 200 MB");
   const { default: readXlsxFile } = await import("read-excel-file/node");
   const sheets = await readXlsxFile(buf);
   if (!sheets.length) throw new Error("Planilha vazia");

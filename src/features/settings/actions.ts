@@ -104,9 +104,12 @@ export async function saveBrandAction(_: FormState, fd: FormData): Promise<FormS
     let logoFileId = fd.get("removeLogo") === "on" ? null : current.logoFileId;
     const logo = fd.get("logo");
     if (logo instanceof File && logo.size > 0) {
-      const asset = await putFile({ clientId: null, uploadedBy: user.id, originalName: logo.name, data: Buffer.from(await logo.arrayBuffer()), maxBytes: 2 * 1_048_576 });
-      if (asset.mime !== "image/png" && asset.mime !== "image/jpeg") throw new AppError("VALIDATION", "Envie o logo em PNG ou JPG.");
-      logoFileId = asset.id;
+      const data = Buffer.from(await logo.arrayBuffer());
+      const { detectFileType } = await import("@/lib/storage");
+      // tipo real verificado ANTES de gravar (nada órfão em system/)
+      const t = detectFileType(data, logo.name);
+      if (t.mime !== "image/png" && t.mime !== "image/jpeg") throw new AppError("VALIDATION", "Envie o logo em PNG ou JPG.");
+      logoFileId = (await putFile({ clientId: null, uploadedBy: user.id, originalName: logo.name, data, maxBytes: 2 * 1_048_576 })).id;
     }
     await updateSetting(user, "brand", {
       companyName: String(fd.get("companyName") ?? ""),

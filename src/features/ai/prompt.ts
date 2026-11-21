@@ -23,7 +23,8 @@ export function userPrompt(payload: unknown, instruction: string | null) {
     "Parta do conteúdo atual (currentSection): mantenha o que é correto, detalhe o que é genérico e marque lacunas com [PENDENTE: …].",
     instruction ? `Orientação do consultor (confiável): ${instruction}` : "",
     "<dados_nao_confiaveis>",
-    JSON.stringify(payload),
+    // "<" escapado: o próprio dado não consegue fechar o bloco de dados não confiáveis
+    JSON.stringify(payload).replace(/</g, "\\u003c"),
     "</dados_nao_confiaveis>",
   ]
     .filter(Boolean)

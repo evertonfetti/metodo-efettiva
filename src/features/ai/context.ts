@@ -62,7 +62,14 @@ export async function assembleSectionContext(user: SessionUser, clientId: string
   const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pseudo = (s: string) => pairs.reduce((acc, [token, real]) => acc.replace(new RegExp(esc(real), "gi"), token), s);
   const money = (s: string) => (opts.includeFinancial ? s : s.replace(/R\$\s?-?[\d.]+(,\d+)?/g, "[valor omitido]"));
-  const clean = (s: string) => money(pseudo(s));
+  // dados pessoais digitados em texto livre (e-mail, telefone, CPF/CNPJ) nunca vão ao provedor
+  const pii = (s: string) =>
+    s
+      .replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, "[e-mail omitido]")
+      .replace(/\b\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}\b/g, "[CNPJ omitido]")
+      .replace(/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, "[CPF omitido]")
+      .replace(/(\+?55\s?)?\(?\d{2}\)?\s?9?\d{4}[-\s]?\d{4}\b/g, "[telefone omitido]");
+  const clean = (s: string) => money(pii(pseudo(s)));
 
   // ── evidências: as do documento + indicadores + oportunidades do projeto
   const evidence: AiEvidence[] = (sources.evidence ?? []).map((e) => ({ ...e, label: clean(e.label), sourceType: "ASSESSMENT", quality: "REPORTED" }));
@@ -113,7 +120,7 @@ export async function assembleSectionContext(user: SessionUser, clientId: string
     dataAlerts: ctx.dataAlerts.map((a) => `${a.code}: ${a.message}`),
     allowedProcessCodes,
     allowedEvidenceIds: evidence.map((e) => e.ref),
-    instruction: opts.instruction ? opts.instruction.slice(0, 1000) : null,
+    instruction: opts.instruction ? clean(opts.instruction).slice(0, 1000) : null,
   };
   const inputHash = createHash("sha256").update(JSON.stringify(payload)).digest("hex");
   return { payload, replacements: pairs, evidence, allowedProcessCodes, inputHash, sensitive, sectionTitle: section.title, visibility: section.visibility };

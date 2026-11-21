@@ -50,6 +50,7 @@ export async function createBatch(user: SessionUser, clientId: string, input: un
     table = await loadTable(clientId, asset.id);
   } catch (err) {
     if (err instanceof AppError) throw err;
+    if (err instanceof Error && /excede o limite/.test(err.message)) throw new AppError("VALIDATION", "Planilha grande demais depois de descompactada (limite de 200 MB): divida o arquivo ou envie em CSV.");
     throw new AppError("VALIDATION", "Não foi possível ler o arquivo. Verifique se é um CSV ou XLSX válido.");
   }
   if (table.headers.filter(Boolean).length < 2) throw new AppError("VALIDATION", "Cabeçalho não encontrado: a primeira linha deve ter os nomes das colunas.");
@@ -208,7 +209,8 @@ export async function validateBatch(user: SessionUser, clientId: string, batchId
   // arquivo de erros exportável (RF-035)
   let errorFileAssetId: string | null = null;
   if (errors.length) {
-    const esc = (s: string) => `"${s.replace(/"/g, '""')}"`;
+    // neutraliza fórmulas (= + - @ tab CR) ao abrir no Excel; aspas escapadas
+    const esc = (s: string) => `"${(/^[=+\-@\t\r]/.test(s) ? `'${s}` : s).replace(/"/g, '""')}"`;
     const csv = "﻿linha;campo;motivo;valor\n" + errors.map((e) => [e.row, e.field ?? "", e.reason, e.raw ?? ""].map((x) => esc(String(x))).join(";")).join("\n");
     errorFileAssetId = (await putFile({ clientId, uploadedBy: user.id, originalName: `erros-${IMPORT_TYPES[b.type].file}-${b.id.slice(0, 8)}.csv`, data: Buffer.from(csv, "utf8"), maxBytes: 50 * 1_048_576, forcedType: FILE_TYPES.csv! })).id;
   }

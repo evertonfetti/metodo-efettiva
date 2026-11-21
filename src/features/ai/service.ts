@@ -180,7 +180,8 @@ export async function decideGeneration(user: SessionUser, clientId: string, gene
   if (g.decision !== "PENDING") throw new AppError("INVALID_STATE", "Esta sugestão já foi decidida.");
   const d = decisionSchema.parse(input);
   if (d.decision === "REJECT") {
-    await prisma.aiGeneration.update({ where: { id: g.id }, data: { decision: "REJECTED", decidedBy: user.id, decidedAt: new Date(), decisionNote: d.note ?? null } });
+    const r = await prisma.aiGeneration.updateMany({ where: { id: g.id, decision: "PENDING" }, data: { decision: "REJECTED", decidedBy: user.id, decidedAt: new Date(), decisionNote: d.note ?? null } });
+    if (r.count === 0) throw new AppError("INVALID_STATE", "Esta sugestão já foi decidida.");
     await audit({ actorUserId: user.id, clientId, entityType: "AiGeneration", entityId: g.id, action: "ai.reject" });
     return { id: g.id, decision: "REJECTED" };
   }
@@ -195,8 +196,15 @@ export async function decideGeneration(user: SessionUser, clientId: string, gene
   const cited = new Set([...(out.cited ?? []), ...(text.match(/\bEV-\d{3}\b/g) ?? [])]);
   const evidence = local.evidence.filter((e) => cited.has(e.ref)).map((e) => ({ ref: e.ref, label: e.label, kind: e.kind }));
   const user1 = user.name.split(" ")[0];
-  await applyAiContent(user, clientId, g.documentId, g.revisionId, g.sectionKey, { blocks, aiGenerationId: g.id, evidence, originNote: `Sugestão IA (${g.model}) ${edited ? "editada" : "aceita"} por ${user1}` });
-  await prisma.aiGeneration.update({ where: { id: g.id }, data: { decision: edited ? "EDITED" : "ACCEPTED", decidedBy: user.id, decidedAt: new Date(), decisionNote: d.note ?? null } });
+  // reserva atômica da decisão: dois aceites concorrentes não aplicam o conteúdo duas vezes
+  const claimed = await prisma.aiGeneration.updateMany({ where: { id: g.id, decision: "PENDING" }, data: { decision: edited ? "EDITED" : "ACCEPTED", decidedBy: user.id, decidedAt: new Date(), decisionNote: d.note ?? null } });
+  if (claimed.count === 0) throw new AppError("INVALID_STATE", "Esta sugestão já foi decidida.");
+  try {
+    await applyAiContent(user, clientId, g.documentId, g.revisionId, g.sectionKey, { blocks, aiGenerationId: g.id, evidence, originNote: `Sugestão IA (${g.model}) ${edited ? "editada" : "aceita"} por ${user1}` });
+  } catch (err) {
+    await prisma.aiGeneration.update({ where: { id: g.id }, data: { decision: "PENDING", decidedBy: null, decidedAt: null } });
+    throw err;
+  }
   await audit({ actorUserId: user.id, clientId, entityType: "AiGeneration", entityId: g.id, action: edited ? "ai.accept_edited" : "ai.accept", meta: { sectionKey: g.sectionKey } });
   return { id: g.id, decision: edited ? "EDITED" : "ACCEPTED" };
 }
