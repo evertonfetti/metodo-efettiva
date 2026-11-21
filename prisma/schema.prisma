@@ -105,6 +105,15 @@ model Client {
   documents            Document[]
   documentRevisions    DocumentRevision[]
   documentExports      DocumentExport[]
+  importBatches        ImportBatch[]
+  importErrors         ImportRowError[]
+  importProfiles       ImportMappingProfile[]
+  customers            Customer[]
+  products             Product[]
+  sales                Sale[]
+  saleItems            SaleItem[]
+  quotes               Quote[]
+  metricSnapshots      MetricSnapshot[]
 
   @@index([status])
   @@index([name])
@@ -869,4 +878,245 @@ model DocumentExport {
   file     FileAsset?       @relation(fields: [fileAssetId], references: [id], onDelete: SetNull)
 
   @@index([clientId, documentId])
+}
+
+// ───────────────────────── Fase 4: importações e base comercial ─────────────────────────
+
+enum ImportType {
+  CUSTOMERS
+  PRODUCTS
+  SALES
+  SALE_ITEMS
+  QUOTES
+}
+
+enum ImportStatus {
+  UPLOADED
+  MAPPED
+  VALIDATED
+  IMPORTING
+  COMPLETED
+  PARTIAL
+  FAILED
+}
+
+enum SaleKind {
+  ORDER
+  INVOICE
+}
+
+enum SaleStatus {
+  VALID
+  CANCELLED
+  RETURN
+}
+
+enum QuoteStatus {
+  OPEN
+  WON
+  LOST
+  EXPIRED
+}
+
+model ImportBatch {
+  id               String       @id @default(uuid()) @db.Uuid
+  clientId         String       @db.Uuid
+  type             ImportType
+  fileAssetId      String       @db.Uuid
+  originalName     String
+  sourceSystem     String
+  recordKind       SaleKind?
+  sheetName        String?
+  headersJson      Json         @default("[]")
+  mappingJson      Json?
+  summaryJson      Json?
+  previewJson      Json?
+  status           ImportStatus @default(UPLOADED)
+  totalRows        Int          @default(0)
+  acceptedRows     Int          @default(0)
+  rejectedRows     Int          @default(0)
+  createdRows      Int          @default(0)
+  updatedRows      Int          @default(0)
+  unchangedRows    Int          @default(0)
+  errorFileAssetId String?      @db.Uuid
+  sourceValidated  Boolean      @default(false)
+  jobId            String?      @db.Uuid
+  errorMessage     String?
+  createdBy        String       @db.Uuid
+  createdAt        DateTime     @default(now()) @db.Timestamptz(3)
+  startedAt        DateTime?    @db.Timestamptz(3)
+  finishedAt       DateTime?    @db.Timestamptz(3)
+
+  client Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  errors ImportRowError[]
+
+  @@index([clientId, type, createdAt])
+}
+
+model ImportRowError {
+  id           String   @id @default(uuid()) @db.Uuid
+  clientId     String   @db.Uuid
+  batchId      String   @db.Uuid
+  rowNumber    Int
+  field        String?
+  reason       String
+  rawValueSafe String?
+
+  client Client      @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  batch  ImportBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([batchId, rowNumber])
+}
+
+/// Perfil de mapeamento salvo por cliente e tipo de arquivo (RF-032).
+model ImportMappingProfile {
+  id          String     @id @default(uuid()) @db.Uuid
+  clientId    String     @db.Uuid
+  type        ImportType
+  mappingJson Json
+  updatedAt   DateTime   @updatedAt @db.Timestamptz(3)
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, type])
+}
+
+model Customer {
+  id                  String   @id @default(uuid()) @db.Uuid
+  clientId            String   @db.Uuid
+  externalId          String
+  name                String
+  segment             String?
+  sellerRef           String?
+  active              Boolean?
+  typicalIntervalDays Int?
+  rowHash             String
+  batchId             String?  @db.Uuid
+  createdAt           DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt           DateTime @updatedAt @db.Timestamptz(3)
+
+  client Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  sales  Sale[]
+  quotes Quote[]
+
+  @@unique([clientId, externalId])
+}
+
+model Product {
+  id         String   @id @default(uuid()) @db.Uuid
+  clientId   String   @db.Uuid
+  externalId String
+  sku        String?
+  name       String
+  category   String?
+  active     Boolean?
+  rowHash    String
+  batchId    String?  @db.Uuid
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  client Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  items  SaleItem[]
+
+  @@unique([clientId, externalId])
+}
+
+model Sale {
+  id           String     @id @default(uuid()) @db.Uuid
+  clientId     String     @db.Uuid
+  sourceSystem String
+  externalId   String
+  customerId   String     @db.Uuid
+  occurredAt   DateTime   @db.Date
+  recordKind   SaleKind
+  status       SaleStatus
+  statusRaw    String
+  grossAmount  Decimal?   @db.Decimal(14, 2)
+  discounts    Decimal?   @db.Decimal(14, 2)
+  deductions   Decimal?   @db.Decimal(14, 2)
+  netAmount    Decimal    @db.Decimal(14, 2)
+  netDerived   Boolean    @default(false)
+  sellerRef    String?
+  rowHash      String
+  batchId      String     @db.Uuid
+  createdAt    DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime   @updatedAt @db.Timestamptz(3)
+
+  client   Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  customer Customer   @relation(fields: [customerId], references: [id])
+  items    SaleItem[]
+
+  @@unique([clientId, sourceSystem, externalId])
+  @@index([clientId, occurredAt, status])
+}
+
+model SaleItem {
+  id               String   @id @default(uuid()) @db.Uuid
+  clientId         String   @db.Uuid
+  saleId           String   @db.Uuid
+  productId        String?  @db.Uuid
+  externalLineId   String
+  quantity         Decimal  @db.Decimal(14, 4)
+  unitPrice        Decimal  @db.Decimal(14, 4)
+  discount         Decimal? @db.Decimal(14, 2)
+  unitVariableCost Decimal? @db.Decimal(14, 4)
+  totalAmount      Decimal  @db.Decimal(14, 2)
+  variableCostTotal Decimal? @db.Decimal(14, 2)
+  rowHash          String
+  batchId          String   @db.Uuid
+
+  client  Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  sale    Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@unique([saleId, externalLineId])
+  @@index([clientId])
+}
+
+model Quote {
+  id                String      @id @default(uuid()) @db.Uuid
+  clientId          String      @db.Uuid
+  sourceSystem      String
+  externalId        String
+  customerId        String      @db.Uuid
+  issuedAt          DateTime    @db.Date
+  validUntil        DateTime?   @db.Date
+  status            QuoteStatus
+  statusRaw         String
+  amount            Decimal     @db.Decimal(14, 2)
+  ownerRef          String?
+  lastInteractionAt DateTime?   @db.Date
+  lostReason        String?
+  rowHash           String
+  batchId           String      @db.Uuid
+  createdAt         DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime    @updatedAt @db.Timestamptz(3)
+
+  client   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@unique([clientId, sourceSystem, externalId])
+  @@index([clientId, status, issuedAt])
+}
+
+/// Valor de KPI calculado com versão da fórmula, fonte e qualidade de entrada (seção 7).
+model MetricSnapshot {
+  id                 String   @id @default(uuid()) @db.Uuid
+  clientId           String   @db.Uuid
+  projectId          String?  @db.Uuid
+  metricCode         String
+  periodStart        DateTime @db.Date
+  periodEnd          DateTime @db.Date
+  valueDecimal       Decimal? @db.Decimal(18, 4)
+  unit               String
+  calculationVersion String
+  sourceJson         Json
+  inputQuality       String
+  unavailableReason  String?
+  recordedBy         String?  @db.Uuid
+  createdAt          DateTime @default(now()) @db.Timestamptz(3)
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, metricCode, periodStart])
 }

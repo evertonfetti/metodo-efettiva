@@ -1,5 +1,6 @@
 import type { BackgroundJob, Prisma } from "@/generated/prisma/client";
 import { runExport } from "@/features/documents/service";
+import { runCommit } from "@/features/imports/service";
 
 export type HandlerContext = {
   job: BackgroundJob;
@@ -21,5 +22,12 @@ export const handlers: Record<string, JobHandler> = {
     if (!exportId) throw new Error("payload sem exportId");
     await setProgress(10);
     return runExport(exportId, job.clientId);
+  },
+  /** Importação: grava o lote validado de forma idempotente e recalcula os indicadores do cliente. */
+  "import.commit": async ({ job, setProgress }) => {
+    const batchId = (job.payloadJson as { batchId?: string } | null)?.batchId;
+    if (!batchId) throw new Error("payload sem batchId");
+    await setProgress(10);
+    return runCommit(batchId, job.clientId);
   },
 };
