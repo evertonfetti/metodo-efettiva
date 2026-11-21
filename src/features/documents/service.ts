@@ -114,7 +114,7 @@ async function qaFor(doc: { clientId: string; projectId: string | null }, rev: {
     assessmentCoverage: assessment ? (overall?.coverage ?? 0) : null,
     assessmentFinalized: assessment?.status === "FINALIZED",
     tasksWithoutDueDate: noDue,
-    hasCommercialData: false, // importações chegam na Fase 4
+    hasCommercialData: (await prisma.metricSnapshot.count({ where: { clientId: doc.clientId, projectId: null, metricCode: "SALES_VALUE", valueDecimal: { not: null } } })) > 0,
   });
 }
 

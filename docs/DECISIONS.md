@@ -75,3 +75,26 @@ Uma linha por decisão: **decisão** — motivo.
 - **Logo da marca como arquivo de sistema privado (`system/…`, sem clientId), servido só autenticado** — RF-084 sem URL pública.
 - **Editor abre em "Prévia" (formato de documento) e edita por blocos ao clicar "Editar"** — capítulos de processo são longos; leitura primeiro, como no mockup 06.
 - **Comparação de versões por seção com diff de linhas (LCS) sobre o Markdown de cada seção** — sem dependência; mostra alterada/nova/removida.
+
+## Fase 4
+- **`read-excel-file` 9.3.14 (leitura) e `write-excel-file` 4.1.1 (modelos), não `xlsx`/SheetJS do npm nem `exceljs`** — mantidas e leves (dependem de `fflate`); o pacote `xlsx` do npm está parado em versão com vulnerabilidades; versões com ≥ 2 semanas.
+- **Parser CSV próprio (RFC 4180, `;`/`,` detectado, BOM, UTF-8 com fallback Windows-1252)** — sem dependência; exportações de ERPs brasileiros costumam vir em Latin-1.
+- **"1.234" sem vírgula = milhar; com vírgula, vírgula é decimal** — convenção pt-BR (RF-034); ambiguidade documentada.
+- **Status de origem desconhecido vira erro antes de confirmar (lista de sinônimos para pedido/nota/orçamento)** — nunca supor que um status estranho é venda válida.
+- **Devolução sempre gravada com valor negativo; valor negativo só é aceito em devolução/estorno; desconto/dedução negativos rejeitados** — seção 6.2.
+- **Valor líquido ausente = bruto − descontos − deduções, marcado `netDerived`** — regra explícita (6.2).
+- **Customer/Product únicos por (cliente, ID externo); Sale/Quote por (cliente, origem, ID externo); itens por (venda, linha)** — índices da seção 5.3; mesma origem/ID reimportada atualiza, não duplica.
+- **Hash da linha normalizada decide novo/atualizado/sem alteração** — reimportar o mesmo arquivo dá "0 novos, N sem alteração".
+- **Validação síncrona (até 200 mil linhas) e gravação no worker em transações de 500 linhas** — prévia imediata; retry do job não duplica (upsert por chave + `skipDuplicates`).
+- **Lote com rejeições é importado como PARCIAL (linhas válidas gravadas, erros exportáveis em CSV)** — RF-035; usuário confirma vendo quantas linhas serão ignoradas.
+- **Base de vendas declarada no envio (pedido ou faturamento); KPIs usam faturamento se houver, senão pedidos; nunca somam os dois** — convenção contábil da seção M04; rótulo "valor comercial registrado (pedidos)".
+- **Receita líquida só com faturamento e deduções em todas as vendas; margem só com custo variável em todos os itens; senão `null` + motivo** — RF-037, seção 7.
+- **Período principal = 12 meses terminando na última venda importada; inatividade/recência/orçamentos parados usam hoje como referência** — números úteis mesmo com exportação defasada; alerta DADOS_DESATUALIZADOS denuncia a defasagem.
+- **Snapshots substituídos a cada recálculo (sem projeto); baseline congelado por projeto fica para a Fase 6** — evita duplicar séries; histórico imutável é o baseline do projeto.
+- **Indicadores recalculados no fim de cada importação, antes de o lote aparecer como concluído** — "concluído" significa dados e métricas prontos.
+- **Achados por regra a partir dos dados (inatividade, orçamentos parados, concentração ≥ 50%, margem indisponível) criados/atualizados automaticamente como DETECTED com fonte; oportunidade continua decisão do consultor** — RF-047; descartados não são recriados.
+- **Fonte "validada com o cliente" é marcada pelo consultor no lote** — alerta FONTE_NAO_VALIDADA (6.3) sem heurística opaca.
+- **Interações (`interacoes.csv`) e itens de orçamento não entram no importador** — marcados F2 na seção 6.1; último contato vem da coluna do orçamento.
+- **KPIs de recompra, reativação, cobertura de pipeline, tarefas no prazo, aderência e ROI ficam para a Fase 6** — dependem de coorte, baseline e registro de abordagens.
+- **Gráfico mensal em SVG próprio (sem Recharts por ora)** — um único gráfico de barras; Recharts entra se a Fase 6 precisar de séries múltiplas.
+- **Playbook passa a citar indicadores importados (valor, período, fonte) e alertas de qualidade; versões aprovadas não mudam — só versão nova regenerada** — aceite da Fase 4.

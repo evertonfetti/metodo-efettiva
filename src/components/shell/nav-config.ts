@@ -35,7 +35,7 @@ export function clientNav(clientId: string): NavItem[] {
   return [
     { label: "Visão 360°", href: base, icon: Telescope },
     { label: "Diagnósticos", href: `${base}/diagnosticos`, icon: ClipboardList, matchPrefix: true },
-    { label: "Dados e importações", href: `${base}/dados`, icon: Database, matchPrefix: true, availableInPhase: 4 },
+    { label: "Dados e importações", href: `${base}/dados`, icon: Database, matchPrefix: true },
     { label: "Oportunidades", href: `${base}/oportunidades`, icon: Target, matchPrefix: true },
     { label: "Projetos", href: `${base}/projetos`, icon: FolderKanban, matchPrefix: true },
     { label: "Documentos", href: `${base}/documentos`, icon: FileText, matchPrefix: true },

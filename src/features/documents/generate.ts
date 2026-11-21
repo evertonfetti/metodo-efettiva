@@ -40,10 +40,34 @@ function evidenceRegistry(ctx: GenContext) {
   return { items, byFinding };
 }
 
+/** KPI da ficha → indicador calculado pelo motor (só quando a definição é equivalente). */
+const KPI_METRIC: Record<string, string> = {
+  "Clientes elegíveis": "INACTIVE_CUSTOMERS",
+  "Clientes ativos": "ACTIVE_CUSTOMERS",
+  "Taxa de conversão": "QUOTE_CONVERSION",
+  "Desconto ponderado": "DISCOUNT_RATE",
+  "MC por venda e cliente": "CONTRIBUTION_MARGIN",
+  "Atraso no follow-up": "STALE_QUOTES",
+};
+
+export function formatMetricValue(m: { value: number | null; unit: string }): string {
+  if (m.value == null) return "Indisponível";
+  if (m.unit === "BRL") return `R$ ${formatDecimal(m.value, 2)}`;
+  if (m.unit === "PERCENT") return `${formatDecimal(m.value)}%`;
+  if (m.unit === "DAYS") return `${formatDecimal(m.value, 0)} dias`;
+  if (m.unit === "COUNT") return formatDecimal(m.value, 0);
+  return formatDecimal(m.value, 2);
+}
+
 function kpiRows(ctx: GenContext): string[][] {
-  const source = ctx.client.sourceSystem ? `${ctx.client.sourceSystem} e registros do processo` : `Registros do processo ${P("confirmar sistema/planilha de origem")}`;
+  const fallbackSource = ctx.client.sourceSystem ? `${ctx.client.sourceSystem} e registros do processo` : `Registros do processo ${P("confirmar sistema/planilha de origem")}`;
+  const noData = Object.keys(ctx.metrics).length === 0;
   return ctx.processes.flatMap((p) =>
-    (p.content?.kpis ?? []).map((k) => [k, p.code, p.content?.kpiFormulas?.[k] ?? P("definir fórmula, unidade e fonte"), "Indisponível: base histórica não importada", P("meta a aprovar com o patrocinador"), source]),
+    (p.content?.kpis ?? []).map((k) => {
+      const m = KPI_METRIC[k] ? ctx.metrics[KPI_METRIC[k]] : undefined;
+      const baseline = m ? (m.value == null ? `Indisponível: ${m.reason ?? "dados insuficientes"}` : `${formatMetricValue(m)} (${m.period})`) : noData ? "Indisponível: base histórica não importada" : "Indisponível: indicador não calculado a partir dos dados importados";
+      return [k, p.code, p.content?.kpiFormulas?.[k] ?? P("definir fórmula, unidade e fonte"), baseline, P("meta a aprovar com o patrocinador"), m ? m.source : fallbackSource];
+    }),
   );
 }
 const KPI_HEADERS = ["Indicador", "Processo", "Fórmula", "Baseline", "Meta", "Fonte"];
@@ -183,6 +207,12 @@ export function buildPlaybook(ctx: GenContext): { content: DocContent; sources: 
     );
     if (!a.finalized) diag.push(callout("Diagnóstico ainda não fechado: scores podem mudar.", "warn"));
   }
+  const COMMERCIAL = ["SALES_VALUE", "ACTIVE_CUSTOMERS", "AVG_ORDER_VALUE", "DISCOUNT_RATE", "CONTRIBUTION_MARGIN_PCT", "CUSTOMER_CONCENTRATION", "QUOTE_CONVERSION", "INACTIVE_CUSTOMERS", "STALE_QUOTES"];
+  const cm = COMMERCIAL.map((c) => ctx.metrics[c]).filter((m): m is NonNullable<typeof m> => !!m);
+  if (cm.length) {
+    diag.push(h3("Indicadores comerciais (dados importados)"), table(["Indicador", "Valor", "Período", "Fonte"], cm.map((m) => [m.label, m.value == null ? `Indisponível: ${m.reason ?? "dados insuficientes"}` : formatMetricValue(m), m.period, m.source])));
+    for (const a of ctx.dataAlerts) diag.push(callout(`${a.code}: ${a.message}`, "warn"));
+  } else diag.push(para("Indicadores comerciais: sem dados importados até o momento; os números deste documento vêm do diagnóstico qualitativo."));
   diag.push(h3("Principais achados"));
   diag.push(
     ctx.findings.length

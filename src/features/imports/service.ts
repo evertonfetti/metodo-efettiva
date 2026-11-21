@@ -68,7 +68,7 @@ export async function createBatch(user: SessionUser, clientId: string, input: un
       sheetName: table.sheet ?? null,
       headersJson: table.headers,
       mappingJson: mapping,
-      summaryJson: { sheets: table.sheets ?? [], fromProfile: !!profile },
+      summaryJson: { sheets: table.sheets ?? [], fromProfile: !!profile && Object.entries(mapping).some(([k, h]) => h && (profile.mappingJson as Mapping)[k] === h) },
       totalRows: table.rows.length,
       createdBy: user.id,
     },
@@ -300,13 +300,20 @@ export async function runCommit(batchId: string, jobClientId: string | null) {
     }
     const rejected = new Set([...res.errors, ...p.refErrors].map((e) => e.row)).size;
     const status = rejected > 0 ? "PARTIAL" : "COMPLETED";
+    // indicadores recalculados antes de marcar o lote como concluído: "concluído" = dados e métricas prontos.
+    // Falha no cálculo não desfaz dados gravados (o botão "Recalcular indicadores" refaz).
+    try {
+      const { refreshMetrics } = await import("@/features/metrics/service");
+      await refreshMetrics(clientId, b.createdBy);
+    } catch (err) {
+      const { logger } = await import("@/lib/logger");
+      logger.error({ err, batchId: b.id }, "falha ao recalcular indicadores após importação");
+    }
     await prisma.importBatch.update({
       where: { id: b.id },
       data: { status, createdRows: p.create.length, updatedRows: p.update.length, unchangedRows: p.unchanged + res.duplicates, rejectedRows: rejected, acceptedRows: p.create.length + p.update.length + p.unchanged, finishedAt: new Date(), errorMessage: null },
     });
     await audit({ actorUserId: b.createdBy, clientId, entityType: "ImportBatch", entityId: b.id, action: "import.commit", meta: { created: p.create.length, updated: p.update.length, unchanged: p.unchanged, rejected } });
-    const { refreshMetrics } = await import("@/features/metrics/service");
-    await refreshMetrics(clientId, b.createdBy);
     return { status, created: p.create.length, updated: p.update.length, unchanged: p.unchanged };
   } catch (err) {
     await prisma.importBatch.update({ where: { id: b.id }, data: { status: "FAILED", errorMessage: (err instanceof Error ? err.message : String(err)).slice(0, 300), finishedAt: new Date() } });

@@ -78,16 +78,16 @@ curl localhost:3100/api/health
 | Audiência INTERNO/CLIENTE filtrada no servidor | DONE | `filterForAudience` aplicado no worker antes de renderizar; testes unitário + integração + aceite (MD, DOCX, HTML) |
 | Exportação DOCX, PDF, MD (marca d'água em rascunho) | DONE | job `document.export` no worker (`docx` 9.15.1, Playwright/Chromium, Manrope embutida); download autenticado `/exports/[id]/download`; aba Marca com logo |
 | QA pré-exportação | DONE | `qa.ts` (erros bloqueiam aprovação: cliente, processo, KPI sem fórmula, valor sem fonte, evidência inválida, promessa, INTERNO, imutabilidade, POP sem responsável/passos; alertas da 9.4) |
-| **Aceite:** playbook real exportado nos 3 formatos com POPs, KPIs, responsáveis e cronograma | DONE | `scripts/acceptance/fase3.ts` → "ACEITE FASE 3: OK" (fila real + worker; PDF 23 páginas A4) |
+| **Aceite:** playbook real exportado nos 3 formatos com POPs, KPIs, responsáveis e cronograma | DONE | `scripts/acceptance/fase3.ts` → "ACEITE FASE 3: OK" (fila real + worker; PDF 23 páginas A4); repetido contra a stack Docker (imagem com Chromium, PDF gerado no container do worker) |
 
 ## Fase 4 — Importações e KPIs reais
 | Item | Status | Evidência |
 |---|---|---|
-| Arquivos-modelo, wizard CSV/XLSX, mapeamento | TODO | |
-| Deduplicação/idempotência Customer/Product/Sale/Quote | TODO | |
-| KPIs determinísticos, inatividade, ABC, orçamentos parados | TODO | |
-| Dashboard de dados + DataQualityBanner | TODO | |
-| **Aceite:** importar, reimportar sem duplicar, métricas e oportunidades com fonte | TODO | |
+| Arquivos-modelo, wizard CSV/XLSX, mapeamento | DONE | `/api/v1/import-templates/:type?format=csv|xlsx`; `/dados/importar` (Tipo → Arquivo → Mapeamento → Prévia e validação → Confirmação); perfil de mapeamento por cliente+tipo; sinônimos; abas do XLSX; arquivo de erros CSV |
+| Deduplicação/idempotência Customer/Product/Sale/Quote | DONE | chaves (cliente, ID) e (cliente, origem, ID); hash por linha → novos/atualizados/sem alteração; commit em lotes de 500 no worker (`import.commit`); `tests/integration/imports.test.ts` |
+| KPIs determinísticos, inatividade, ABC, orçamentos parados | DONE | `features/metrics/engine.ts` (puro, `tests/unit/metrics.test.ts`); snapshots com fonte/período/versão/qualidade; achados por regra (DATA:*) com fonte |
+| Dashboard de dados + DataQualityBanner | DONE | `/clientes/[id]/dados` (cobertura, KPIs com fonte, série mensal, inatividade, ABC, orçamentos parados, achados, histórico); alertas DADOS_INSUFICIENTES/PERIODO_CURTO/FONTE_NAO_VALIDADA/DADOS_DESATUALIZADOS; 360° com dados reais |
+| **Aceite:** importar, reimportar sem duplicar, métricas e oportunidades com fonte | DONE | `scripts/acceptance/fase4.ts` → "ACEITE FASE 4: OK" (valor 12 m confere com cálculo independente; reimportação 0 novos; v2 do playbook com indicadores e v1 aprovada intacta) |
 
 ## Fase 5 — IA supervisionada
 | Item | Status | Evidência |
@@ -115,10 +115,10 @@ curl localhost:3100/api/health
 | # | Teste | Status | Arquivo |
 |---|---|---|---|
 | 1 | Isolamento por troca de ID | DONE | testes access/clients/assessments/projects/documents + aceites F1–F3 (diagnóstico, arquivo, oportunidade, projeto, tarefa, documento, exportação, download, job com clientId divergente) |
-| 2 | Importação idempotente | TODO | |
-| 3 | Moeda `1.234,56` | TODO | |
-| 4 | Cancelamentos não inflam vendas | TODO | |
-| 5 | Ausência de custo → margem indisponível | TODO | |
+| 2 | Importação idempotente | DONE | `tests/integration/imports.test.ts` + aceite F4 |
+| 3 | Moeda `1.234,56` | DONE | `tests/unit/imports.test.ts` |
+| 4 | Cancelamentos não inflam vendas | DONE | `tests/unit/metrics.test.ts` + integração + aceite F4 |
+| 5 | Ausência de custo → margem indisponível | DONE | `tests/unit/metrics.test.ts` + aceite F4 |
 | 6 | Questionário: não sei/não se aplica | DONE | `tests/unit/scoring.test.ts` |
 | 7 | Versão aprovada imutável | DONE | `tests/integration/documents.test.ts` (serviço 409 + trigger do banco) |
 | 8 | Audiência INTERNO fora do arquivo CLIENTE | DONE | `tests/unit/documents.test.ts` + `tests/integration/documents.test.ts` (MD, DOCX, HTML/PDF) |
@@ -127,4 +127,4 @@ curl localhost:3100/api/health
 
 ---
 
-PRÓXIMO PASSO: Fase 4 — importações e KPIs reais. Ler SPEC_INDEX: M04 (190), M05 (205), 5.3 (437), 6.1–6.3 (498–567), 7–7.2 (568–601) e UI_LAYOUT telas `/dados` e `/dados/importar`. Construir ImportBatch/ImportRowError/Customer/Product/Sale/SaleItem/Quote/Interaction/MetricSnapshot, upload CSV/XLSX (validar dependência de parsing), mapeamento de colunas, prévia de 20 linhas, commit idempotente por external_id no worker, moeda/data pt-BR, cancelados fora das vendas, KPIs determinísticos com `null` sem dado e alertas de qualidade (testes 2–5 da seção 15). Depois ligar baseline/fonte dos KPIs no playbook (hoje "Indisponível: base histórica não importada").
+PRÓXIMO PASSO: Fase 5 — IA supervisionada. Ler SPEC_INDEX: M09 (254), 5.5 AiGeneration (471), 8.1–8.6 (618–746) e UI_LAYOUT tela 06 (bloco de diferença "Aceitar/Editar/Rejeitar"). Construir AiProvider + adaptador Anthropic (SDK oficial, modelo configurável, timeout/retry, sem chave → desativado), ContextAssembler com evidências EV-xxx e minimização (respeitar `Client.externalAiAllowed`), saída JSON validada por Zod (PlaybookDraft 8.4), log em AiGeneration (hash de entrada, tokens, custo), job no worker, sugestão por seção no editor sem publicar nada automaticamente; teste 9 (evidência inexistente rejeitada). Sem chave configurada, o sistema segue 100% funcional.

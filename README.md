@@ -62,6 +62,11 @@ Comandos úteis:
 | `npx tsx scripts/check-queue.ts` | Verifica fila ponta a ponta (precisa do worker rodando) |
 | `npx tsx scripts/acceptance/faseN.ts` | Aceite automatizado da fase N contra o servidor (`ACCEPT_EMAIL`, `ACCEPT_PASSWORD`, `BASE`); fase 3 precisa do worker |
 
+### Dados comerciais (Fase 4)
+Em **Dados e importações** baixe os modelos (CSV/XLSX) e importe nesta ordem: clientes → produtos → vendas (declare pedido ou faturamento) → itens de venda → orçamentos.
+Fluxo: upload → mapeamento (salvo por cliente) → validação de todas as linhas com prévia e arquivo de erros → confirmação (gravada no worker) → recálculo automático dos indicadores.
+Reimportar o mesmo arquivo não duplica (origem + ID externo); linhas alteradas são atualizadas. Parâmetros de inatividade, ABC e orçamentos parados ficam em Configurações → Parâmetros.
+
 ### Documentos (Fase 3)
 Playbooks e POPs são gerados **sem IA** a partir do cadastro, do diagnóstico fechado, das oportunidades, do projeto e das fichas versionadas.
 Fluxo: gerar → revisar/editar por seção → aprovar seções → aprovar versão (imutável; trigger no banco) → publicar → exportar.

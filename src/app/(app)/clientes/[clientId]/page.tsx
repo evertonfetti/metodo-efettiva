@@ -21,6 +21,7 @@ import { getAssessmentDetail } from "@/features/assessments/service";
 import { channelLabel, salesModelLabel, segmentLabel, sizeLabel } from "@/features/clients/catalog";
 import { formatDate, formatDateTime, formatDay, formatDecimal } from "@/lib/format";
 import { todayDateOnly } from "@/lib/dates";
+import { metricsBrief } from "@/features/metrics/service";
 import { overdueDays } from "@/features/projects/rules";
 import { formatCode } from "@/features/opportunities/scoring";
 
@@ -50,6 +51,13 @@ export default async function Client360Page({ params }: { params: Promise<{ clie
     }),
   ]);
   const today = todayDateOnly();
+  const brief = await metricsBrief(clientId);
+  const FORMAT = { BRL: "brl", COUNT: "integer", PERCENT: "percent", DAYS: "days", RATIO: "decimal" } as const;
+  const card = (code: string, fallback: string) => {
+    const m = brief.metrics[code];
+    if (!m) return { label: fallback, value: null, source: "dados importados", period: "—", unavailableReason: "importe os dados comerciais" };
+    return { label: m.label, value: m.value, format: FORMAT[m.unit as keyof typeof FORMAT] ?? "decimal", source: m.source, period: m.period, unavailableReason: m.reason ?? undefined };
+  };
   const detail = lastAssessment ? await getAssessmentDetail(user, clientId, lastAssessment.id) : null;
   const domainName = new Map(detail?.domains.map((d) => [d.code, d.name]) ?? []);
 
@@ -79,13 +87,17 @@ export default async function Client360Page({ params }: { params: Promise<{ clie
           }
         />
         <MethodJourney phases={journey} />
-        <DataQualityBanner>Sem dados comerciais importados: os indicadores abaixo ficam indisponíveis até a importação de clientes, vendas e orçamentos (Fase 4).</DataQualityBanner>
+        {Object.keys(brief.metrics).length === 0 ? (
+          <DataQualityBanner action={canEdit ? <Button asChild size="sm" variant="secondary"><Link href={`/clientes/${clientId}/dados/importar`}>Importar dados</Link></Button> : undefined}>Sem dados comerciais importados: os indicadores abaixo ficam indisponíveis até a importação de clientes, vendas e orçamentos.</DataQualityBanner>
+        ) : (
+          brief.alerts.map((a) => <DataQualityBanner key={a.code}><span><span className="font-extrabold">{a.code}</span> · {a.message}</span></DataQualityBanner>)
+        )}
 
         <section aria-label="Indicadores do cliente" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <MetricCardWithSource label="Clientes cadastrados" value={null} source="clientes.csv" period="—" unavailableReason="importe a base de clientes" />
-          <MetricCardWithSource label="Com sinal de inatividade" value={null} source="vendas.csv" period="—" unavailableReason="importe o histórico de vendas" />
-          <MetricCardWithSource label="Orçamentos abertos" value={null} source="orcamentos.csv" period="—" unavailableReason="importe os orçamentos" />
-          <MetricCardWithSource label="Margem de contribuição" value={null} source="itens_venda.csv" period="—" unavailableReason="custos variáveis não informados" />
+          <MetricCardWithSource {...card("SALES_VALUE", "Valor comercial (12 meses)")} />
+          <MetricCardWithSource {...card("INACTIVE_CUSTOMERS", "Com sinal de inatividade")} alert={(brief.metrics.INACTIVE_CUSTOMERS?.value ?? 0) > 0} />
+          <MetricCardWithSource {...card("STALE_QUOTES", "Orçamentos abertos sem ação")} alert={(brief.metrics.STALE_QUOTES?.value ?? 0) > 0} />
+          <MetricCardWithSource {...card("CONTRIBUTION_MARGIN_PCT", "Margem de contribuição %")} />
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">

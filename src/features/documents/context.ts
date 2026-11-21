@@ -6,6 +6,7 @@ import { getSetting } from "@/features/settings/service";
 import { channelLabel, salesModelLabel, segmentLabel, sizeLabel } from "@/features/clients/catalog";
 import { parseContent, type ProcessContent, type ProcessSnapshot } from "@/features/processes/content";
 import { todayDateOnly } from "@/lib/dates";
+import { metricsBrief, type MetricBrief, type QualityAlert } from "@/features/metrics/service";
 
 export type CtxTask = { title: string; planKey: string | null; window: number | null; dueDate: Date | null; status: string; assignee: string | null; externalOwner: string | null; checklist: string[]; blockedReason: string | null };
 export type CtxProcess = { id: string; code: string; name: string; objective: string; version: number; status: string; ownerName: string | null; content: ProcessContent | null; tasks: CtxTask[] };
@@ -29,12 +30,15 @@ export type GenContext = {
     domains: { code: string; name: string; score: number | null; coverage: number; answered: number; applicable: number; unknown: number }[];
   } | null;
   findings: CtxFinding[];
+  metrics: Record<string, MetricBrief>;
+  dataAlerts: QualityAlert[];
 };
 
 type Ev = { kind?: string; text?: string; title?: string; questionCode?: string; domainCode?: string; score?: number | null; coverage?: number; value?: number };
 function evidenceLabel(e: Ev): string | null {
   if (e.kind === "NOTE" && e.text) return e.text;
   if (e.kind === "ASSESSMENT_SCORE") return `Score da área ${e.domainCode} no diagnóstico${e.score == null ? " (indisponível)" : `: ${e.score.toFixed(1).replace(".", ",")}`} · cobertura ${Math.round((e.coverage ?? 0) * 100)}%`;
+  if (e.kind === "DATA_RULE" && e.text) return e.text;
   if (e.kind === "ASSESSMENT_ANSWER") return `Resposta ${e.value} na pergunta ${e.questionCode}: ${e.title}`;
   return null;
 }
@@ -137,7 +141,10 @@ export async function loadContext(user: SessionUser, clientId: string, projectId
     evidence: (Array.isArray(f.evidenceJson) ? (f.evidenceJson as Ev[]) : []).map(evidenceLabel).filter((x): x is string => !!x).slice(0, 4),
   }));
 
+  const brief = await metricsBrief(clientId);
   return {
+    metrics: brief.metrics,
+    dataAlerts: brief.alerts,
     today: todayDateOnly(),
     brand: { companyName: brand.companyName, confidentiality: brand.confidentiality },
     client: {

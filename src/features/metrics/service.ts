@@ -17,7 +17,8 @@ async function loadData(clientId: string) {
     prisma.saleItem.findMany({ where: { clientId }, select: { saleId: true, productId: true, totalAmount: true, variableCostTotal: true } }),
     prisma.quote.findMany({ where: { clientId }, select: { id: true, customerId: true, issuedAt: true, validUntil: true, status: true, amount: true, lastInteractionAt: true } }),
     prisma.customer.findMany({ where: { clientId }, select: { id: true, externalId: true, name: true, active: true, typicalIntervalDays: true } }),
-    prisma.importBatch.findMany({ where: { clientId, status: { in: ["COMPLETED", "PARTIAL"] } }, select: { id: true, type: true, sourceSystem: true, originalName: true, finishedAt: true, sourceValidated: true, recordKind: true }, orderBy: { finishedAt: "desc" } }),
+    // IMPORTING incluído: o recálculo roda no fim do commit, antes de o lote ser marcado como concluído
+    prisma.importBatch.findMany({ where: { clientId, status: { in: ["COMPLETED", "PARTIAL", "IMPORTING"] } }, select: { id: true, type: true, sourceSystem: true, originalName: true, finishedAt: true, startedAt: true, sourceValidated: true, recordKind: true }, orderBy: [{ startedAt: { sort: "desc", nulls: "last" } }] }),
   ]);
   return {
     sales: sales.map((s): SaleRow => ({ id: s.id, customerId: s.customerId, date: toISODate(s.occurredAt), kind: s.recordKind, status: s.status, gross: n(s.grossAmount), discounts: n(s.discounts), deductions: n(s.deductions), net: Number(s.netAmount), netDerived: s.netDerived })),
@@ -29,8 +30,8 @@ async function loadData(clientId: string) {
 }
 
 const latestBatch = (batches: Awaited<ReturnType<typeof loadData>>["batches"], type: string) => batches.find((b) => b.type === type) ?? null;
-const sourceRef = (b: { id: string; type: string; originalName: string; sourceSystem: string; finishedAt: Date | null } | null) =>
-  b ? { batchId: b.id, label: `${b.originalName} (${FILE_LABEL[b.type]}, ${b.sourceSystem}) · lote ${b.id.slice(0, 8)} · ${formatDay(b.finishedAt)}` } : null;
+const sourceRef = (b: { id: string; type: string; originalName: string; sourceSystem: string; finishedAt: Date | null; startedAt?: Date | null } | null) =>
+  b ? { batchId: b.id, label: `${b.originalName} (${FILE_LABEL[b.type]}, ${b.sourceSystem}) · lote ${b.id.slice(0, 8)} · ${formatDay(b.finishedAt ?? b.startedAt)}` } : null;
 
 /** Período principal: 12 meses terminando na última venda importada (ou hoje, se mais cedo). */
 export function mainPeriod(sales: SaleRow[], today: string): Period {
@@ -219,4 +220,20 @@ export async function refreshMetricsForUser(user: SessionUser, clientId: string)
 export async function listMetrics(user: SessionUser, clientId: string) {
   await assertClientAccess(user, clientId, "VIEW");
   return prisma.metricSnapshot.findMany({ where: { clientId, projectId: null, calculationVersion: CALC_VERSION }, orderBy: [{ metricCode: "asc" }, { periodStart: "asc" }] });
+}
+
+export type MetricBrief = { code: string; label: string; value: number | null; unit: string; period: string; source: string; reason: string | null };
+
+/** Resumo para documentos: KPIs do período + análises, com período e fonte; alertas de qualidade (6.3). */
+export async function metricsBrief(clientId: string): Promise<{ metrics: Record<string, MetricBrief>; alerts: QualityAlert[] }> {
+  const snaps = await prisma.metricSnapshot.findMany({ where: { clientId, projectId: null, calculationVersion: CALC_VERSION, NOT: { sourceJson: { path: ["scope"], equals: "MONTH" } } } });
+  const metrics: Record<string, MetricBrief> = {};
+  for (const s of snaps) {
+    const j = s.sourceJson as { label?: string; source?: { label?: string } | null };
+    const same = s.periodStart.getTime() === s.periodEnd.getTime();
+    metrics[s.metricCode] = { code: s.metricCode, label: j.label ?? s.metricCode, value: s.valueDecimal == null ? null : Number(s.valueDecimal), unit: s.unit, period: same ? `referência ${formatDay(s.periodStart)}` : `${formatDay(s.periodStart)} a ${formatDay(s.periodEnd)}`, source: j.source?.label ?? "dados importados", reason: s.unavailableReason };
+  }
+  if (!snaps.length) return { metrics, alerts: [] };
+  const prm = await getSetting("parameters");
+  return { metrics, alerts: dataQuality(await loadData(clientId), toISODate(todayDateOnly(prm.timezone))).alerts };
 }
