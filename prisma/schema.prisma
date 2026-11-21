@@ -115,6 +115,11 @@ model Client {
   quotes               Quote[]
   metricSnapshots      MetricSnapshot[]
   aiGenerations        AiGeneration[]
+  baselines            ProjectBaseline[]
+  meetings             ProjectMeeting[]
+  projectEvents        ProjectEvent[]
+  processAudits        ProcessAudit[]
+  reportPeriods        ReportPeriod[]
 
   @@index([status])
   @@index([name])
@@ -671,6 +676,10 @@ model Project {
   tasks         ActionTask[]
   opportunities Opportunity[]
   documents     Document[]
+  baselines     ProjectBaseline[]
+  meetings      ProjectMeeting[]
+  events        ProjectEvent[]
+  reports       ReportPeriod[]
 
   @@unique([clientId, number])
   @@index([clientId, status])
@@ -712,6 +721,7 @@ model ProjectProcess {
   process   ProcessDefinition @relation(fields: [processDefinitionId], references: [id])
   tasks     ActionTask[]
   evidences ActionEvidence[]
+  audits    ProcessAudit[]
 
   @@unique([projectId, processDefinitionId])
   @@index([clientId])
@@ -787,6 +797,7 @@ model ActionEvidence {
 enum DocumentType {
   PLAYBOOK
   POP
+  REPORT
 }
 
 enum RevisionState {
@@ -1174,4 +1185,106 @@ model AiGeneration {
 
   @@index([clientId, documentId, createdAt])
   @@index([actorUserId, createdAt])
+}
+
+// ───────────────────────── Fase 6: resultados e relatórios ─────────────────────────
+
+/// Baseline congelado (RF-101/7.4): período anterior comparável, valor, fórmula e fonte. Imutável (trigger);
+/// correção = nova revisão auditada com motivo.
+model ProjectBaseline {
+  id                 String   @id @default(uuid()) @db.Uuid
+  clientId           String   @db.Uuid
+  projectId          String   @db.Uuid
+  metricCode         String
+  revision           Int      @default(1)
+  label              String
+  unit               String
+  periodStart        DateTime @db.Date
+  periodEnd          DateTime @db.Date
+  valueDecimal       Decimal? @db.Decimal(18, 4)
+  unavailableReason  String?
+  calculationVersion String
+  sourceJson         Json
+  revisionReason     String?
+  lockedAt           DateTime @default(now()) @db.Timestamptz(3)
+  lockedBy           String   @db.Uuid
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, metricCode, revision])
+  @@index([clientId])
+}
+
+model ProjectMeeting {
+  id              String   @id @default(uuid()) @db.Uuid
+  clientId        String   @db.Uuid
+  projectId       String   @db.Uuid
+  occurredAt      DateTime @db.Date
+  title           String
+  attendeesJson   Json     @default("[]")
+  summary         String
+  decisionsJson   Json     @default("[]")
+  nextStepsJson   Json     @default("[]")
+  impedimentsJson Json     @default("[]")
+  trainingsJson   Json     @default("[]")
+  createdBy       String   @db.Uuid
+  createdAt       DateTime @default(now()) @db.Timestamptz(3)
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, projectId, occurredAt])
+}
+
+/// Evento externo que afeta a comparabilidade (RF-106): sazonalidade, reajuste, mercado, campanha paralela…
+model ProjectEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  clientId    String   @db.Uuid
+  projectId   String   @db.Uuid
+  occurredAt  DateTime @db.Date
+  kind        String
+  description String
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, projectId])
+}
+
+/// Auditoria de aderência por amostra (PROCESS_ADOPTION_RATE = conformes ÷ aplicáveis).
+model ProcessAudit {
+  id               String   @id @default(uuid()) @db.Uuid
+  clientId         String   @db.Uuid
+  projectProcessId String   @db.Uuid
+  auditedAt        DateTime @db.Date
+  itemsChecked     Int
+  itemsConforming  Int
+  notes            String
+  createdBy        String   @db.Uuid
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+
+  client         Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  projectProcess ProjectProcess @relation(fields: [projectProcessId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, projectProcessId])
+}
+
+/// Relatório formal por período; o conteúdo é um Document do tipo REPORT (editor, versões e exportação da Fase 3).
+model ReportPeriod {
+  id          String   @id @default(uuid()) @db.Uuid
+  clientId    String   @db.Uuid
+  projectId   String   @db.Uuid
+  periodStart DateTime @db.Date
+  periodEnd   DateTime @db.Date
+  documentId  String?  @db.Uuid
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  client  Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([clientId, projectId])
 }

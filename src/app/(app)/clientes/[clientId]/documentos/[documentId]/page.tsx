@@ -71,7 +71,7 @@ export default async function DocumentEditorPage({ params, searchParams }: { par
 
   return (
     <>
-      <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, ...(project ? [{ label: project.name, href: `/clientes/${clientId}/projetos/${project.id}` }] : []), { label: "Documentos", href: `/clientes/${clientId}/documentos` }, { label: `${doc.type === "POP" ? "POP" : "Playbook"} · v${rev.version}` }]}>
+      <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, ...(project ? [{ label: project.name, href: `/clientes/${clientId}/projetos/${project.id}` }] : []), { label: "Documentos", href: `/clientes/${clientId}/documentos` }, { label: `${doc.type === "POP" ? "POP" : doc.type === "REPORT" ? "Relatório" : "Playbook"} · v${rev.version}` }]}>
         {open ? <span className="text-xs font-semibold text-text-muted">✓ Salvo às {formatTime(rev.updatedAt)}</span> : null}
       </Topbar>
       <PageContent wide>

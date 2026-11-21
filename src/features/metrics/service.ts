@@ -237,3 +237,21 @@ export async function metricsBrief(clientId: string): Promise<{ metrics: Record<
   const prm = await getSetting("parameters");
   return { metrics, alerts: dataQuality(await loadData(clientId), toISODate(todayDateOnly(prm.timezone))).alerts };
 }
+
+/**
+ * KPIs de um período arbitrário (baseline/snapshot de projeto): mesmas funções puras do painel.
+ * Inatividade é calculada com referência no fim do período (só vendas até lá).
+ */
+export async function computeForPeriod(clientId: string, period: Period) {
+  const data = await loadData(clientId);
+  const prm = await getSetting("parameters");
+  const kpis = computeKpis({ sales: data.sales, items: data.items, quotes: data.quotes, period, topN: prm.topNConcentration });
+  const kind = primaryKind(data.sales);
+  if (kind) {
+    const inactive = inactiveCustomers(data.sales, data.customers, period.end, { minDays: prm.inactivityMinDays, factor: prm.inactivityAlertFactor, fallbackDays: prm.inactivityFallbackDays, minIntervals: prm.minIntervalsForMedian });
+    kpis.push({ code: "INACTIVE_CUSTOMERS", label: "Clientes com sinal de inatividade", value: inactive.length, unit: "COUNT", basis: `Referência ${formatDay(parseDateOnly(period.end))}` });
+  }
+  const salesSrc = sourceRef(latestBatch(data.batches, "SALES"));
+  const quotesSrc = sourceRef(latestBatch(data.batches, "QUOTES"));
+  return { kpis, kind, source: (code: string) => (code === "QUOTE_CONVERSION" ? quotesSrc : salesSrc), lastSale: data.sales.reduce((m, s) => (s.date > m ? s.date : m), "") || null };
+}

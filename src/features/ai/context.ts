@@ -83,7 +83,7 @@ export async function assembleSectionContext(user: SessionUser, clientId: string
   if (opts.includeFinancial) sensitive.push("Valores financeiros agregados (R$)");
 
   const payload = {
-    task: { type: TASK_BY_SECTION(sectionKey), section: { key: section.key, title: clean(section.title), visibility: section.visibility } },
+    task: { type: doc.type === "REPORT" ? "REPORT_NARRATIVE_BUILD" : TASK_BY_SECTION(sectionKey), section: { key: section.key, title: clean(section.title), visibility: section.visibility } },
     company: {
       name: "[EMPRESA]",
       segment: ctx.client.segment,

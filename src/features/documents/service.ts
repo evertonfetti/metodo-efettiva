@@ -65,6 +65,16 @@ function build(ctx: Awaited<ReturnType<typeof loadContext>>, type: "PLAYBOOK" | 
   return buildPlaybook(ctx);
 }
 
+/** Regeneração de qualquer tipo, inclusive relatório (usa o período registrado). */
+async function buildFor(user: SessionUser, clientId: string, doc: { id: string; projectId: string | null; type: "PLAYBOOK" | "POP" | "REPORT"; processCode: string | null }) {
+  const ctx = await loadContext(user, clientId, doc.projectId);
+  if (doc.type !== "REPORT") return build(ctx, doc.type, doc.processCode);
+  const { reportPeriodForDocument, loadReportData, buildReport } = await import("@/features/results/report");
+  const rp = await reportPeriodForDocument(clientId, doc.id);
+  if (!rp || !doc.projectId) throw new AppError("VALIDATION", "Período do relatório não encontrado.");
+  return buildReport(ctx, await loadReportData(user, clientId, doc.projectId, { start: rp.periodStart, end: rp.periodEnd }));
+}
+
 /** Gera documento determinístico (sem IA) como versão 1 em rascunho (RF-080/081/082). */
 export async function generateDocument(user: SessionUser, clientId: string, input: unknown) {
   const client = await assertClientAccess(user, clientId, "EDIT");
@@ -202,8 +212,7 @@ export async function regenerateSection(user: SessionUser, clientId: string, doc
   const rev = await loadRevision(clientId, documentId, revisionId);
   const current = findSection(parseContent(rev.contentJson), key);
   if (current.manuallyEdited && !d.confirm) throw new AppError("CONFLICT", "Esta seção tem edições manuais. Confirme para substituí-las pelo conteúdo gerado.", { needsConfirmation: true });
-  const ctx = await loadContext(user, clientId, doc.projectId);
-  const fresh = build(ctx, doc.type, doc.processCode).content.sections.find((s) => s.key === key);
+  const fresh = (await buildFor(user, clientId, doc)).content.sections.find((s) => s.key === key);
   if (!fresh) throw new AppError("VALIDATION", "Esta seção não é mais gerada pelos dados atuais (processo removido do projeto?).");
   return mutateOpen(user, clientId, documentId, revisionId, d.lockVersion, (c) => ({ sections: c.sections.map((s) => (s.key === key ? { ...fresh, visibility: s.visibility } : s)) }), "document.section.regenerate", { key, replacedManual: current.manuallyEdited });
 }
