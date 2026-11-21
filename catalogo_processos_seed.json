@@ -1,0 +1,1320 @@
+{
+  "version": "1.0",
+  "total": 146,
+  "processes": [
+    {
+      "code": "D01",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Diagnóstico comercial 360°",
+      "objective": "Padronizar, implantar e acompanhar: Diagnóstico comercial 360°.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D02",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Análise histórica de vendas",
+      "objective": "Padronizar, implantar e acompanhar: Análise histórica de vendas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D03",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Curva ABC de clientes",
+      "objective": "Padronizar, implantar e acompanhar: Curva ABC de clientes.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D04",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Curva ABC de produtos",
+      "objective": "Padronizar, implantar e acompanhar: Curva ABC de produtos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D05",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Análise de perdas comerciais",
+      "objective": "Padronizar, implantar e acompanhar: Análise de perdas comerciais.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D06",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Mapeamento da jornada do cliente",
+      "objective": "Padronizar, implantar e acompanhar: Mapeamento da jornada do cliente.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D07",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Análise da concorrência",
+      "objective": "Padronizar, implantar e acompanhar: Análise da concorrência.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D08",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Diagnóstico de capacidade",
+      "objective": "Padronizar, implantar e acompanhar: Diagnóstico de capacidade.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D09",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Mapa de oportunidades financeiras",
+      "objective": "Padronizar, implantar e acompanhar: Mapa de oportunidades financeiras.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "D10",
+      "domainCode": "D",
+      "domainName": "Diagnóstico e inteligência de negócios",
+      "name": "Plano de prioridades",
+      "objective": "Padronizar, implantar e acompanhar: Plano de prioridades.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "E01",
+      "domainCode": "E",
+      "domainName": "Estratégia e posicionamento comercial",
+      "name": "Perfil de cliente ideal (ICP)",
+      "objective": "Padronizar, implantar e acompanhar: Perfil de cliente ideal (ICP).",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "E02",
+      "domainCode": "E",
+      "domainName": "Estratégia e posicionamento comercial",
+      "name": "Segmentação de mercado",
+      "objective": "Padronizar, implantar e acompanhar: Segmentação de mercado.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "E03",
+      "domainCode": "E",
+      "domainName": "Estratégia e posicionamento comercial",
+      "name": "Proposta de valor",
+      "objective": "Padronizar, implantar e acompanhar: Proposta de valor.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "E04",
+      "domainCode": "E",
+      "domainName": "Estratégia e posicionamento comercial",
+      "name": "Posicionamento competitivo",
+      "objective": "Padronizar, implantar e acompanhar: Posicionamento competitivo.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "E05",
+      "domainCode": "E",
+      "domainName": "Estratégia e posicionamento comercial",
+      "name": "Estratégia por segmento",
+      "objective": "Padronizar, implantar e acompanhar: Estratégia por segmento.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "E06",
+      "domainCode": "E",
+      "domainName": "Estratégia e posicionamento comercial",
+      "name": "Portfólio comercial",
+      "objective": "Padronizar, implantar e acompanhar: Portfólio comercial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "E07",
+      "domainCode": "E",
+      "domainName": "Estratégia e posicionamento comercial",
+      "name": "Metas comerciais",
+      "objective": "Padronizar, implantar e acompanhar: Metas comerciais.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "E08",
+      "domainCode": "E",
+      "domainName": "Estratégia e posicionamento comercial",
+      "name": "Planejamento de capacidade",
+      "objective": "Padronizar, implantar e acompanhar: Planejamento de capacidade.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M01",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Planejamento de canais",
+      "objective": "Padronizar, implantar e acompanhar: Planejamento de canais.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M02",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Presença digital e conversão",
+      "objective": "Padronizar, implantar e acompanhar: Presença digital e conversão.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M03",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Google e buscas locais",
+      "objective": "Padronizar, implantar e acompanhar: Google e buscas locais.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M04",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Conteúdo de autoridade",
+      "objective": "Padronizar, implantar e acompanhar: Conteúdo de autoridade.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M05",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Campanhas de aquisição",
+      "objective": "Padronizar, implantar e acompanhar: Campanhas de aquisição.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M06",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Captação de leads",
+      "objective": "Padronizar, implantar e acompanhar: Captação de leads.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M07",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Nutrição comercial",
+      "objective": "Padronizar, implantar e acompanhar: Nutrição comercial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M08",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Marketing por contas (ABM)",
+      "objective": "Padronizar, implantar e acompanhar: Marketing por contas (ABM).",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M09",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Prova social e reputação",
+      "objective": "Padronizar, implantar e acompanhar: Prova social e reputação.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "M10",
+      "domainCode": "M",
+      "domainName": "Marketing e geração de demanda",
+      "name": "Mensuração de aquisição",
+      "objective": "Padronizar, implantar e acompanhar: Mensuração de aquisição.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P01",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Construção de listas",
+      "objective": "Padronizar, implantar e acompanhar: Construção de listas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P02",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Inteligência de contas",
+      "objective": "Padronizar, implantar e acompanhar: Inteligência de contas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P03",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Priorização de prospects",
+      "objective": "Padronizar, implantar e acompanhar: Priorização de prospects.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P04",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Prospecção multicanal",
+      "objective": "Padronizar, implantar e acompanhar: Prospecção multicanal.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "P05",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Cadência de contato",
+      "objective": "Padronizar, implantar e acompanhar: Cadência de contato.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P06",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Qualificação comercial",
+      "objective": "Padronizar, implantar e acompanhar: Qualificação comercial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P07",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Agendamento de reuniões",
+      "objective": "Padronizar, implantar e acompanhar: Agendamento de reuniões.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P08",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Prospecção territorial",
+      "objective": "Padronizar, implantar e acompanhar: Prospecção territorial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P09",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Prospecção por indicação",
+      "objective": "Padronizar, implantar e acompanhar: Prospecção por indicação.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "P10",
+      "domainCode": "P",
+      "domainName": "Prospecção e aquisição de clientes",
+      "name": "Gestão da produtividade",
+      "objective": "Padronizar, implantar e acompanhar: Gestão da produtividade.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V01",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Atendimento inicial",
+      "objective": "Padronizar, implantar e acompanhar: Atendimento inicial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V02",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Diagnóstico de necessidades",
+      "objective": "Padronizar, implantar e acompanhar: Diagnóstico de necessidades.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V03",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Venda consultiva",
+      "objective": "Padronizar, implantar e acompanhar: Venda consultiva.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V04",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Construção de propostas",
+      "objective": "Padronizar, implantar e acompanhar: Construção de propostas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V05",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Follow-up de propostas",
+      "objective": "Padronizar, implantar e acompanhar: Follow-up de propostas.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "V06",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Tratamento de objeções",
+      "objective": "Padronizar, implantar e acompanhar: Tratamento de objeções.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V07",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Técnicas de negociação",
+      "objective": "Padronizar, implantar e acompanhar: Técnicas de negociação.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V08",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Política de descontos",
+      "objective": "Padronizar, implantar e acompanhar: Política de descontos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V09",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Fechamento e confirmação",
+      "objective": "Padronizar, implantar e acompanhar: Fechamento e confirmação.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V10",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Análise de negócios perdidos",
+      "objective": "Padronizar, implantar e acompanhar: Análise de negócios perdidos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "V11",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Recuperação de oportunidades",
+      "objective": "Padronizar, implantar e acompanhar: Recuperação de oportunidades.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "V12",
+      "domainCode": "V",
+      "domainName": "Atendimento, negociação e conversão",
+      "name": "Previsão de vendas",
+      "objective": "Padronizar, implantar e acompanhar: Previsão de vendas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "C01",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Carteira por responsável",
+      "objective": "Padronizar, implantar e acompanhar: Carteira por responsável.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "C02",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Classificação de clientes",
+      "objective": "Padronizar, implantar e acompanhar: Classificação de clientes.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "C03",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Frequência de compras",
+      "objective": "Padronizar, implantar e acompanhar: Frequência de compras.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "C04",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Recompra programada",
+      "objective": "Padronizar, implantar e acompanhar: Recompra programada.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "C05",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Recuperação de inativos",
+      "objective": "Padronizar, implantar e acompanhar: Recuperação de inativos.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "C06",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Cross-selling",
+      "objective": "Padronizar, implantar e acompanhar: Cross-selling.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "C07",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Upselling",
+      "objective": "Padronizar, implantar e acompanhar: Upselling.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "C08",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Aumento de participação",
+      "objective": "Padronizar, implantar e acompanhar: Aumento de participação.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "C09",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Gestão de contas estratégicas",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de contas estratégicas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "C10",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Detecção de redução de compras",
+      "objective": "Padronizar, implantar e acompanhar: Detecção de redução de compras.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "C11",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Potencial de carteira",
+      "objective": "Padronizar, implantar e acompanhar: Potencial de carteira.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "C12",
+      "domainCode": "C",
+      "domainName": "Gestão da carteira e expansão de contas",
+      "name": "Plano de visitas e relacionamento",
+      "objective": "Padronizar, implantar e acompanhar: Plano de visitas e relacionamento.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R01",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Passagem de vendas para operação",
+      "objective": "Padronizar, implantar e acompanhar: Passagem de vendas para operação.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R02",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Onboarding do cliente",
+      "objective": "Padronizar, implantar e acompanhar: Onboarding do cliente.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R03",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Acompanhamento pós-entrega",
+      "objective": "Padronizar, implantar e acompanhar: Acompanhamento pós-entrega.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R04",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Gestão de reclamações",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de reclamações.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R05",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Pesquisa de satisfação",
+      "objective": "Padronizar, implantar e acompanhar: Pesquisa de satisfação.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R06",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Gestão de risco de cancelamento",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de risco de cancelamento.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R07",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Retenção preventiva",
+      "objective": "Padronizar, implantar e acompanhar: Retenção preventiva.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R08",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Programa de relacionamento",
+      "objective": "Padronizar, implantar e acompanhar: Programa de relacionamento.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R09",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Indicações",
+      "objective": "Padronizar, implantar e acompanhar: Indicações.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "R10",
+      "domainCode": "R",
+      "domainName": "Pós-venda, experiência e retenção",
+      "name": "Análise de churn",
+      "objective": "Padronizar, implantar e acompanhar: Análise de churn.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L01",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Margem por produto",
+      "objective": "Padronizar, implantar e acompanhar: Margem por produto.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L02",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Margem por cliente",
+      "objective": "Padronizar, implantar e acompanhar: Margem por cliente.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L03",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Precificação estruturada",
+      "objective": "Padronizar, implantar e acompanhar: Precificação estruturada.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L04",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Preços por segmento",
+      "objective": "Padronizar, implantar e acompanhar: Preços por segmento.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L05",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Gestão de descontos",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de descontos.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "L06",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Rentabilidade dos canais",
+      "objective": "Padronizar, implantar e acompanhar: Rentabilidade dos canais.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L07",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Mix de vendas",
+      "objective": "Padronizar, implantar e acompanhar: Mix de vendas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L08",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Custo de servir",
+      "objective": "Padronizar, implantar e acompanhar: Custo de servir.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L09",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Rentabilidade das promoções",
+      "objective": "Padronizar, implantar e acompanhar: Rentabilidade das promoções.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "L10",
+      "domainCode": "L",
+      "domainName": "Precificação e rentabilidade",
+      "name": "Gestão de condições comerciais",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de condições comerciais.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O01",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Mapeamento operacional",
+      "objective": "Padronizar, implantar e acompanhar: Mapeamento operacional.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O02",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Gestão de pedidos",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de pedidos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O03",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "SLA operacional",
+      "objective": "Padronizar, implantar e acompanhar: SLA operacional.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O04",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Curva ABC de estoque",
+      "objective": "Padronizar, implantar e acompanhar: Curva ABC de estoque.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O05",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Giro e cobertura de estoque",
+      "objective": "Padronizar, implantar e acompanhar: Giro e cobertura de estoque.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O06",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Reposição inteligente",
+      "objective": "Padronizar, implantar e acompanhar: Reposição inteligente.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O07",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Estoque obsoleto",
+      "objective": "Padronizar, implantar e acompanhar: Estoque obsoleto.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O08",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Gestão de fornecedores",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de fornecedores.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O09",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Redução de retrabalho",
+      "objective": "Padronizar, implantar e acompanhar: Redução de retrabalho.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O10",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Capacidade e gargalos",
+      "objective": "Padronizar, implantar e acompanhar: Capacidade e gargalos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O11",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Padronização operacional",
+      "objective": "Padronizar, implantar e acompanhar: Padronização operacional.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "O12",
+      "domainCode": "O",
+      "domainName": "Operações, estoque e produtividade",
+      "name": "Gestão de devoluções",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de devoluções.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F01",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "DRE gerencial",
+      "objective": "Padronizar, implantar e acompanhar: DRE gerencial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F02",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Fluxo de caixa projetado",
+      "objective": "Padronizar, implantar e acompanhar: Fluxo de caixa projetado.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F03",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Ponto de equilíbrio",
+      "objective": "Padronizar, implantar e acompanhar: Ponto de equilíbrio.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F04",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Capital de giro",
+      "objective": "Padronizar, implantar e acompanhar: Capital de giro.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F05",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Política de crédito",
+      "objective": "Padronizar, implantar e acompanhar: Política de crédito.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F06",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Inadimplência",
+      "objective": "Padronizar, implantar e acompanhar: Inadimplência.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F07",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Custos comerciais",
+      "objective": "Padronizar, implantar e acompanhar: Custos comerciais.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F08",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Orçamento e desvios",
+      "objective": "Padronizar, implantar e acompanhar: Orçamento e desvios.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F09",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Rentabilidade por unidade",
+      "objective": "Padronizar, implantar e acompanhar: Rentabilidade por unidade.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "F10",
+      "domainCode": "F",
+      "domainName": "Gestão financeira e capital de giro",
+      "name": "Retorno dos investimentos",
+      "objective": "Padronizar, implantar e acompanhar: Retorno dos investimentos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G01",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Estrutura comercial",
+      "objective": "Padronizar, implantar e acompanhar: Estrutura comercial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G02",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Seleção de vendedores",
+      "objective": "Padronizar, implantar e acompanhar: Seleção de vendedores.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G03",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Integração de novos profissionais",
+      "objective": "Padronizar, implantar e acompanhar: Integração de novos profissionais.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G04",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Playbook comercial",
+      "objective": "Padronizar, implantar e acompanhar: Playbook comercial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G05",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Treinamento de vendas",
+      "objective": "Padronizar, implantar e acompanhar: Treinamento de vendas.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "G06",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Coaching individual",
+      "objective": "Padronizar, implantar e acompanhar: Coaching individual.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G07",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Gestão de metas",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de metas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G08",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Remuneração variável",
+      "objective": "Padronizar, implantar e acompanhar: Remuneração variável.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G09",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Avaliação de desempenho",
+      "objective": "Padronizar, implantar e acompanhar: Avaliação de desempenho.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "G10",
+      "domainCode": "G",
+      "domainName": "Pessoas, liderança e desempenho",
+      "name": "Desenvolvimento de lideranças",
+      "objective": "Padronizar, implantar e acompanhar: Desenvolvimento de lideranças.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T01",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Base unificada de clientes",
+      "objective": "Padronizar, implantar e acompanhar: Base unificada de clientes.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T02",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Implantação de CRM",
+      "objective": "Padronizar, implantar e acompanhar: Implantação de CRM.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T03",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Integração CRM/ERP",
+      "objective": "Padronizar, implantar e acompanhar: Integração CRM/ERP.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T04",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Automação comercial",
+      "objective": "Padronizar, implantar e acompanhar: Automação comercial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T05",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "IA para atendimento",
+      "objective": "Padronizar, implantar e acompanhar: IA para atendimento.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T06",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "IA para análise de carteira",
+      "objective": "Padronizar, implantar e acompanhar: IA para análise de carteira.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T07",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "IA para vendedores",
+      "objective": "Padronizar, implantar e acompanhar: IA para vendedores.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T08",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Inteligência de propostas",
+      "objective": "Padronizar, implantar e acompanhar: Inteligência de propostas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T09",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Dashboards e BI",
+      "objective": "Padronizar, implantar e acompanhar: Dashboards e BI.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T10",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Previsão comercial",
+      "objective": "Padronizar, implantar e acompanhar: Previsão comercial.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T11",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Orquestração de processos",
+      "objective": "Padronizar, implantar e acompanhar: Orquestração de processos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "T12",
+      "domainCode": "T",
+      "domainName": "Tecnologia, CRM, automação e IA",
+      "name": "Governança de dados e IA",
+      "objective": "Padronizar, implantar e acompanhar: Governança de dados e IA.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A01",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Painel de indicadores",
+      "objective": "Padronizar, implantar e acompanhar: Painel de indicadores.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A02",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Reunião comercial diária",
+      "objective": "Padronizar, implantar e acompanhar: Reunião comercial diária.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A03",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Revisão semanal de vendas",
+      "objective": "Padronizar, implantar e acompanhar: Revisão semanal de vendas.",
+      "seedStatus": "CORE",
+      "isActive": true
+    },
+    {
+      "code": "A04",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Reunião mensal de resultados",
+      "objective": "Padronizar, implantar e acompanhar: Reunião mensal de resultados.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A05",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Gestão de planos de ação",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de planos de ação.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A06",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Auditoria de processos",
+      "objective": "Padronizar, implantar e acompanhar: Auditoria de processos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A07",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Análise de causa raiz",
+      "objective": "Padronizar, implantar e acompanhar: Análise de causa raiz.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A08",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Gestão de experimentos",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de experimentos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A09",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Gestão de projetos",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de projetos.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "A10",
+      "domainCode": "A",
+      "domainName": "Gestão, indicadores e melhoria contínua",
+      "name": "Revisão estratégica",
+      "objective": "Padronizar, implantar e acompanhar: Revisão estratégica.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X01",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Desenvolvimento de novos mercados",
+      "objective": "Padronizar, implantar e acompanhar: Desenvolvimento de novos mercados.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X02",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Expansão geográfica",
+      "objective": "Padronizar, implantar e acompanhar: Expansão geográfica.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X03",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Canais de revenda",
+      "objective": "Padronizar, implantar e acompanhar: Canais de revenda.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X04",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Gestão de representantes",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de representantes.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X05",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Novos produtos e serviços",
+      "objective": "Padronizar, implantar e acompanhar: Novos produtos e serviços.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X06",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Modelos de receita recorrente",
+      "objective": "Padronizar, implantar e acompanhar: Modelos de receita recorrente.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X07",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Parcerias estratégicas",
+      "objective": "Padronizar, implantar e acompanhar: Parcerias estratégicas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X08",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Comércio eletrônico B2B",
+      "objective": "Padronizar, implantar e acompanhar: Comércio eletrônico B2B.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X09",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Expansão de grandes contas",
+      "objective": "Padronizar, implantar e acompanhar: Expansão de grandes contas.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    },
+    {
+      "code": "X10",
+      "domainCode": "X",
+      "domainName": "Expansão, canais e novas receitas",
+      "name": "Gestão de unidades",
+      "objective": "Padronizar, implantar e acompanhar: Gestão de unidades.",
+      "seedStatus": "BASIC",
+      "isActive": true
+    }
+  ]
+}

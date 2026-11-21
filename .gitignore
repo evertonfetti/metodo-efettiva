@@ -1,0 +1,36 @@
+# dependências e build
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# ambiente e segredos
+.env
+.env.*
+!.env.example
+
+# armazenamento, uploads, backups e dumps
+storage/
+uploads/
+data/
+backups/
+*.dump
+*.sql.gz
+*.backup
+
+# logs, cobertura e testes
+logs/
+*.log
+npm-debug.log*
+coverage/
+playwright-report/
+test-results/
+.vitest/
+
+# sistema/editor
+.DS_Store
+.vscode/
+.idea/
