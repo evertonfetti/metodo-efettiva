@@ -23,6 +23,7 @@ function toState(err: unknown): FormState {
 export async function saveMethodAction(_: FormState, fd: FormData): Promise<FormState> {
   try {
     const user = await requireUser();
+    assertRole(user, "OWNER");
     const phases = [0, 1, 2, 3, 4].map((i) => ({
       code: String(fd.get(`phase.${i}.code`) ?? ""),
       name: String(fd.get(`phase.${i}.name`) ?? "").trim(),
@@ -41,6 +42,7 @@ export async function saveMethodAction(_: FormState, fd: FormData): Promise<Form
 export async function saveParametersAction(_: FormState, fd: FormData): Promise<FormState> {
   try {
     const user = await requireUser();
+    assertRole(user, "OWNER");
     await updateSetting(user, "parameters", Object.fromEntries(fd.entries()));
     revalidatePath("/configuracoes");
     return { ok: true, message: "Parâmetros salvos." };

@@ -6,6 +6,7 @@ import { authenticate, revokeSessionToken } from "@/features/auth/service";
 import { AppError } from "@/lib/errors";
 import { clearSessionCookie, readSessionToken, setSessionCookie } from "@/lib/security/session";
 import { logger } from "@/lib/logger";
+import { safeInternalPath } from "@/lib/security/redirect";
 
 export type LoginState = { error?: string; email?: string };
 
@@ -21,8 +22,7 @@ export async function loginAction(_prev: LoginState, formData: FormData): Promis
     logger.error({ err }, "falha no login");
     return { error: "Não foi possível entrar agora. Tente novamente.", email };
   }
-  const next = String(formData.get("next") ?? "");
-  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard");
+  redirect(safeInternalPath(String(formData.get("next") ?? "")));
 }
 
 export async function logoutAction() {
