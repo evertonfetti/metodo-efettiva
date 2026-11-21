@@ -6,7 +6,7 @@ describe("redirect pós-login", () => {
     expect(safeInternalPath("/clientes/abc?x=1")).toBe("/clientes/abc?x=1");
   });
   it("rejeita destinos externos", () => {
-    for (const bad of ["https://evil.example", "//evil.example", "/\\evil.example", "\\\\evil", "javascript:alert(1)", "/\tx", ""]) {
+    for (const bad of ["https://evil.example", "//evil.example", "/\\evil.example", "\\\\evil", "javascript:alert(1)", "/\tx", "", "/.//evil.example", "/a/..//evil.example", "/%2e//evil.example"]) {
       expect(safeInternalPath(bad)).toBe("/dashboard");
     }
   });

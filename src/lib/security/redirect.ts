@@ -9,7 +9,10 @@ export function safeInternalPath(next: string, fallback = "/dashboard"): string 
     const base = "http://efettiva.internal";
     const u = new URL(next, base);
     if (u.origin !== base) return fallback;
-    return u.pathname + u.search + u.hash;
+    const out = u.pathname + u.search + u.hash;
+    // Revalida após normalização: "/.//x" e "/a/..//x" viram "//x" (protocol-relative).
+    if (!out.startsWith("/") || out.startsWith("//") || out.startsWith("/\\")) return fallback;
+    return out;
   } catch {
     return fallback;
   }
