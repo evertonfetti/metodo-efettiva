@@ -23,7 +23,7 @@ curl localhost:3100/api/health
 | TypeScript strict + Next.js 16 + Tailwind 4 | DONE | `npx tsc --noEmit` e `npm run build` sem erros |
 | Prisma 7 + PostgreSQL 17 + migration inicial | DONE | `prisma/migrations/*_fase0_fundacao` aplicada |
 | Redis + BullMQ + worker separado | DONE | `npx tsx scripts/check-queue.ts` → job COMPLETED em ~1s |
-| Docker (Dockerfile, compose com postgres/redis/migrate/web/worker, volumes) | PARTIAL | build da imagem em validação |
+| Docker (Dockerfile, compose com postgres/redis/migrate/web/worker, volumes) | DONE | `docker compose up -d` em projeto limpo (portas 3200/5434/6381): migrate aplicou migration + criou OWNER; web healthy; worker pronto |
 | `.env.example` + `scripts/setup-env.sh` (segredos aleatórios) | DONE | arquivos no repositório; `.env` ignorado |
 | Autenticação (Argon2id, sessão HTTP-only com hash, bloqueio 5×/15 min, logout) | DONE | `tests/integration/auth.test.ts` (5 testes) + smoke REST (401/403/200/logout) |
 | Autorização base `assertClientAccess` (negar por padrão, 404) | DONE | `tests/integration/access.test.ts` (3 testes) |
@@ -39,7 +39,7 @@ curl localhost:3100/api/health
 | Loading/erro/not-found no shell | DONE | `src/app/(app)/{loading,error,not-found}.tsx` |
 | Testes básicos | DONE | `npm test` → 15/15 |
 | Scripts de backup/restauração | PARTIAL | escritos; teste de restauração fica na Fase 7 |
-| **Aceite:** iniciar, criar OWNER, entrar/sair, persistir após reinício | PARTIAL | entrar/sair OK; persistência após rebuild dos containers em validação |
+| **Aceite:** iniciar, criar OWNER, entrar/sair, persistir após reinício | DONE | smoke no Docker: login 200, logout invalida cookie; após `down`/`up` mesmo usuário (id preservado) e sessões persistidas |
 
 ## Fase 1 — Cadastro e diagnóstico operacional
 | Item | Status | Evidência |
