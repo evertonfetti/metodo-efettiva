@@ -107,9 +107,10 @@ curl localhost:3100/api/health
 ## Fase 7 — Robustez e operação contínua
 | Item | Status | Evidência |
 |---|---|---|
-| Auditoria completa, testes de permissão, backup/restore testado | TODO | |
-| Recuperação de jobs, performance, revisão visual e de segurança | TODO | |
-| **Aceite:** reinstalação documentada, restore de teste, isolamento verificado, E2E | TODO | |
+| Auditoria completa, testes de permissão, backup/restore testado | DONE | Configurações → Auditoria (OWNER, filtros e paginação); `tests/integration/robustness.test.ts` (VIEWER e consultor só-leitura bloqueados em todas as mutações); `scripts/ops/backup-restore-test.sh` → "BACKUP/RESTORE: OK" (stack Docker descartável: backup íntegro, perda simulada, restauração com banco no ponto do backup e arquivo com o mesmo SHA-256) |
+| Recuperação de jobs, performance, revisão visual e de segurança | DONE | `lib/jobs/recovery.ts` (presos → fila; FAILED com motivo; "Tentar de novo"); carga `scripts/load/carga.ts`: 100 mil vendas validadas em 8,3 s, gravadas + KPIs em 84 s, reimportação 0 novos em 10 s, consulta paginada < 0,1 s (1 CPU); revisão independente de segurança sem IDOR, 6 correções aplicadas (`docs/DECISIONS.md` Fase 7) |
+| LGPD: exportação e exclusão assistida (RF-113) | DONE | Editar cadastro → Dados do cliente (OWNER): JSON completo; exclusão com nome + motivo remove banco e arquivos e registra a eliminação |
+| **Aceite:** reinstalação documentada, restore de teste, isolamento verificado, E2E | DONE | README "Reinstalação do zero" (validada: stack nova sobe com as 8 migrations, seed e OWNER no teste de backup); restore OK; isolamento em testes + aceites F1–F6; `scripts/e2e/fluxo.ts` → "E2E FLUXO COMPLETO: OK" no navegador |
 
 ## Testes obrigatórios (seção 15)
 | # | Teste | Status | Arquivo |
@@ -123,8 +124,8 @@ curl localhost:3100/api/health
 | 7 | Versão aprovada imutável | DONE | `tests/integration/documents.test.ts` (serviço 409 + trigger do banco) |
 | 8 | Audiência INTERNO fora do arquivo CLIENTE | DONE | `tests/unit/documents.test.ts` + `tests/integration/documents.test.ts` (MD, DOCX, HTML/PDF) |
 | 9 | IA: evidência inexistente rejeitada | DONE | `tests/unit/ai.test.ts` + `tests/integration/ai.test.ts` |
-| 10 | E2E cliente → relatório | TODO | |
+| 10 | E2E cliente → relatório | DONE | `scripts/e2e/fluxo.ts` (navegador) + aceites F1–F6 |
 
 ---
 
-PRÓXIMO PASSO: (1) quando houver chave: definir `ANTHROPIC_API_KEY` no `.env`, reiniciar web e worker e rodar `ACCEPT_AI=1 npx tsx scripts/acceptance/fase5.ts` para fechar o aceite da Fase 5. (2) Fase 7 — robustez. Ler SPEC_INDEX: Fase 7 (1052), 12.1–12.4 (938–981), 13 RNF (982), 15 testes (1068–1098) e 16 roteiro DEMO (1099). Fazer: auditoria completa (tela de eventos de auditoria para OWNER), testar backup/restore (`scripts/backup.sh`/`restore.sh`) em banco descartável, recuperação de jobs travados (RUNNING antigos → reenfileirar/FAILED), teste E2E Playwright do roteiro (login → cliente → diagnóstico → oportunidade → projeto → playbook → relatório), testes de permissão VIEWER, revisão de segurança e performance (índices, N+1), reinstalação documentada no README; rodar `--reset` do seed DEMO se necessário.
+PRÓXIMO PASSO: MVP das fases 0–7 entregue. Pendências: (1) aceite real da IA — definir `ANTHROPIC_API_KEY`, reiniciar web e worker e rodar `ACCEPT_AI=1 npx tsx scripts/acceptance/fase5.ts`; (2) deploy no EasyPanel atrás de TLS (`APP_URL` https) e agendamento diário de `scripts/backup.sh` com cópia externa; (3) disco do host em 96% — liberar espaço antes de novos builds Docker; (4) melhorias futuras (seção 14, fases 8+): conectores ERP/CRM, RAG, CSP com nonce.

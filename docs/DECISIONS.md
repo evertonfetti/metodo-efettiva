@@ -128,3 +128,13 @@ Uma linha por decisão: **decisão** — motivo.
 - **Relatório = Document tipo REPORT + ReportPeriod; estado derivado (Rascunho → Aprovado → Exportado)** — reaproveita editor, versões imutáveis, QA, exportação e IA da Fase 3/5.
 - **ROI, ganho econômico e recompra/reativação ficam "não mensurados" até haver margem confiável, investimento e método de atribuição** — RF-105 e 7.4 (sem somatório automático de benefícios).
 - **Seed DEMO via `npm run db:seed:demo` (fora do `migrate` do Docker), idempotente; `--reset` apaga só as duas empresas DEMO do seed** — dados fictícios nunca misturados aos reais (seção 16).
+
+## Fase 7
+- **Recuperação de jobs no worker (na partida e a cada 5 min): RUNNING há mais de 15 min volta à fila (até 5 tentativas), depois FAILED com motivo; "Tentar de novo" para OWNER** — RF-114; handlers idempotentes (export, import, IA com reserva atômica) não duplicam.
+- **Lista de jobs com falha só para OWNER** — achado da revisão automática: incluía nomes de clientes de todo o sistema.
+- **Exportação de dados do cliente em JSON e exclusão assistida (nome exato + motivo), só OWNER; arquivos do prefixo `clients/<id>/` apagados; auditoria da exclusão sem dados do cliente (hash do nome)** — RF-113 e 12.3; AuditEvent sem FK para Client preserva a trilha.
+- **Trilha de auditoria navegável (Configurações → Auditoria) restrita ao OWNER** — RNF-08.
+- **E2E do fluxo completo dirigido no navegador (`scripts/e2e/fluxo.ts`) usando Playwright como biblioteca, sem `@playwright/test`** — reaproveita o Chromium já instalado; respostas do questionário pela API para manter o script estável.
+- **Correções da revisão independente de segurança:** CSV de erros neutraliza fórmulas (`= + - @`); XLSX recusado se o tamanho descompactado declarado passar de 200 MB (lido do diretório central, sem descompactar); e-mail, telefone, CPF e CNPJ omitidos no envio à IA e orientação do consultor também passa pelo filtro; `<` escapado no bloco `<dados_nao_confiaveis>`; aceite/rejeição de sugestão por reserva atômica; logo validado antes de gravar.
+- **Mantido conscientemente:** perfil com acesso de leitura ao cliente pode baixar exportações já geradas, inclusive INTERNAS (é usuário interno da Efettiva; o filtro INTERNO×CLIENTE protege o arquivo entregue ao cliente); CSP estrita adiada (o Next exige nonce para scripts inline — avaliar no proxy/TLS do deploy); `--no-sandbox` do Chromium mitigado por HTML escapado, JS desligado e rede bloqueada.
+- **Disco do host: imagem Docker antiga do projeto removida antes do rebuild; imagens/caches de outros projetos não tocados** — host compartilhado com 97% de uso.

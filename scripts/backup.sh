@@ -12,9 +12,10 @@ STAMP="$(date +%Y%m%d-%H%M%S)"
 OUT="${DEST}/efettiva-${STAMP}"
 COMPOSE="${COMPOSE:-docker compose}"
 
-set -a; [ -f .env ] && . ./.env; set +a
-DB_USER="${POSTGRES_USER:-efettiva}"
-DB_NAME="${POSTGRES_DB:-efettiva}"
+# Lê só usuário e nome do banco do .env (não exporta segredos nem sobrescreve portas/variáveis já definidas)
+envval() { [ -f .env ] && grep -E "^$1=" .env | tail -1 | cut -d= -f2- | tr -d '"' || true; }
+DB_USER="${POSTGRES_USER:-$(envval POSTGRES_USER)}"; DB_USER="${DB_USER:-efettiva}"
+DB_NAME="${POSTGRES_DB:-$(envval POSTGRES_DB)}"; DB_NAME="${DB_NAME:-efettiva}"
 
 mkdir -p "$OUT"
 chmod 700 "$DEST" "$OUT"
