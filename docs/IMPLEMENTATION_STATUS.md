@@ -100,9 +100,9 @@ curl localhost:3100/api/health
 ## Fase 6 — Acompanhamento, resultados e relatórios
 | Item | Status | Evidência |
 |---|---|---|
-| Baseline imutável, snapshots, status de processo, evidências, reuniões | TODO | |
-| Score de adoção, relatórios periódicos e exportações | TODO | |
-| **Aceite:** 60 dias fictícios, baseline × atual, relatório com fonte e limitações | TODO | |
+| Baseline imutável, snapshots, status de processo, evidências, reuniões | DONE | `features/results/service.ts`: baseline = 90 dias antes do início, mesma fórmula/fonte, trigger `project_baseline_immutable`, correção por revisão com motivo; snapshots calculados e manuais (justificativa/fonte, "Estimado"); reuniões (decisões, próximos passos, impedimentos, treinamentos); eventos externos (RF-106); aba Arquivos com evidências |
+| Score de adoção, relatórios periódicos e exportações | DONE | aderência = Σ conformes ÷ Σ auditados (última auditoria por processo); tarefas no prazo; relatório REPORT com as 11 seções da 9.3, frase de não causalidade, observado × estimado × não mensurado; editor/versões/exportação da Fase 3; IA opcional (REPORT_NARRATIVE_BUILD) |
+| **Aceite:** 60 dias fictícios, baseline × atual, relatório com fonte e limitações | DONE | `npm run db:seed:demo` + `scripts/acceptance/fase6.ts` → "ACEITE FASE 6: OK" (baseline × 2 snapshots, aderência 76,7%, 8 reuniões, relatório aprovado e PDF final, isolamento A × B); `tests/integration/results.test.ts` |
 
 ## Fase 7 — Robustez e operação contínua
 | Item | Status | Evidência |
@@ -127,4 +127,4 @@ curl localhost:3100/api/health
 
 ---
 
-PRÓXIMO PASSO: (1) quando houver chave: definir `ANTHROPIC_API_KEY` no `.env`, reiniciar web e worker e rodar `ACCEPT_AI=1 npx tsx scripts/acceptance/fase5.ts` para fechar o aceite da Fase 5. (2) Fase 6 — acompanhamento e resultados. Ler SPEC_INDEX: M10 (266), 5.4 ProjectBaseline/Meeting/Risk (454), 5.5 ReportPeriod (471), 7 KPIs restantes e 7.4 (568–617), 9.3 (792) e UI_LAYOUT `…/indicadores` e `/relatorios`. Construir baseline congelado por projeto (MetricSnapshot com projectId + ProjectBaseline), snapshots periódicos, reuniões/decisões/impedimentos, evidências por processo, score de adoção, KPIs de recompra/reativação/tarefas no prazo/aderência, relatório periódico (11 seções, frase de não causalidade) usando o editor/exportador da Fase 3, REPORT_NARRATIVE_BUILD com IA opcional; aceite com 60 dias fictícios (DEMO).
+PRÓXIMO PASSO: (1) quando houver chave: definir `ANTHROPIC_API_KEY` no `.env`, reiniciar web e worker e rodar `ACCEPT_AI=1 npx tsx scripts/acceptance/fase5.ts` para fechar o aceite da Fase 5. (2) Fase 7 — robustez. Ler SPEC_INDEX: Fase 7 (1052), 12.1–12.4 (938–981), 13 RNF (982), 15 testes (1068–1098) e 16 roteiro DEMO (1099). Fazer: auditoria completa (tela de eventos de auditoria para OWNER), testar backup/restore (`scripts/backup.sh`/`restore.sh`) em banco descartável, recuperação de jobs travados (RUNNING antigos → reenfileirar/FAILED), teste E2E Playwright do roteiro (login → cliente → diagnóstico → oportunidade → projeto → playbook → relatório), testes de permissão VIEWER, revisão de segurança e performance (índices, N+1), reinstalação documentada no README; rodar `--reset` do seed DEMO se necessário.

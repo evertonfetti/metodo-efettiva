@@ -4,13 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const TABS = [
+const TABS: { label: string; seg: string; phase?: number }[] = [
   { label: "Visão geral", seg: "" },
   { label: "Plano de ação", seg: "/acoes" },
-  { label: "Indicadores", seg: "/indicadores", phase: 6 },
+  { label: "Indicadores", seg: "/indicadores" },
   { label: "Playbooks", seg: "/playbooks" },
-  { label: "Reuniões", seg: "/reunioes", phase: 6 },
-  { label: "Arquivos", seg: "/arquivos", phase: 6 },
+  { label: "Reuniões", seg: "/reunioes" },
+  { label: "Arquivos", seg: "/arquivos" },
 ];
 
 /** Abas do projeto: sublinhado âmbar na ativa; abas de fases futuras desabilitadas com o motivo. */

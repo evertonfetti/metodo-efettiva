@@ -11,7 +11,7 @@ function rng(seed: number) {
 const br = (n: number) => n.toFixed(2).replace(".", ",").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 const dayStr = (d: Date) => `${String(d.getUTCDate()).padStart(2, "0")}/${String(d.getUTCMonth() + 1).padStart(2, "0")}/${d.getUTCFullYear()}`;
 
-export function buildSample(today: Date, opts: { customers?: number; seed?: number } = {}): Sample {
+export function buildSample(today: Date, opts: { customers?: number; seed?: number; products?: number; quotes?: number; invalid?: boolean } = {}): Sample {
   const r = rng(opts.seed ?? 42);
   const nC = opts.customers ?? 60;
   const day = (ago: number) => new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - ago));
@@ -19,7 +19,8 @@ export function buildSample(today: Date, opts: { customers?: number; seed?: numb
   const customers = [["id_externo", "nome", "segmento", "vendedor", "intervalo_compra_dias", "ativo"]];
   for (let i = 1; i <= nC; i++) customers.push([`CLI${String(i).padStart(3, "0")}`, `Cliente Exemplo ${i}`, segs[i % 4]!, `VEN0${(i % 4) + 1}`, i % 5 === 0 ? "30" : "", i === nC ? "não" : "sim"]);
   const products = [["id_externo", "sku", "nome", "categoria", "ativo"]];
-  for (let i = 1; i <= 30; i++) products.push([`PRD${String(i).padStart(3, "0")}`, `SKU${i}`, `Produto ${i}`, ["Insumos", "Peças", "Serviços"][i % 3]!, "sim"]);
+  const nP = opts.products ?? 30;
+  for (let i = 1; i <= nP; i++) products.push([`PRD${String(i).padStart(3, "0")}`, `SKU${i}`, `Produto ${i}`, ["Insumos", "Peças", "Serviços"][i % 3]!, "sim"]);
 
   const sales = [["id_externo", "id_cliente", "data", "status", "tipo_registro", "valor_bruto", "descontos", "deducoes", "valor_liquido", "vendedor"]];
   const items = [["id_venda", "id_linha", "id_produto", "quantidade", "preco_unitario", "desconto", "custo_variavel_unitario"]];
@@ -40,7 +41,7 @@ export function buildSample(today: Date, opts: { customers?: number; seed?: numb
       for (let l = 1; l <= lines; l++) {
         const q = 1 + Math.floor(r() * 10), price = Math.round((20 + r() * 480) * 100) / 100;
         gross += q * price;
-        its.push([id, String(l), `PRD${String(1 + Math.floor(r() * 30)).padStart(3, "0")}`, String(q), br(price), "", n % 7 === 0 ? "" : br(Math.round(price * (0.45 + r() * 0.25) * 100) / 100)]);
+        its.push([id, String(l), `PRD${String(1 + Math.floor(r() * nP)).padStart(3, "0")}`, String(q), br(price), "", n % 7 === 0 ? "" : br(Math.round(price * (0.45 + r() * 0.25) * 100) / 100)]);
       }
       gross = Math.round(gross * 100) / 100;
       const status = n % 41 === 0 ? "cancelado" : "confirmado";
@@ -59,17 +60,17 @@ export function buildSample(today: Date, opts: { customers?: number; seed?: numb
   valid.push({ ago: 20, net: -150 });
   // período = 12 meses terminando na última venda registrada (mesma regra do motor)
   const salesValue12m = valid.filter((v) => v.ago <= minAgo + 364).reduce((t, v) => t + v.net, 0);
-  sales.push(["PEDX01", "CLI999", dayStr(day(10)), "confirmado", "PEDIDO", "", "", "", "100,00", "VEN01"]); // cliente inexistente
-  sales.push(["PEDX02", "CLI003", "31/02/2026", "confirmado", "PEDIDO", "", "", "", "100,00", "VEN01"]); // data inválida
-  sales.push(["PEDX03", "CLI003", dayStr(day(10)), "confirmado", "PEDIDO", "", "", "", "-80,00", "VEN01"]); // negativo sem devolução
+  if (opts.invalid !== false) sales.push(["PEDX01", "CLI999", dayStr(day(10)), "confirmado", "PEDIDO", "", "", "", "100,00", "VEN01"]); // cliente inexistente
+  if (opts.invalid !== false) sales.push(["PEDX02", "CLI003", "31/02/2026", "confirmado", "PEDIDO", "", "", "", "100,00", "VEN01"]); // data inválida
+  if (opts.invalid !== false) sales.push(["PEDX03", "CLI003", dayStr(day(10)), "confirmado", "PEDIDO", "", "", "", "-80,00", "VEN01"]); // negativo sem devolução
 
   const quotes = [["id_externo", "id_cliente", "data_emissao", "data_validade", "status", "valor", "vendedor", "ultimo_contato", "motivo_perda"]];
-  for (let i = 1; i <= 40; i++) {
+  for (let i = 1; i <= (opts.quotes ?? 40); i++) {
     const ago = 5 + Math.floor(r() * 120);
     const st = i % 4 === 0 ? "ganho" : i % 4 === 1 ? "perdido" : "aberto";
     quotes.push([`ORC${String(i).padStart(3, "0")}`, `CLI${String(1 + (i % nC)).padStart(3, "0")}`, dayStr(day(ago)), dayStr(day(ago - 20)), st, br(Math.round((500 + r() * 9500) * 100) / 100), `VEN0${(i % 4) + 1}`, i % 3 === 0 ? "" : dayStr(day(Math.max(1, ago - 3))), st === "perdido" ? "Preço" : ""]);
   }
-  return { customers, products, sales, items, quotes, expected: { salesValue12m: Math.round(salesValue12m * 100) / 100, cancelled, invalidRows: 3 } };
+  return { customers, products, sales, items, quotes, expected: { salesValue12m: Math.round(salesValue12m * 100) / 100, cancelled, invalidRows: opts.invalid === false ? 0 : 3 } };
 }
 
 export const toCsv = (rows: string[][], sep = ";") => "﻿" + rows.map((r) => r.map((c) => (c.includes(sep) || c.includes('"') || c.includes("\n") ? `"${c.replace(/"/g, '""')}"` : c)).join(sep)).join("\r\n") + "\r\n";

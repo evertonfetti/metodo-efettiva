@@ -117,3 +117,14 @@ Uma linha por decisão: **decisão** — motivo.
 - **Limites: custo estimado por tarefa (bloqueia antes do envio), gerações por hora por usuário, máximo de tokens, tempo limite; custo real calculado pelos tokens retornados** — 8.6.
 - **Tarefas cobertas pela reescrita de seção: PLAYBOOK_SECTION_REWRITE/BUILD (até 8 seções), SOP_BUILD (POP), SCRIPT_BUILD, TRAINING_PLAN_BUILD, ASSESSMENT_SUMMARY, OPPORTUNITY_EXPLANATION, PROCESS_RECOMMENDATION_EXPLANATION; REPORT_NARRATIVE_BUILD e MEETING_SUMMARY ficam para a Fase 6** — dependem de relatórios e reuniões.
 - **Testes com provedor falso injetado (`setAiProviderForTests`); nenhuma chamada paga em testes automatizados** — chamada real só no aceite com `ACCEPT_AI=1`.
+
+## Fase 6
+- **Baseline = janela de 90 dias imediatamente anterior ao início do projeto; snapshots = janelas de 90 dias terminando na data escolhida, mesma fórmula** — "período anterior comparável" (7.4) sem sazonalidade de janelas de tamanhos diferentes.
+- **Baseline imutável por trigger no banco; correção cria revisão com motivo e responsável** — RF-101 e 5.4.
+- **Snapshots de projeto em `MetricSnapshot` com `projectId` (o recálculo do painel só substitui os sem projeto)** — histórico preservado por projeto.
+- **Valor manual exige fonte e justificativa e é classificado "Estimado"; calculado = "Observado"; sem valor = "Não mensurado"** — RF-102/104.
+- **Indicadores de execução (tarefas no prazo, aderência) não têm baseline ("Não aplicável")** — não existiam antes do projeto.
+- **Aderência = última auditoria de cada processo, Σ conformes ÷ Σ auditados** — PROCESS_ADOPTION_RATE exige amostra e evidência.
+- **Relatório = Document tipo REPORT + ReportPeriod; estado derivado (Rascunho → Aprovado → Exportado)** — reaproveita editor, versões imutáveis, QA, exportação e IA da Fase 3/5.
+- **ROI, ganho econômico e recompra/reativação ficam "não mensurados" até haver margem confiável, investimento e método de atribuição** — RF-105 e 7.4 (sem somatório automático de benefícios).
+- **Seed DEMO via `npm run db:seed:demo` (fora do `migrate` do Docker), idempotente; `--reset` apaga só as duas empresas DEMO do seed** — dados fictícios nunca misturados aos reais (seção 16).

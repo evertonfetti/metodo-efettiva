@@ -39,6 +39,6 @@ export function clientNav(clientId: string): NavItem[] {
     { label: "Oportunidades", href: `${base}/oportunidades`, icon: Target, matchPrefix: true },
     { label: "Projetos", href: `${base}/projetos`, icon: FolderKanban, matchPrefix: true },
     { label: "Documentos", href: `${base}/documentos`, icon: FileText, matchPrefix: true },
-    { label: "Relatórios", href: `${base}/relatorios`, icon: LineChart, matchPrefix: true, availableInPhase: 6 },
+    { label: "Relatórios", href: `${base}/relatorios`, icon: LineChart, matchPrefix: true },
   ];
 }

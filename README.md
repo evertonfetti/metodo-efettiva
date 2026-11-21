@@ -67,6 +67,12 @@ Em **Dados e importações** baixe os modelos (CSV/XLSX) e importe nesta ordem: 
 Fluxo: upload → mapeamento (salvo por cliente) → validação de todas as linhas com prévia e arquivo de erros → confirmação (gravada no worker) → recálculo automático dos indicadores.
 Reimportar o mesmo arquivo não duplica (origem + ID externo); linhas alteradas são atualizadas. Parâmetros de inatividade, ABC e orçamentos parados ficam em Configurações → Parâmetros.
 
+### Resultados e relatórios (Fase 6)
+No projeto, aba **Indicadores**: congele o baseline (90 dias antes do início) e registre snapshots; aba **Reuniões** para decisões e impedimentos; auditorias de processo alimentam a aderência. Em **Relatórios**, gere o relatório do período (11 seções, com fonte e limitações), aprove e exporte.
+
+### Dados de demonstração
+`npm run db:seed:demo` cria as empresas fictícias "Distribuidora Modelo B2B" (60 dias de projeto) e "Varejo Demonstração Sul", com selo DEMO. `-- --reset` recria somente essas duas.
+
 ### IA supervisionada (Fase 5, opcional)
 Sem `ANTHROPIC_API_KEY` o sistema funciona por inteiro com templates. Para ativar: defina a chave no `.env`, reinicie web e worker, ajuste modelo/limites em Configurações → Provedor de IA e autorize cada cliente em Editar cadastro → IA externa.
 No editor do documento, "Sugerir com IA" mostra exatamente o que será enviado (dados minimizados e pseudonimizados) antes de enviar; a sugestão volta como rascunho com antes/depois, evidências e problemas de validação, e só entra no documento ao ser aceita.
