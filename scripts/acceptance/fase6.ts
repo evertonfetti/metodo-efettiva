@@ -35,8 +35,11 @@ async function main() {
 
   console.log("Relatório");
   const reports = (await api.call("GET", `/api/v1/clients/${a.id}/projects/${p.id}/reports`)).json.items;
-  check(reports.length >= 1, "relatório do período criado");
-  const docId = reports[0].documentId;
+  check(reports.length >= 1, "relatório do período existente (seed)");
+  // cada execução gera um relatório novo do mesmo período (o anterior pode já estar aprovado e imutável)
+  const created = await api.call("POST", `/api/v1/clients/${a.id}/projects/${p.id}/reports`, { periodStart: reports.at(-1).periodStart.slice(0, 10), periodEnd: reports.at(-1).periodEnd.slice(0, 10) });
+  check(created.status === 201, "novo relatório do período gerado");
+  const docId = created.json.documentId;
   const doc = (await api.call("GET", `/api/v1/clients/${a.id}/documents/${docId}`)).json;
   const text = JSON.stringify(doc.revision.content);
   check(doc.revision.content.sections.length === 11, "11 seções (9.3)");
@@ -52,7 +55,7 @@ async function main() {
   for (let i = 0; i < 90 && !["COMPLETED", "FAILED"].includes(st); i++) { st = (await api.call("GET", `/api/v1/clients/${a.id}/exports/${ex.json.id}`)).json.status; if (st !== "COMPLETED") await sleep(1000); }
   const pdf = await api.bytes(`/api/v1/clients/${a.id}/exports/${ex.json.id}/download`);
   check(st === "COMPLETED" && pdf.data.subarray(0, 4).toString() === "%PDF", `PDF final do relatório (${Math.round(pdf.data.length / 1024)} KB)`);
-  const after = (await api.call("GET", `/api/v1/clients/${a.id}/projects/${p.id}/reports`)).json.items[0];
+  const after = (await api.call("GET", `/api/v1/clients/${a.id}/projects/${p.id}/reports`)).json.items.find((r: { documentId: string }) => r.documentId === docId);
   check(after.status === "EXPORTED", "relatório passa a Exportado");
 
   console.log("Novo snapshot e isolamento");
