@@ -34,3 +34,6 @@ test-results/
 .DS_Store
 .vscode/
 .idea/
+
+# Prisma Client gerado (npm install / prisma generate)
+src/generated/

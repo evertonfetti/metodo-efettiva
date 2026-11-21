@@ -1,0 +1,192 @@
+// Efettiva OS — schema relacional (contrato lógico: seção 5 da especificação)
+// Convenções: UUID, clientId obrigatório em entidades de cliente, Decimal para dinheiro.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────── 5.1 Autenticação e empresas ─────────────────────────
+
+enum UserRole {
+  OWNER
+  CONSULTANT
+  VIEWER
+}
+
+model User {
+  id             String    @id @default(uuid()) @db.Uuid
+  email          String    @unique
+  passwordHash   String
+  name           String
+  role           UserRole  @default(CONSULTANT)
+  active         Boolean   @default(true)
+  failedLogins   Int       @default(0)
+  lockedUntil    DateTime? @db.Timestamptz(3)
+  lastLoginAt    DateTime? @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime  @updatedAt @db.Timestamptz(3)
+
+  sessions       Session[]
+  ownedClients   Client[]       @relation("ClientOwner")
+  clientAccess   ClientAccess[]
+  auditEvents    AuditEvent[]
+}
+
+model Session {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @db.Uuid
+  tokenHash  String    @unique
+  expiresAt  DateTime  @db.Timestamptz(3)
+  revokedAt  DateTime? @db.Timestamptz(3)
+  userAgent  String?
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  lastSeenAt DateTime  @default(now()) @db.Timestamptz(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum ClientStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+model Client {
+  id                 String       @id @default(uuid()) @db.Uuid
+  name               String
+  legalName          String?
+  taxIdEncrypted     String?
+  industry           String
+  industryOther      String?
+  size               String?
+  city               String?
+  state              String?
+  timezone           String       @default("America/Sao_Paulo")
+  salesModel         String?
+  salesChannels      String[]     @default([])
+  sellersCount       Int?
+  sourceSystem       String?
+  salesCycle         String?
+  typicalPurchaseFrequencyDays Int?
+  mainChallenges     String?
+  tags               String[]     @default([])
+  status             ClientStatus @default(ACTIVE)
+  isDemo             Boolean      @default(false)
+  externalAiAllowed  Boolean      @default(false)
+  ownerUserId        String       @db.Uuid
+  createdAt          DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime     @updatedAt @db.Timestamptz(3)
+  deletedAt          DateTime?    @db.Timestamptz(3)
+
+  owner   User           @relation("ClientOwner", fields: [ownerUserId], references: [id])
+  access  ClientAccess[]
+  files   FileAsset[]
+  jobs    BackgroundJob[]
+
+  @@index([status])
+  @@index([name])
+}
+
+enum ClientPermission {
+  EDIT
+  VIEW
+}
+
+model ClientAccess {
+  clientId   String           @db.Uuid
+  userId     String           @db.Uuid
+  permission ClientPermission @default(EDIT)
+  createdAt  DateTime         @default(now()) @db.Timestamptz(3)
+
+  client Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([clientId, userId])
+  @@index([userId])
+}
+
+model AuditEvent {
+  id          String   @id @default(uuid()) @db.Uuid
+  actorUserId String?  @db.Uuid
+  clientId    String?  @db.Uuid
+  entityType  String
+  entityId    String?
+  action      String
+  beforeHash  String?
+  afterHash   String?
+  meta        Json?
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([clientId, createdAt])
+  @@index([entityType, entityId])
+}
+
+enum FileAccessLevel {
+  INTERNAL
+  CLIENT
+}
+
+model FileAsset {
+  id           String          @id @default(uuid()) @db.Uuid
+  clientId     String?         @db.Uuid
+  uploadedBy   String?         @db.Uuid
+  originalName String
+  storageKey   String          @unique
+  sha256       String
+  mime         String
+  bytes        Int
+  accessLevel  FileAccessLevel @default(INTERNAL)
+  createdAt    DateTime        @default(now()) @db.Timestamptz(3)
+
+  client Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+}
+
+// ───────────────────────── Jobs e configuração ─────────────────────────
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model BackgroundJob {
+  id             String    @id @default(uuid()) @db.Uuid
+  clientId       String?   @db.Uuid
+  operation      String
+  status         JobStatus @default(QUEUED)
+  progress       Int       @default(0)
+  idempotencyKey String    @unique
+  payloadJson    Json?
+  resultJson     Json?
+  errorMessage   String?
+  attempts       Int       @default(0)
+  createdBy      String?   @db.Uuid
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
+  startedAt      DateTime? @db.Timestamptz(3)
+  finishedAt     DateTime? @db.Timestamptz(3)
+
+  client Client? @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([clientId, createdAt])
+}
+
+model SystemSetting {
+  key       String   @id
+  valueJson Json
+  updatedBy String?  @db.Uuid
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+}

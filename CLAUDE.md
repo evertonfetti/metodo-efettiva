@@ -2,7 +2,7 @@
 
 ## Fonte da verdade
 
-Leia **`ESPECIFICACAO_MESTRA_EFETTIVA_OS.md`** integralmente antes de planejar mudanças. Ela contém requisitos do produto, domínio, dados, APIs, UI, IA, playbooks, resultados, segurança, fases, casos de aceite e catálogo de processos. Consulte **`INICIAR_NO_CLAUDE_CODE.md`** para o prompt inicial e de retomada.
+A fonte da verdade é **`ESPECIFICACAO_MESTRA_EFETTIVA_OS.md`**: leia **`docs/SPEC_INDEX.md`** e só as seções da fase atual (nunca a especificação inteira). Ela contém requisitos do produto, domínio, dados, APIs, UI, IA, playbooks, resultados, segurança, fases, casos de aceite e catálogo de processos. Consulte **`INICIAR_NO_CLAUDE_CODE.md`** para o prompt inicial e de retomada.
 
 Para **qualquer tela ou componente**, leia **`docs/UI_LAYOUT.md`** e o mockup correspondente em `docs/design/`. Em decisões visuais e de layout, o guia prevalece sobre a seção 10 da especificação. Os mockups são referência de estrutura e hierarquia: reimplemente com React/Tailwind/shadcn, não copie o HTML.
 
@@ -35,3 +35,23 @@ Web app **interno da Efettiva Gestão**. Uma instalação atende várias empresa
 ## UX
 
 Interface pt-BR, visual sóbrio Efettiva: azul-marinho `#0B2545`, âmbar `#D9A441` (só destaque, nunca texto sobre branco), branco, fonte Manrope. Desktop primeiro, responsiva, acessível, com filtros, estados vazios e origem dos indicadores. Tokens, shell, componentes, telas, rótulos de status e checklist de aceite visual: `docs/UI_LAYOUT.md`.
+
+## Regras de execução
+
+**Git/GitHub** — remoto `https://github.com/evertonfetti/metodo-efettiva.git`, branch `main` (push via SSH por `pushInsteadOf`).
+- Ao concluir cada item: commit em português `fase N: descrição` e `git push origin main` imediatamente; nada fica só local.
+- Fim de fase: conferir `git status` e `git log origin/main -1`.
+- Proibido: force push, reescrever histórico, commitar segredo ou dado real de cliente. `.env` nunca vai ao repositório (use `.env.example`).
+- Push falhou: registrar BLOCKED no STATUS com o erro, seguir com commits locais e tentar de novo no próximo item.
+
+**Modo de trabalho**
+- Decidir pelo spec/guia/padrão sensato e registrar em `docs/DECISIONS.md`; perguntar só diante de algo irreversível ou que exija conta/credencial do usuário.
+- Antes de cada fase, listar em até 5 linhas arquivos e riscos, sem esperar aprovação.
+- Fatias verticais: migration → domínio → endpoint/server action → UI → validação → teste → documentação.
+- Antes de instalar dependência: confirmar versão estável atual e compatibilidade; fixar versão exata.
+
+**Economia de contexto** — subagentes (haiku para tarefas simples) rodam build/lint/testes e devolvem só resumo (passou/falhou, arquivo:linha, mensagem). Ler trechos, não arquivos inteiros. Deixar o STATUS pronto para retomar após /clear.
+
+**Definição de pronto (inegociável)** — item DONE somente se: build e lint passam; testes críticos aplicáveis passam; dados persistem no banco; autorização por `clientId` verificada no servidor; tela com estados vazio/carregando/erro segundo `docs/UI_LAYOUT.md`; commit enviado ao GitHub. Proibido: dado fictício sem selo DEMO, botão sem ação real, número fixo em dashboard, TODO em regra crítica. O resto é PARTIAL/BLOCKED com motivo.
+
+**Ambiente deste host** — Docker via `sudo docker compose`; Postgres em 127.0.0.1:5433 e Redis em 127.0.0.1:6380 (`docker compose up -d postgres redis`); porta 3000 ocupada por outro app: rodar local em `-p 3100`.

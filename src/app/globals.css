@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* Tokens Efettiva OS — docs/UI_LAYOUT.md §2. Não espalhar hex pelo código: usar as classes do tema. */
+@theme {
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+
+  --color-navy: #0b2545;
+  --color-navy-700: #13345e;
+  --color-navy-600: #1e3f66;
+  --color-navy-border: #3a5a82;
+  --color-amber: #d9a441;
+  --color-amber-50: #fdf3dc;
+  --color-amber-900: #6b4a06;
+
+  --color-bg: #f4f6f9;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-surface-sunken: #eef2f7;
+  --color-kanban: #e9edf3;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-border-alert: #f3c4c4;
+
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-text-subtle: #64748b;
+  --color-on-navy: #ffffff;
+  --color-on-navy-item: #dce3ec;
+  --color-on-navy-label: #afc0d4;
+
+  /* Status (fundo / texto) */
+  --color-ok-bg: #dcfce7;
+  --color-ok: #166534;
+  --color-info-bg: #dbeafe;
+  --color-info: #1e40af;
+  --color-neutral-bg: #f1f5f9;
+  --color-neutral: #334155;
+  --color-warn-bg: #fef3c7;
+  --color-warn: #78350f;
+  --color-err-bg: #fee2e2;
+  --color-err: #991b1b;
+  --color-blocked-bg: #ffedd5;
+  --color-blocked: #9a3412;
+
+  /* shadcn/ui */
+  --color-primary: #0b2545;
+  --color-primary-foreground: #ffffff;
+  --color-accent: #eef2f7;
+  --color-ring: #0b2545;
+  --color-destructive: #991b1b;
+
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --radius-tag: 4px;
+}
+
+:root {
+  --radius: 0.5rem;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Foco visível: ring navy 2px com offset (UI_LAYOUT §8) */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-navy);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

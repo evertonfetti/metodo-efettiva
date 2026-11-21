@@ -1,0 +1,102 @@
+# Efettiva OS — stack completa: `docker compose up -d --build`
+# Desenvolvimento local (só banco e Redis): `docker compose up -d postgres redis`
+name: efettiva-os
+
+x-app-env: &app-env
+  DATABASE_URL: postgresql://${POSTGRES_USER:-efettiva}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}@postgres:5432/${POSTGRES_DB:-efettiva}
+  REDIS_URL: redis://redis:6379
+  APP_URL: ${APP_URL:-http://localhost:3000}
+  APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:?defina APP_ENCRYPTION_KEY no .env}
+  STORAGE_DIR: /app/storage
+  SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-12}
+  OWNER_EMAIL: ${OWNER_EMAIL:-}
+  OWNER_NAME: ${OWNER_NAME:-}
+  OWNER_PASSWORD: ${OWNER_PASSWORD:-}
+  ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  TZ: America/Sao_Paulo
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-efettiva}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:-efettiva}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT:-5433}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redisdata:/data
+    ports:
+      - "127.0.0.1:${REDIS_HOST_PORT:-6380}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Executa migrations, seeds idempotentes e criação do OWNER; depois encerra.
+  migrate:
+    build: .
+    image: efettiva-os:latest
+    command: ["sh", "-c", "npx prisma migrate deploy && npx tsx prisma/seed.ts && npx tsx scripts/bootstrap-owner.ts"]
+    environment: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    image: efettiva-os:latest
+    restart: unless-stopped
+    command: ["npx", "next", "start", "-p", "3000", "-H", "0.0.0.0"]
+    environment:
+      <<: *app-env
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    volumes:
+      - storage:/app/storage
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  worker:
+    image: efettiva-os:latest
+    restart: unless-stopped
+    command: ["npx", "tsx", "src/worker/index.ts"]
+    environment: *app-env
+    volumes:
+      - storage:/app/storage
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  redisdata:
+  storage:

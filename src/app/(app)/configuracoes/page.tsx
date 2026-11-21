@@ -1,0 +1,200 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Topbar, PageContent } from "@/components/shell/topbar";
+import { PageHeader } from "@/components/page-header";
+import { Card, CardHeader } from "@/components/ui/card";
+import { StatusBadge, Chip } from "@/components/status-badge";
+import { requirePageUser } from "@/lib/security/session";
+import { getSetting } from "@/features/settings/service";
+import { checkHealth } from "@/features/system/health";
+import { prisma } from "@/lib/db";
+import { formatDateTime } from "@/lib/format";
+import { jobLabel } from "@/lib/jobs/labels";
+import { cn } from "@/lib/utils";
+import { MethodForm, ParametersForm, PingQueueButton } from "./forms";
+
+export const metadata: Metadata = { title: "Configurações" };
+
+const TABS = [
+  { id: "metodo", label: "Fases do método e escala do diagnóstico" },
+  { id: "parametros", label: "Parâmetros" },
+  { id: "ia", label: "Provedor de IA" },
+  { id: "usuarios", label: "Usuários" },
+  { id: "saude", label: "Backups e saúde" },
+  { id: "marca", label: "Marca", availableInPhase: 3 },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ aba?: string }> }) {
+  const user = await requirePageUser();
+  const { aba } = await searchParams;
+  const tab: TabId = (TABS.find((t) => t.id === aba && !("availableInPhase" in t))?.id ?? "metodo") as TabId;
+  const canEdit = user.role === "OWNER";
+  const current = TABS.find((t) => t.id === tab)!;
+
+  return (
+    <>
+      <Topbar crumbs={[{ label: "Configurações", href: "/configuracoes" }, { label: current.label }]} />
+      <PageContent>
+        <PageHeader title="Configurações" subtitle="Marca, parâmetros, provedor de IA, acessos, backups e saúde do sistema." />
+        <div className="flex flex-col gap-6 md:flex-row md:items-start">
+          <nav aria-label="Seções de configuração" className="flex shrink-0 flex-row flex-wrap gap-1 md:w-64 md:flex-col">
+            {TABS.map((t) =>
+              "availableInPhase" in t ? (
+                <span key={t.id} aria-disabled="true" className="flex min-h-11 cursor-not-allowed items-center justify-between gap-2 rounded-[8px] px-3 text-sm font-semibold text-text-subtle">
+                  {t.label} <span className="text-[11px] font-bold">Fase {t.availableInPhase}</span>
+                </span>
+              ) : (
+                <Link
+                  key={t.id}
+                  href={`/configuracoes?aba=${t.id}`}
+                  aria-current={t.id === tab ? "page" : undefined}
+                  className={cn("flex min-h-11 items-center rounded-[8px] px-3 text-sm font-semibold", t.id === tab ? "bg-surface-sunken font-bold text-navy outline-2 outline-navy" : "text-text-muted hover:bg-surface-sunken")}
+                >
+                  {t.label}
+                </Link>
+              ),
+            )}
+          </nav>
+          <div className="min-w-0 flex-1">
+            {tab === "metodo" ? <MethodTab canEdit={canEdit} /> : null}
+            {tab === "parametros" ? <ParametersTab canEdit={canEdit} /> : null}
+            {tab === "ia" ? <AiTab /> : null}
+            {tab === "usuarios" ? <UsersTab /> : null}
+            {tab === "saude" ? <HealthTab canEdit={canEdit} /> : null}
+          </div>
+        </div>
+      </PageContent>
+    </>
+  );
+}
+
+async function MethodTab({ canEdit }: { canEdit: boolean }) {
+  const [phases, labels] = await Promise.all([getSetting("methodPhases"), getSetting("scaleLabels")]);
+  return (
+    <Card>
+      <CardHeader title="Fases do método e escala do diagnóstico" />
+      <div className="p-5">
+        <MethodForm phases={phases} labels={labels} canEdit={canEdit} />
+      </div>
+    </Card>
+  );
+}
+
+async function ParametersTab({ canEdit }: { canEdit: boolean }) {
+  const params = await getSetting("parameters");
+  return (
+    <Card>
+      <CardHeader title="Parâmetros analíticos e operacionais" />
+      <div className="flex flex-col gap-4 p-5">
+        <p className="text-sm text-text-muted">Valores de referência editáveis. Não são regras universais: ajuste ao segmento e à realidade de cada operação.</p>
+        <ParametersForm params={params} canEdit={canEdit} />
+      </div>
+    </Card>
+  );
+}
+
+function AiTab() {
+  const configured = !!process.env.ANTHROPIC_API_KEY;
+  return (
+    <Card>
+      <CardHeader title="Provedor de IA" />
+      <div className="flex flex-col gap-3 p-5 text-sm">
+        <p className="flex items-center gap-2">
+          <span className="font-bold">Chave Anthropic:</span>
+          {configured ? <Chip tone="ok" symbol="✓">Configurada via variável de ambiente</Chip> : <Chip tone="neutral" symbol="○">Não configurada</Chip>}
+        </p>
+        <p className="text-text-muted">
+          A chave nunca é exibida nem salva no banco. O sistema funciona integralmente sem IA, usando templates determinísticos.
+          A geração supervisionada (modelo, limites de tokens, custo e consentimento por cliente) é entregue na Fase 5.
+        </p>
+      </div>
+    </Card>
+  );
+}
+
+async function UsersTab() {
+  const users = await prisma.user.findMany({ select: { id: true, name: true, email: true, role: true, active: true, lastLoginAt: true }, orderBy: { createdAt: "asc" } });
+  return (
+    <Card>
+      <CardHeader title="Usuários internos" />
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] text-sm">
+          <thead>
+            <tr className="text-left text-xs tracking-[0.5px] text-text-muted uppercase">
+              <th className="px-5 py-3 font-bold">Nome</th>
+              <th className="px-3 py-3 font-bold">E-mail</th>
+              <th className="px-3 py-3 font-bold">Perfil</th>
+              <th className="px-5 py-3 font-bold">Último acesso</th>
+            </tr>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id} className="border-t border-border">
+                <td className="px-5 py-3 font-bold">{u.name}{!u.active ? " (inativo)" : ""}</td>
+                <td className="px-3 py-3">{u.email}</td>
+                <td className="px-3 py-3">{u.role}</td>
+                <td className="px-5 py-3">{u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "Nunca"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="border-t border-border px-5 py-3 text-xs text-text-subtle">
+        O primeiro OWNER é criado por variáveis de ambiente (`npm run bootstrap:owner`). Convites e gestão de múltiplos usuários são da fase F2 (RF-006).
+      </p>
+    </Card>
+  );
+}
+
+async function HealthTab({ canEdit }: { canEdit: boolean }) {
+  const [health, jobs] = await Promise.all([
+    checkHealth(),
+    prisma.backgroundJob.findMany({ where: { clientId: null }, orderBy: { createdAt: "desc" }, take: 5 }),
+  ]);
+  return (
+    <div className="flex flex-col gap-6">
+      <Card>
+        <CardHeader title="Saúde do sistema" />
+        <ul className="divide-y divide-border text-sm">
+          <li className="flex items-center justify-between px-5 py-3">
+            <span className="font-bold">Banco de dados (PostgreSQL)</span>
+            {health.database.ok ? <Chip tone="ok" symbol="✓">Operacional · {health.database.latencyMs} ms</Chip> : <Chip tone="err" symbol="✕">Indisponível</Chip>}
+          </li>
+          <li className="flex items-center justify-between px-5 py-3">
+            <span className="font-bold">Fila (Redis)</span>
+            {health.redis.ok ? <Chip tone="ok" symbol="✓">Operacional · {health.redis.latencyMs} ms</Chip> : <Chip tone="err" symbol="✕">Indisponível</Chip>}
+          </li>
+        </ul>
+        <p className="border-t border-border px-5 py-3 text-xs text-text-subtle">Fonte: verificação ao vivo · {formatDateTime(health.checkedAt)}</p>
+      </Card>
+      <Card>
+        <CardHeader title="Fila de processamento" />
+        <div className="flex flex-col gap-4 p-5">
+          {canEdit ? <PingQueueButton /> : null}
+          {jobs.length === 0 ? (
+            <p className="text-sm text-text-muted">Nenhum job de sistema executado ainda.</p>
+          ) : (
+            <ul className="divide-y divide-border rounded-[8px] border border-border text-sm">
+              {jobs.map((j) => (
+                <li key={j.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
+                  <span>{jobLabel(j.operation)} · {formatDateTime(j.createdAt)}</span>
+                  <StatusBadge context="job" value={j.status} suffix={j.status === "RUNNING" ? `${j.progress}%` : undefined} />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Card>
+      <Card>
+        <CardHeader title="Backups" />
+        <div className="p-5 text-sm text-text-muted">
+          Backup e restauração por script documentado: <code className="rounded bg-surface-sunken px-1">scripts/backup.sh</code> e{" "}
+          <code className="rounded bg-surface-sunken px-1">scripts/restore.sh</code> (banco + volume de arquivos). Agende o backup no host
+          (cron/EasyPanel). Procedimento completo no README.
+        </div>
+      </Card>
+    </div>
+  );
+}
