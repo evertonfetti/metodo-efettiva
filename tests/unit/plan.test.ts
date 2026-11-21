@@ -19,7 +19,7 @@ describe("plano 30/60/90", () => {
   const start = dateOnly(2026, 11, 2);
   const target = dateOnly(2027, 1, 31);
   const procs = [
-    { projectProcessId: "pp1", code: "C05", name: "Recuperação de inativos", version: 2, content: { steps: ["A", "B", "C", "D", "E"], kpis: [], validation: "Duas rotinas semanais auditadas; vendedor treinado" } },
+    { projectProcessId: "pp1", code: "C05", name: "Recuperação de inativos", version: 2, content: { steps: ["A", "B", "C", "D", "E"], kpis: [], kpiFormulas: {}, validation: "Duas rotinas semanais auditadas; vendedor treinado" } },
     { projectProcessId: "pp2", code: "D03", name: "Curva ABC de clientes", version: 1, content: null },
   ];
 

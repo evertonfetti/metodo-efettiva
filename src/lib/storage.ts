@@ -11,9 +11,9 @@ import type { FileAccessLevel } from "@/generated/prisma/enums";
  * clients/<clientId>/<aaaa-mm>/<uuid>.<ext>. Nunca há URL pública: download só por rota autenticada.
  */
 
-type Detected = { mime: string; ext: string };
+export type Detected = { mime: string; ext: string };
 
-const ALLOWED: Record<string, Detected> = {
+export const FILE_TYPES: Record<string, Detected> = {
   pdf: { mime: "application/pdf", ext: "pdf" },
   png: { mime: "image/png", ext: "png" },
   jpg: { mime: "image/jpeg", ext: "jpg" },
@@ -29,19 +29,19 @@ export function detectFileType(buf: Buffer, originalName: string): Detected {
   const ext = path.extname(originalName).slice(1).toLowerCase();
   const head = buf.subarray(0, 8);
   const isZip = head[0] === 0x50 && head[1] === 0x4b && head[2] === 0x03 && head[3] === 0x04;
-  if (head.subarray(0, 4).toString("latin1") === "%PDF") return ALLOWED.pdf!;
-  if (head[0] === 0x89 && head.subarray(1, 4).toString("latin1") === "PNG") return ALLOWED.png!;
-  if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) return ALLOWED.jpg!;
+  if (head.subarray(0, 4).toString("latin1") === "%PDF") return FILE_TYPES.pdf!;
+  if (head[0] === 0x89 && head.subarray(1, 4).toString("latin1") === "PNG") return FILE_TYPES.png!;
+  if (head[0] === 0xff && head[1] === 0xd8 && head[2] === 0xff) return FILE_TYPES.jpg!;
   if (head[0] === 0x4d && head[1] === 0x5a) throw new AppError("VALIDATION", "Arquivo executável não é permitido.");
   if (isZip) {
     if (ext === "xlsx" || ext === "docx") {
       // OOXML com macro tem vbaProject.bin dentro do zip.
       if (buf.includes(Buffer.from("vbaProject.bin"))) throw new AppError("VALIDATION", "Arquivos com macro não são permitidos.");
-      return ALLOWED[ext]!;
+      return FILE_TYPES[ext]!;
     }
     throw new AppError("VALIDATION", "Tipo de arquivo compactado não permitido.");
   }
-  if ((ext === "csv" || ext === "txt" || ext === "md") && isProbablyText(buf)) return ALLOWED[ext]!;
+  if ((ext === "csv" || ext === "txt" || ext === "md") && isProbablyText(buf)) return FILE_TYPES[ext]!;
   throw new AppError("VALIDATION", "Tipo de arquivo não permitido. Use PDF, PNG, JPG, XLSX, DOCX, CSV, TXT ou MD.");
 }
 

@@ -10,14 +10,14 @@ import type { ProcessContent } from "@/features/processes/content";
 
 type Props = { code: string; version: number; name: string; objective: string; active: boolean; content: ProcessContent | null };
 
-const FIELDS: { key: keyof ProcessContent; label: string; hint?: string; rows?: number }[] = [
+const FIELDS: { key: Exclude<keyof ProcessContent, "kpiFormulas">; label: string; hint?: string; rows?: number }[] = [
   { key: "trigger", label: "Gatilho" },
   { key: "inputs", label: "Entradas" },
   { key: "roles", label: "Responsáveis" },
   { key: "steps", label: "Passos", hint: "Um passo por linha.", rows: 8 },
   { key: "approach", label: "Exemplo de abordagem" },
   { key: "cadence", label: "Cadência" },
-  { key: "kpis", label: "KPIs", hint: "Um indicador por linha.", rows: 5 },
+  { key: "kpis", label: "KPIs", hint: "Um indicador por linha, no formato: Nome | fórmula. KPI sem fórmula bloqueia a publicação de playbooks.", rows: 6 },
   { key: "exceptions", label: "Exceções" },
   { key: "controls", label: "Controles" },
   { key: "validation", label: "Critério de validação", hint: "Separe critérios por ponto e vírgula: viram checklist da tarefa de validação." },
@@ -26,7 +26,8 @@ const FIELDS: { key: keyof ProcessContent; label: string; hint?: string; rows?: 
 export function ProcessEditForm({ code, version, name, objective, active, content }: Props) {
   const [state, action, pending] = useActionState<ActionState, FormData>(updateProcessAction.bind(null, code), {});
   const err = state.fieldErrors ?? {};
-  const value = (k: keyof ProcessContent) => {
+  const value = (k: Exclude<keyof ProcessContent, "kpiFormulas">) => {
+    if (k === "kpis") return (content?.kpis ?? []).map((n) => (content?.kpiFormulas?.[n] ? `${n} | ${content.kpiFormulas[n]}` : n)).join("\n");
     const v = content?.[k];
     return Array.isArray(v) ? v.join("\n") : (v ?? "");
   };

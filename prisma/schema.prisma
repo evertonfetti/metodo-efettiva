@@ -102,6 +102,9 @@ model Client {
   projectProcesses     ProjectProcess[]
   tasks                ActionTask[]
   actionEvidences      ActionEvidence[]
+  documents            Document[]
+  documentRevisions    DocumentRevision[]
+  documentExports      DocumentExport[]
 
   @@index([status])
   @@index([name])
@@ -163,6 +166,7 @@ model FileAsset {
   client    Client?              @relation(fields: [clientId], references: [id], onDelete: Cascade)
   evidences       AssessmentEvidence[]
   actionEvidences ActionEvidence[]
+  exports         DocumentExport[]
 
   @@index([clientId])
 }
@@ -656,6 +660,7 @@ model Project {
   processes     ProjectProcess[]
   tasks         ActionTask[]
   opportunities Opportunity[]
+  documents     Document[]
 
   @@unique([clientId, number])
   @@index([clientId, status])
@@ -765,4 +770,103 @@ model ActionEvidence {
   file           FileAsset?      @relation(fields: [fileAssetId], references: [id], onDelete: SetNull)
 
   @@index([clientId])
+}
+
+// ───────────────────────── Fase 3: documentos e exportações ─────────────────────────
+
+enum DocumentType {
+  PLAYBOOK
+  POP
+}
+
+enum RevisionState {
+  DRAFT
+  READY_FOR_REVIEW
+  APPROVED
+  PUBLISHED
+}
+
+enum Audience {
+  INTERNO
+  CLIENTE
+}
+
+/// Documento lógico (playbook geral ou POP de um processo).
+model Document {
+  id                String       @id @default(uuid()) @db.Uuid
+  clientId          String       @db.Uuid
+  projectId         String?      @db.Uuid
+  processCode       String?
+  type              DocumentType
+  title             String
+  currentRevisionId String?      @db.Uuid
+  isDemo            Boolean      @default(false)
+  createdBy         String       @db.Uuid
+  createdAt         DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime     @updatedAt @db.Timestamptz(3)
+
+  client    Client             @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  project   Project?           @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  revisions DocumentRevision[]
+  exports   DocumentExport[]
+
+  @@index([clientId, projectId])
+}
+
+/// Revisão: conteúdo em blocos JSON (seções). APPROVED/PUBLISHED é imutável (trigger no banco).
+model DocumentRevision {
+  id                    String        @id @default(uuid()) @db.Uuid
+  clientId              String        @db.Uuid
+  documentId            String        @db.Uuid
+  version               Int
+  contentJson           Json
+  structuredSourcesJson Json
+  state                 RevisionState @default(DRAFT)
+  generatedByAi         Boolean       @default(false)
+  lockVersion           Int           @default(0)
+  contentHash           String?
+  parentRevisionId      String?       @db.Uuid
+  approvedBy            String?       @db.Uuid
+  approvedAt            DateTime?     @db.Timestamptz(3)
+  publishedAt           DateTime?     @db.Timestamptz(3)
+  createdBy             String        @db.Uuid
+  createdAt             DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime      @updatedAt @db.Timestamptz(3)
+
+  client   Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  document Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  exports  DocumentExport[]
+
+  @@unique([documentId, version])
+  @@index([clientId])
+}
+
+enum ExportFormat {
+  DOCX
+  PDF
+  MD
+}
+
+model DocumentExport {
+  id          String       @id @default(uuid()) @db.Uuid
+  clientId    String       @db.Uuid
+  documentId  String       @db.Uuid
+  revisionId  String       @db.Uuid
+  format      ExportFormat
+  audience    Audience
+  isDraft     Boolean
+  status      JobStatus    @default(QUEUED)
+  jobId       String?      @db.Uuid
+  fileAssetId String?      @db.Uuid
+  errorMessage String?
+  createdBy   String       @db.Uuid
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  finishedAt  DateTime?    @db.Timestamptz(3)
+
+  client   Client           @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  document Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  revision DocumentRevision @relation(fields: [revisionId], references: [id], onDelete: Cascade)
+  file     FileAsset?       @relation(fields: [fileAssetId], references: [id], onDelete: SetNull)
+
+  @@index([clientId, documentId])
 }

@@ -46,10 +46,27 @@ export const DEFAULT_PARAMETERS: Parameters = {
   uploadMaxMb: 20,
 };
 
+/** Identidade visual dos documentos exportados (RF-084/RF-110). Cores fixas da marca; logo opcional. */
+export const brandSchema = z.object({
+  companyName: z.string().trim().min(2).max(120),
+  tagline: z.string().trim().max(160).default(""),
+  footerText: z.string().trim().max(200).default(""),
+  confidentiality: z.string().trim().min(3).max(80),
+  logoFileId: z.uuid().nullable().default(null),
+});
+export const DEFAULT_BRAND: z.infer<typeof brandSchema> = {
+  companyName: "Efettiva Gestão",
+  tagline: "Gestão comercial com método",
+  footerText: "Documento elaborado pela Efettiva Gestão",
+  confidentiality: "Confidencial",
+  logoFileId: null,
+};
+
 export const SETTINGS = {
   methodPhases: { key: "method.phases", schema: methodPhasesSchema, default: DEFAULT_METHOD_PHASES },
   scaleLabels: { key: "assessment.scaleLabels", schema: scaleLabelsSchema, default: DEFAULT_SCALE_LABELS },
   parameters: { key: "system.parameters", schema: parametersSchema, default: DEFAULT_PARAMETERS },
+  brand: { key: "brand.identity", schema: brandSchema, default: DEFAULT_BRAND },
 } as const;
 
 export type SettingName = keyof typeof SETTINGS;

@@ -50,9 +50,11 @@ export async function seedProcesses(prisma: PrismaClient) {
       if (content) sheetsApplied++;
       continue;
     }
-    if (content && !existing.hasFullSheet && !existing.customized) {
+    // Ficha nova ou atualizada no seed (ex.: fórmulas de KPI) → nova revisão, nunca sobre processo personalizado.
+    const changed = content && stableJson(existing.contentJson) !== stableJson(content);
+    if (content && changed && !existing.customized) {
       await prisma.$transaction((tx) =>
-        applySheet(tx, existing.id, existing.currentVersion + 1, { code: existing.code, domainCode: existing.domainCode, name: existing.name, objective, content }),
+        applySheet(tx, existing.id, existing.currentVersion + 1, { code: existing.code, domainCode: existing.domainCode, name: existing.name, objective, content }, existing.hasFullSheet ? "Atualização da ficha no seed (fórmulas de KPI)" : undefined),
       );
       sheetsApplied++;
     }
@@ -62,10 +64,17 @@ export async function seedProcesses(prisma: PrismaClient) {
   return { created, sheetsApplied, total, full };
 }
 
-async function applySheet(tx: Prisma.TransactionClient, id: string, version: number, snap: ProcessSnapshot) {
-  await tx.processRevision.create({ data: { processDefinitionId: id, version, changeNotes: "Ficha completa (Anexo C)", contentJson: snap as unknown as Prisma.InputJsonValue } });
+async function applySheet(tx: Prisma.TransactionClient, id: string, version: number, snap: ProcessSnapshot, notes = "Ficha completa (Anexo C)") {
+  await tx.processRevision.create({ data: { processDefinitionId: id, version, changeNotes: notes, contentJson: snap as unknown as Prisma.InputJsonValue } });
   await tx.processDefinition.update({
     where: { id },
     data: { objective: snap.objective, contentJson: snap.content as Prisma.InputJsonValue, hasFullSheet: true, currentVersion: version, baseVersion: version },
   });
+}
+
+/** JSON com chaves ordenadas (jsonb do Postgres não preserva a ordem). */
+function stableJson(v: unknown): string {
+  if (Array.isArray(v)) return `[${v.map(stableJson).join(",")}]`;
+  if (v && typeof v === "object") return `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${stableJson((v as Record<string, unknown>)[k])}`).join(",")}}`;
+  return JSON.stringify(v ?? null);
 }

@@ -72,6 +72,21 @@ const opt = (v: unknown) => {
   return s ? s : undefined;
 };
 
+/** KPIs no formulário: uma linha por indicador, "Nome | fórmula". */
+function kpiLines(v: unknown) {
+  const kpis: string[] = [];
+  const kpiFormulas: Record<string, string> = {};
+  for (const line of lines(v)) {
+    const [name, ...rest] = line.split("|");
+    const n = name!.trim();
+    if (!n) continue;
+    kpis.push(n);
+    const f = rest.join("|").trim();
+    if (f) kpiFormulas[n] = f;
+  }
+  return { kpis, kpiFormulas };
+}
+
 export const processEditSchema = z.object({
   expectedVersion: z.coerce.number().int().min(1),
   name: z.string().trim().min(3, "Informe o nome.").max(200),
@@ -96,7 +111,7 @@ export function processEditFromForm(raw: Record<string, unknown>) {
       steps: lines(raw.steps),
       approach: opt(raw.approach),
       cadence: opt(raw.cadence),
-      kpis: lines(raw.kpis),
+      ...kpiLines(raw.kpis),
       exceptions: opt(raw.exceptions),
       controls: opt(raw.controls),
       validation: opt(raw.validation),

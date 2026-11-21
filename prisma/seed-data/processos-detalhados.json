@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "1.1",
   "source": "ESPECIFICACAO_MESTRA_EFETTIVA_OS.md — Anexo C",
   "note": "Templates canônicos: validar requisitos, custos, prazos, pessoas, sistema e políticas de comunicação ao aplicar no cliente.",
   "processes": [
@@ -32,7 +32,15 @@
         "Segunda compra"
       ],
       "exceptions": "cliente não deseja contato, crédito bloqueado, fim do negócio, sazonalidade, histórico insuficiente. Não insistir indevidamente.",
-      "validation": "duas rotinas semanais completas auditadas, registros sem lacunas críticas, vendedor treinado e gerente capaz de operar sozinho."
+      "validation": "duas rotinas semanais completas auditadas, registros sem lacunas críticas, vendedor treinado e gerente capaz de operar sozinho.",
+      "kpiFormulas": {
+        "Clientes elegíveis": "Nº de clientes com recência acima do limite de inatividade, após exclusões (encerrados, bloqueados, sazonais)",
+        "Abordados": "Nº de clientes elegíveis com tentativa de contato registrada no período",
+        "Reativados": "Nº de clientes elegíveis com novo pedido faturado após a abordagem",
+        "Taxa de reativação": "Reativados ÷ Abordados × 100 (%)",
+        "Receita/MC elegível": "Soma da receita (e da margem de contribuição, se houver custo) dos pedidos de clientes reativados no período (R$)",
+        "Segunda compra": "Nº de reativados com 2º pedido em até 2 intervalos típicos ÷ Reativados × 100 (%)"
+      }
     },
     {
       "code": "V11",
@@ -61,7 +69,14 @@
         "Valor e margem elegíveis",
         "Motivos de não conversão"
       ],
-      "validation": "backlog revisado, responsável por cada proposta, rastreio de resultado e análise de motivos."
+      "validation": "backlog revisado, responsável por cada proposta, rastreio de resultado e análise de motivos.",
+      "kpiFormulas": {
+        "Taxa de contato": "Propostas com contato efetivo ÷ propostas elegíveis no backlog × 100 (%)",
+        "Propostas revisitadas": "Nº de propostas paradas/perdidas com nova conversa registrada no período",
+        "Negócios recuperados": "Nº de propostas revisitadas que viraram pedido",
+        "Valor e margem elegíveis": "Soma do valor (e margem, se houver custo) das propostas elegíveis para recuperação (R$)",
+        "Motivos de não conversão": "Distribuição % dos motivos finais registrados nas propostas não recuperadas"
+      }
     },
     {
       "code": "V05",
@@ -89,7 +104,14 @@
         "Ciclo",
         "Motivo de perda"
       ],
-      "validation": ">= 90% das oportunidades ativas com próximo passo registrado em duas auditorias sucessivas; meta ajustável."
+      "validation": ">= 90% das oportunidades ativas com próximo passo registrado em duas auditorias sucessivas; meta ajustável.",
+      "kpiFormulas": {
+        "Oportunidades com próxima ação": "Propostas ativas com próximo passo e data registrados ÷ propostas ativas × 100 (%)",
+        "Atraso no follow-up": "Nº de propostas ativas com próxima ação vencida",
+        "Taxa de conversão": "Propostas ganhas ÷ propostas encerradas (ganhas + perdidas) no período × 100 (%)",
+        "Ciclo": "Mediana de dias entre envio da proposta e decisão (dias)",
+        "Motivo de perda": "Distribuição % dos motivos registrados nas propostas perdidas"
+      }
     },
     {
       "code": "C01",
@@ -116,7 +138,14 @@
         "Receita/MC por carteira",
         "Cobertura"
       ],
-      "validation": "100% dos clientes elegíveis com owner e regra de reatribuição documentada; nenhuma conta crítica sem gestor responsável."
+      "validation": "100% dos clientes elegíveis com owner e regra de reatribuição documentada; nenhuma conta crítica sem gestor responsável.",
+      "kpiFormulas": {
+        "% clientes com owner": "Clientes ativos com responsável definido ÷ clientes ativos × 100 (%)",
+        "Clientes sem contato conforme política": "Nº de clientes com último contato acima do prazo definido para sua classe",
+        "Clientes ativos": "Nº de clientes com ao menos 1 pedido nos últimos 12 meses",
+        "Receita/MC por carteira": "Soma da receita (e MC, se houver custo) por responsável no período (R$)",
+        "Cobertura": "Clientes da carteira contatados no período ÷ clientes da carteira × 100 (%)"
+      }
     },
     {
       "code": "C04",
@@ -143,7 +172,14 @@
         "Pedidos gerados"
       ],
       "exceptions": "cliente sazonal, compra única, contrato já automatizado, contato não desejado.",
-      "validation": "agenda funcionando por ao menos dois ciclos e processo transferido ao gestor."
+      "validation": "agenda funcionando por ao menos dois ciclos e processo transferido ao gestor.",
+      "kpiFormulas": {
+        "Clientes com periodicidade confiável": "Nº de clientes com ≥ 3 intervalos de compra e variação dentro do limite definido",
+        "Alertas atendidos": "Alertas de recompra com contato registrado até a data prevista ÷ alertas gerados × 100 (%)",
+        "Recompras": "Nº de pedidos gerados a partir de alertas de recompra",
+        "Variação do intervalo": "Mediana do intervalo de compra atual − mediana do período base (dias)",
+        "Pedidos gerados": "Valor dos pedidos originados por alertas de recompra no período (R$)"
+      }
     },
     {
       "code": "C06",
@@ -169,7 +205,14 @@
         "Taxa de aceitação",
         "Recompra da categoria"
       ],
-      "validation": "abordagem treinada, portfólio recomendado validado e medição sem dupla contagem dos pedidos."
+      "validation": "abordagem treinada, portfólio recomendado validado e medição sem dupla contagem dos pedidos.",
+      "kpiFormulas": {
+        "Clientes com nova categoria": "Nº de clientes que compraram categoria nunca comprada antes, no período",
+        "Margem incremental": "MC dos pedidos de novas categorias nos clientes abordados (R$; exige custo)",
+        "Receita por conta": "Receita do período ÷ nº de clientes ativos (R$)",
+        "Taxa de aceitação": "Clientes que compraram a oferta ÷ clientes abordados × 100 (%)",
+        "Recompra da categoria": "Clientes com 2º pedido da nova categoria ÷ clientes com 1º pedido × 100 (%)"
+      }
     },
     {
       "code": "L05",
@@ -196,7 +239,14 @@
         "Taxa de conversão"
       ],
       "exceptions": "custo desconhecido impede cálculo confiável; casos contratuais/estratégicos precisam aprovação explícita.",
-      "validation": "política assinada pelo responsável, mecanismo de aprovação testado e duas auditorias de amostra."
+      "validation": "política assinada pelo responsável, mecanismo de aprovação testado e duas auditorias de amostra.",
+      "kpiFormulas": {
+        "Desconto ponderado": "Σ(desconto concedido em R$) ÷ Σ(valor de tabela) × 100 (%)",
+        "MC por venda e cliente": "(Receita líquida − custos variáveis) por pedido e por cliente (R$; exige custo)",
+        "Exceções aprovadas": "Nº de vendas abaixo do limite com aprovação registrada na alçada correta",
+        "Vendas abaixo de limite": "Nº de vendas com desconto acima do limite sem aprovação",
+        "Taxa de conversão": "Propostas ganhas ÷ propostas encerradas × 100 (%)"
+      }
     },
     {
       "code": "P04",
@@ -227,7 +277,16 @@
         "Tempo de conversão"
       ],
       "controls": "respeitar opt-out, políticas de comunicação e privacidade; não gerar disparos automáticos no sistema.",
-      "validation": "ICP, cadência, campos do CRM, treinamento e reunião de revisão implantados."
+      "validation": "ICP, cadência, campos do CRM, treinamento e reunião de revisão implantados.",
+      "kpiFormulas": {
+        "Contatos válidos": "Nº de prospects contatados com interlocutor correto identificado",
+        "Conversas úteis": "Nº de conversas com necessidade ou momento qualificado registrados",
+        "Reuniões qualificadas": "Nº de reuniões realizadas com prospect dentro do ICP",
+        "Oportunidades": "Nº de propostas abertas originadas da prospecção",
+        "Vendas": "Nº de pedidos originados da prospecção",
+        "Margem": "MC dos pedidos originados da prospecção (R$; exige custo)",
+        "Tempo de conversão": "Mediana de dias entre primeiro contato e primeiro pedido (dias)"
+      }
     },
     {
       "code": "A03",
@@ -255,7 +314,14 @@
         "Previsão vs realizado",
         "Evolução dos gargalos"
       ],
-      "validation": "quatro reuniões consecutivas com pauta, decisões e fechamento de pendências."
+      "validation": "quatro reuniões consecutivas com pauta, decisões e fechamento de pendências.",
+      "kpiFormulas": {
+        "Decisões no prazo": "Decisões da reunião concluídas até o prazo ÷ decisões com prazo vencido no período × 100 (%)",
+        "Tempo de ciclo": "Mediana de dias entre abertura e fechamento das oportunidades (dias)",
+        "Cobertura de follow-up": "Propostas ativas com próxima ação registrada ÷ propostas ativas × 100 (%)",
+        "Previsão vs realizado": "Faturamento realizado ÷ faturamento previsto na reunião × 100 (%)",
+        "Evolução dos gargalos": "Variação do nº de oportunidades paradas por etapa entre reuniões"
+      }
     },
     {
       "code": "G05",
@@ -282,7 +348,14 @@
         "Conversão/margem quando observáveis",
         "Qualidade das interações"
       ],
-      "validation": "equipe treinada, gestor apto a reforçar rotina e evidência de aplicação; presença sozinha não encerra implantação."
+      "validation": "equipe treinada, gestor apto a reforçar rotina e evidência de aplicação; presença sozinha não encerra implantação.",
+      "kpiFormulas": {
+        "Participação": "Participantes presentes ÷ convocados × 100 (%)",
+        "Domínio demonstrado": "Participantes aprovados no role-play/checklist ÷ participantes × 100 (%)",
+        "Adesão à rotina": "Registros conforme o processo treinado ÷ registros esperados × 100 (%), por amostragem",
+        "Conversão/margem quando observáveis": "Taxa de conversão e MC antes × depois do treinamento, mesmo período de comparação (sem atribuição causal)",
+        "Qualidade das interações": "Nota média do checklist de qualidade em amostra de interações (0–5)"
+      }
     }
   ]
 }

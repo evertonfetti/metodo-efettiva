@@ -9,6 +9,8 @@ export const processContentSchema = z.object({
   approach: z.string().trim().max(3000).optional(),
   cadence: z.string().trim().max(2000).optional(),
   kpis: z.array(z.string().trim().min(1).max(300)).max(30).default([]),
+  /** Fórmula por nome de KPI (seção 9.4: KPI sem fórmula bloqueia a publicação). */
+  kpiFormulas: z.record(z.string(), z.string().trim().max(500)).default({}),
   exceptions: z.string().trim().max(2000).optional(),
   controls: z.string().trim().max(2000).optional(),
   validation: z.string().trim().max(2000).optional(),
@@ -24,7 +26,7 @@ export function parseContent(v: unknown): ProcessContent | null {
   return r.success ? r.data : null;
 }
 
-export const SHEET_SECTIONS: { key: keyof ProcessContent; label: string; list?: boolean }[] = [
+export const SHEET_SECTIONS: { key: Exclude<keyof ProcessContent, "kpiFormulas">; label: string; list?: boolean }[] = [
   { key: "trigger", label: "Gatilho" },
   { key: "inputs", label: "Entradas" },
   { key: "roles", label: "Responsáveis" },
