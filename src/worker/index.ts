@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { QUEUE_NAME, createRedis } from "@/lib/jobs/queue";
 import { handlers } from "@/worker/handlers";
+import { recoverStuckJobs } from "@/lib/jobs/recovery";
 
 type JobData = { jobId: string; clientId: string | null };
 
@@ -51,8 +52,14 @@ worker.on("completed", (job) => logger.info({ jobId: job.data.jobId, op: job.nam
 worker.on("failed", (job, err) => logger.warn({ jobId: job?.data.jobId, op: job?.name, err: err.message }, "job falhou"));
 worker.on("ready", () => logger.info({ queue: QUEUE_NAME }, "worker pronto"));
 
+// Recupera jobs presos ao iniciar e a cada 5 minutos.
+const recover = () => recoverStuckJobs().catch((err) => logger.error({ err: err instanceof Error ? err.message : String(err) }, "falha na recuperação de jobs"));
+void recover();
+const recoveryTimer = setInterval(recover, 5 * 60_000);
+
 async function shutdown() {
   logger.info("encerrando worker");
+  clearInterval(recoveryTimer);
   await worker.close();
   await prisma.$disconnect();
   process.exit(0);

@@ -121,3 +121,20 @@ export async function saveBrandAction(_: FormState, fd: FormData): Promise<FormS
     return toState(err);
   }
 }
+
+/** Reprocessa job que falhou (OWNER). Operações idempotentes: não duplicam dados. */
+export async function retryJobAction(jobId: string): Promise<FormState> {
+  try {
+    const user = await requireUser();
+    assertRole(user, "OWNER");
+    const { retryFailedJob } = await import("@/lib/jobs/recovery");
+    const ok = await retryFailedJob(jobId);
+    if (!ok) return { error: "Job não encontrado ou não está com falha." };
+    const { audit } = await import("@/lib/audit");
+    await audit({ actorUserId: user.id, entityType: "BackgroundJob", entityId: jobId, action: "job.retry" });
+    revalidatePath("/configuracoes");
+    return { ok: true, message: "Job reenviado para a fila." };
+  } catch (err) {
+    return toState(err);
+  }
+}

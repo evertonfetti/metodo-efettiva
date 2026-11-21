@@ -1,9 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { FieldError, Input, Label } from "@/components/ui/input";
-import { saveBrandAction, saveMethodAction, saveParametersAction, pingQueueAction, type FormState } from "@/features/settings/actions";
+import { retryJobAction, saveBrandAction, saveMethodAction, saveParametersAction, pingQueueAction, type FormState } from "@/features/settings/actions";
 import type { Parameters } from "@/features/settings/defaults";
 
 function Feedback({ state }: { state: FormState }) {
@@ -150,5 +150,16 @@ export function BrandForm({ brand, canEdit }: { brand: Brand; canEdit: boolean }
       <Feedback state={state} />
       {canEdit ? <div><Button type="submit" disabled={pending}>{pending ? "Salvando…" : "Salvar marca"}</Button></div> : null}
     </form>
+  );
+}
+
+export function RetryJobButton({ jobId }: { jobId: string }) {
+  const [pending, start] = useTransition();
+  const [s, setS] = useState<FormState>({});
+  return (
+    <span className="flex items-center gap-2">
+      <Button size="sm" variant="secondary" disabled={pending} onClick={() => start(async () => setS(await retryJobAction(jobId)))}>Tentar de novo</Button>
+      {s.error ? <span role="alert" className="text-xs font-semibold text-err">{s.error}</span> : s.ok ? <span role="status" className="text-xs font-semibold text-ok">✓</span> : null}
+    </span>
   );
 }

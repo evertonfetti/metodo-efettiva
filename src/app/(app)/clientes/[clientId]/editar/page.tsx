@@ -7,6 +7,7 @@ import { updateClientAction } from "@/features/clients/actions";
 import { getClientView } from "@/features/clients/service";
 import { requirePageUser } from "@/lib/security/session";
 import { ExternalAiCard } from "@/components/ai/external-ai-card";
+import { ClientDataCard } from "@/components/governance/delete-client-card";
 import { getSetting } from "@/features/settings/service";
 import { prisma } from "@/lib/db";
 
@@ -35,6 +36,7 @@ export default async function EditClientPage({ params }: { params: Promise<{ cli
           }}
         />
         <ExternalAiCard clientId={clientId} allowed={flags.externalAiAllowed} providerNotes={ai.providerNotes} canEdit />
+        {user.role === "OWNER" ? <ClientDataCard clientId={clientId} name={c.name} /> : null}
       </PageContent>
     </>
   );

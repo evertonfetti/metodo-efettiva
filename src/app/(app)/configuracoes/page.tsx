@@ -11,10 +11,11 @@ import { prisma } from "@/lib/db";
 import { formatDateTime } from "@/lib/format";
 import { jobLabel } from "@/lib/jobs/labels";
 import { cn } from "@/lib/utils";
-import { BrandForm, MethodForm, ParametersForm, PingQueueButton } from "./forms";
+import { BrandForm, MethodForm, ParametersForm, PingQueueButton, RetryJobButton } from "./forms";
 import { AiSettingsForm } from "@/components/ai/ai-settings-form";
 import { aiConfigured } from "@/features/ai/provider";
 import { aiUsageSummary } from "@/features/ai/service";
+import { listAuditEvents } from "@/features/governance/service";
 import { RuleForm, RuleToggle, type RuleDefaults } from "./rules-ui";
 import { describeCondition, listRules } from "@/features/assessments/rules";
 import { conditionSchema, type Condition } from "@/features/assessments/conditions";
@@ -29,14 +30,15 @@ const TABS = [
   { id: "ia", label: "Provedor de IA" },
   { id: "usuarios", label: "Usuários" },
   { id: "saude", label: "Backups e saúde" },
+  { id: "auditoria", label: "Auditoria" },
 ] as const satisfies readonly { id: string; label: string; availableInPhase?: number }[];
 
 type TabId = (typeof TABS)[number]["id"];
 type TabDef = { id: TabId; label: string; availableInPhase?: number };
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ aba?: string; regra?: string }> }) {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ aba?: string; regra?: string; acao?: string; pagina?: string }> }) {
   const user = await requirePageUser();
-  const { aba, regra } = await searchParams;
+  const { aba, regra, acao, pagina } = await searchParams;
   const tab: TabId = (TABS.find((t) => t.id === aba)?.id ?? "metodo") as TabId;
   const canEdit = user.role === "OWNER";
   const current = TABS.find((t) => t.id === tab)!;
@@ -73,6 +75,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             {tab === "ia" ? <AiTab canEdit={canEdit} /> : null}
             {tab === "usuarios" ? <UsersTab /> : null}
             {tab === "saude" ? <HealthTab canEdit={canEdit} /> : null}
+            {tab === "auditoria" ? (canEdit ? <AuditTab action={acao} page={pagina} /> : <Card className="p-5 text-sm text-text-muted">A trilha de auditoria é restrita ao perfil OWNER.</Card>) : null}
           </div>
         </div>
       </PageContent>
@@ -176,6 +179,7 @@ async function HealthTab({ canEdit }: { canEdit: boolean }) {
     checkHealth(),
     prisma.backgroundJob.findMany({ where: { clientId: null }, orderBy: { createdAt: "desc" }, take: 5 }),
   ]);
+  const failed = await prisma.backgroundJob.findMany({ where: { status: "FAILED" }, include: { client: { select: { name: true } } }, orderBy: { createdAt: "desc" }, take: 20 });
   return (
     <div className="flex flex-col gap-6">
       <Card>
@@ -209,6 +213,19 @@ async function HealthTab({ canEdit }: { canEdit: boolean }) {
             </ul>
           )}
         </div>
+      </Card>
+      <Card>
+        <CardHeader title={`Jobs com falha (${failed.length})`} />
+        {failed.length === 0 ? <p className="px-5 py-4 text-sm text-text-muted">Nenhum job com falha. Jobs presos por queda do worker são recuperados automaticamente a cada 5 minutos.</p> : (
+          <ul className="divide-y divide-border text-sm">
+            {failed.map((j) => (
+              <li key={j.id} className="flex flex-wrap items-center justify-between gap-3 px-5 py-3">
+                <span className="min-w-0"><span className="font-bold">{jobLabel(j.operation)}</span> · {j.client?.name ?? "Sistema"} · {formatDateTime(j.createdAt)}<span className="block text-xs text-err">{j.errorMessage ?? "Falhou"}</span></span>
+                {canEdit ? <RetryJobButton jobId={j.id} /> : null}
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
       <Card>
         <CardHeader title="Backups" />
@@ -289,5 +306,37 @@ async function RulesTab({ canEdit, editId }: { canEdit: boolean; editId?: string
         </Card>
       ) : null}
     </div>
+  );
+}
+
+const AUDIT_FILTERS = [["", "Todas"], ["auth.", "Acesso"], ["client.", "Clientes"], ["assessment.", "Diagnósticos"], ["opportunity.", "Oportunidades"], ["project.", "Projetos"], ["task.", "Tarefas"], ["document.", "Documentos"], ["import.", "Importações"], ["baseline.", "Baseline"], ["ai.", "IA"], ["file.", "Arquivos"], ["setting.", "Configurações"], ["job.", "Jobs"]] as const;
+
+async function AuditTab({ action, page }: { action?: string; page?: string }) {
+  const user = await requirePageUser();
+  const r = await listAuditEvents(user, { action: action || undefined, page });
+  const href = (p: Record<string, string | number | undefined>) => `/configuracoes?${new URLSearchParams(Object.entries({ aba: "auditoria", acao: action, pagina: page, ...p }).filter(([, v]) => v !== undefined && v !== "").map(([k, v]) => [k, String(v)])).toString()}`;
+  return (
+    <Card>
+      <CardHeader title="Trilha de auditoria" />
+      <div className="flex flex-wrap gap-1.5 border-b border-border px-5 py-3">
+        {AUDIT_FILTERS.map(([v, l]) => <Link key={v} href={href({ acao: v || undefined, pagina: undefined })} aria-current={(action ?? "") === v ? "true" : undefined} className={cn("rounded-full border px-3 py-1 text-xs font-bold", (action ?? "") === v ? "border-navy bg-navy text-white" : "border-border-strong text-text-muted hover:border-navy")}>{l}</Link>)}
+      </div>
+      {r.items.length === 0 ? <p className="px-5 py-4 text-sm text-text-muted">Nenhum evento com esse filtro.</p> : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead><tr className="text-left text-xs tracking-[0.5px] text-text-muted uppercase"><th className="px-5 py-2">Quando</th><th className="px-2 py-2">Quem</th><th className="px-2 py-2">Ação</th><th className="px-2 py-2">Cliente</th><th className="px-5 py-2">Registro</th></tr></thead>
+            <tbody>{r.items.map((i) => <tr key={i.id} className="border-t border-border"><td className="px-5 py-2 whitespace-nowrap">{formatDateTime(i.createdAt)}</td><td className="px-2 py-2">{i.actor}</td><td className="px-2 py-2 font-mono text-xs">{i.action}</td><td className="px-2 py-2">{i.client ?? "—"}</td><td className="px-5 py-2 text-xs text-text-muted">{i.entityType}{i.entityId ? ` · ${i.entityId.slice(0, 8)}` : ""}</td></tr>)}</tbody>
+          </table>
+        </div>
+      )}
+      <div className="flex items-center justify-between border-t border-border px-5 py-3 text-sm">
+        <span className="text-text-muted">{r.total.toLocaleString("pt-BR")} evento(s) · página {r.page} de {r.pages}</span>
+        <span className="flex gap-2">
+          {r.page > 1 ? <Link className="font-bold text-navy hover:underline" href={href({ pagina: r.page - 1 })}>Anterior</Link> : null}
+          {r.page < r.pages ? <Link className="font-bold text-navy hover:underline" href={href({ pagina: r.page + 1 })}>Próxima</Link> : null}
+        </span>
+      </div>
+      <p className="border-t border-border px-5 py-2 text-xs text-text-subtle">Registra quem, quando e o quê (com hashes de antes/depois, sem conteúdo sensível). Eventos de clientes excluídos permanecem como registro de eliminação.</p>
+    </Card>
   );
 }
