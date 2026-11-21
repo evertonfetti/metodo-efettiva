@@ -68,7 +68,7 @@ curl localhost:3100/api/health
 | Vínculo oportunidade ↔ processos | DONE | seleção manual + sugestões determinísticas (`mapping.ts`); código inexistente → 422 |
 | Projetos, processos no projeto, tarefas, kanban/lista | DONE | `/projetos`, `/projetos/[id]`, `/acoes` (quadro/lista, filtros vencidas/bloqueadas/concluídas/cliente), tarefas com checklist e evidências; Validado/Sustentado com critérios (`rules.ts`) |
 | Cronograma 30/60/90 | DONE | `plan.ts`: janelas proporcionais, dias úteis com feriados nacionais, idempotente por `planKey` |
-| **Aceite:** 3 achados, 2 oportunidades aprovadas, processos, projeto com tarefas | DONE | `scripts/acceptance/fase2.ts` → "ACEITE FASE 2: OK" (34 checagens, inclui isolamento A×B) |
+| **Aceite:** 3 achados, 2 oportunidades aprovadas, processos, projeto com tarefas | DONE | `scripts/acceptance/fase2.ts` → "ACEITE FASE 2: OK" (33 checagens, inclui isolamento A×B) |
 
 ## Fase 3 — Playbook sem IA (MARCO CENTRAL)
 | Item | Status | Evidência |
