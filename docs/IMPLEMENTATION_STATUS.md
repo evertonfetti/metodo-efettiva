@@ -129,3 +129,9 @@ curl localhost:3100/api/health
 ---
 
 PRÓXIMO PASSO: MVP das fases 0–7 entregue. Pendências: (1) aceite real da IA — definir `ANTHROPIC_API_KEY`, reiniciar web e worker e rodar `ACCEPT_AI=1 npx tsx scripts/acceptance/fase5.ts`; (2) deploy no EasyPanel atrás de TLS (`APP_URL` https) e agendamento diário de `scripts/backup.sh` com cópia externa; (3) disco do host em 96% — liberar espaço antes de novos builds Docker; (4) melhorias futuras (seção 14, fases 8+): conectores ERP/CRM, RAG, CSP com nonce.
+
+## Extra — Planilha do cliente (importar/exportar)
+
+| Item | Status | Evidência |
+|---|---|---|
+| Modelo em branco (XLSX com exemplos), exportação dos dados atuais e importação com conferência prévia | DONE | `src/features/workbook/*`, rota `GET /api/v1/clients/:id/planilha?modo=modelo|dados`, telas `/clientes/:id/planilha`; `tests/integration/workbook.test.ts` (4 testes: modelo, conferência sem gravar, aplicação por partes e idempotência, validação, isolamento/VIEWER); E2E no navegador `scripts/e2e/planilha.ts` (exporta e reimporta sem alterações) |

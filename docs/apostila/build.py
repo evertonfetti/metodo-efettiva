@@ -193,6 +193,21 @@ IMG("f-reunioes", "Registrar reunião", 190)
 FIELDS([("Data *", "Sim", "Data da reunião.", "18/11/2026"), ("Título *", "Sim", "Assunto.", "Revisão semanal de vendas"), ("Resumo *", "Sim", "O que foi discutido.", "Funil revisado; 3 propostas sem retorno."), ("Participantes", "Não", "Um por linha.", "Gerente comercial↵Consultora"), ("Decisões", "Não", "Um por linha.", "Retornar às propostas até sexta"), ("Próximos passos / pendências do cliente", "Não", "Um por linha.", "Enviar lista de inativos"), ("Impedimentos", "Não", "Um por linha.", "Acesso ao ERP"), ("Treinamentos e entregas", "Não", "Um por linha.", "Treinamento do POP V05")])
 END()
 
+
+# ───────────────────────── Planilha do cliente
+H1("Planilha do cliente", "Troque informações com o cliente por planilha: você envia um modelo, ele preenche e devolve, e você importa com conferência antes de gravar.")
+H2("Para que serve")
+P("Em vez de digitar tudo, baixe o <b>modelo em branco</b>, envie ao cliente e, quando ele devolver, <b>importe</b>. Cada campo vem com <b>exemplo</b>, orientação e as opções aceitas. O botão <b>Exportar dados</b> gera o mesmo arquivo preenchido com o que já existe no sistema.")
+IMG("planilha-1", "Menu Planilha do cliente", 90)
+H2("O que há na planilha")
+TABLE(["Aba", "Conteúdo", "Como a importação trata"], [["Leia-me", "Instruções e escala de respostas do diagnóstico.", "Ignorada."], ["Empresa", "Perfil comercial: segmento, porte, canais, modelo de venda, vendedores, ciclo, desafios.", "Atualiza o cadastro. Em branco = não altera."], ["Contatos", "Uma pessoa por linha.", "Cria contatos novos; ignora os que já existem (mesmo e-mail ou nome)."], ["Diagnóstico", "Todas as perguntas, com resposta 0 a 5, NS (não sei) ou NA (não se aplica), quem respondeu e observação.", "Cria um novo diagnóstico em <b>rascunho</b> para você revisar e fechar."], ["Clientes, Produtos, Vendas, Itens de venda, Orçamentos", "Base comercial, uma linha por registro.", "Gera um lote validado; você confirma a gravação em <i>Dados e importações</i>."]])
+BOX("info", "Regras da planilha", "Preencha só as células amarelas. A linha cinza em itálico (linha 2) é um exemplo e é ignorada. Não renomeie abas nem altere cabeçalhos. CPF/CNPJ não é exportado: deixe em branco para não alterar.")
+H2("Importar a planilha devolvida")
+OL(["Em <b>Planilha do cliente</b>, selecione o arquivo e clique em <b>Enviar e conferir</b>.", "Leia o relatório de cada parte: o que muda, o que é novo e o que está com problema. <b>Nada foi gravado ainda.</b>", "Marque as partes que quer aplicar. Em Vendas, informe se são <b>Pedidos</b> ou <b>Faturamento</b>.", "Clique em <b>Aplicar partes marcadas</b>. Partes com problema ficam bloqueadas até o cliente corrigir."])
+IMG("planilha-2", "Relatório de conferência antes de aplicar", 120)
+RESULT("Cadastro e contatos atualizados; diagnóstico criado como rascunho; base comercial pronta para confirmar. Cada parte só é aplicada uma vez por arquivo.")
+END()
+
 # ───────────────────────── 9. Documentos
 H1("Documentos (playbooks e POPs)", "Gera, edita, revisa, aprova e exporta o material entregue ao cliente. A geração funciona <b>sem IA</b>.")
 H2("9.1 Lista e geração")
