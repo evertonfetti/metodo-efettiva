@@ -1,0 +1,26 @@
+@font-face{font-family:Manrope;src:url("file:///home/ubuntu/metodo-efettiva/assets/fonts/Manrope-Variable.ttf");font-weight:200 800}
+@page{size:A4;margin:18mm 16mm 18mm 16mm}
+@page :first{margin:0}
+*{box-sizing:border-box}
+body{font-family:Manrope,sans-serif;font-size:10pt;line-height:1.5;color:#1b2430;margin:0}
+.cover{height:257mm;display:flex;flex-direction:column;justify-content:center;background:#0B2545;color:#fff;margin:0;padding:30mm 24mm;height:297mm;width:210mm;page-break-after:always}
+.cover .brand{width:22mm;height:22mm;background:#D9A441;color:#0B2545;font-weight:800;font-size:34pt;display:flex;align-items:center;justify-content:center;border-radius:5mm;margin-bottom:14mm}
+.cover h1{font-size:40pt;margin:0;color:#fff}.cover h2{font-size:22pt;font-weight:500;color:#D9A441;margin:2mm 0 8mm}
+.cover p{font-size:13pt;max-width:120mm;opacity:.9}.cover .meta{margin-top:40mm;font-size:10pt;opacity:.75}
+.toc{page-break-after:always}.toc .t1{font-weight:700;margin-top:3mm;font-size:11pt}.toc .t2{margin-left:7mm;font-size:9.5pt}.toc a{color:#0B2545;text-decoration:none}
+h1{color:#0B2545;font-size:22pt;margin:0 0 4mm;display:flex;align-items:center;gap:4mm;border-bottom:2px solid #D9A441;padding-bottom:3mm}
+h1.plain{display:block}.num{background:#0B2545;color:#fff;border-radius:3mm;min-width:11mm;height:11mm;display:inline-flex;align-items:center;justify-content:center;font-size:15pt}
+h2{color:#0B2545;font-size:13.5pt;margin:7mm 0 2mm;break-after:avoid}
+.chap{page-break-before:always}.lead{font-size:11pt;color:#44505f}
+p{margin:0 0 2.5mm}ul,ol{margin:0 0 3mm;padding-left:6mm}li{margin-bottom:1mm}
+figure{margin:3mm 0 4mm;text-align:center;break-inside:avoid}figure img{max-width:100%;border:1px solid #cfd6df;border-radius:2mm;box-shadow:0 1px 4px #0002}
+figcaption{font-size:8.5pt;color:#667;margin-top:1.5mm}
+table{width:100%;border-collapse:collapse;font-size:8.8pt}
+th{background:#0B2545;color:#fff;text-align:left;padding:1.6mm 2mm;font-weight:700}
+td{border-bottom:1px solid #e1e6ec;padding:1.6mm 2mm;vertical-align:top}tr{break-inside:avoid}
+td.c{text-align:center;font-weight:700;color:#0B2545}td.ex{color:#4a5666;font-style:italic;background:#fafbfc}
+.ft{margin:3mm 0 4mm}.ftt{font-weight:700;color:#0B2545;font-size:10pt;margin-bottom:1.5mm;border-left:3px solid #D9A441;padding-left:2mm;break-after:avoid}
+.box{display:flex;flex-direction:column;gap:1mm;padding:2.5mm 3.5mm;border-radius:2mm;margin:3mm 0;border-left:4px solid;break-inside:avoid;font-size:9.3pt}
+.box.ok{background:#e8f6ee;border-color:#1f8a4c}.box.ex{background:#eef2f8;border-color:#0B2545}.box.info{background:#eef5fb;border-color:#2b6cb0}
+.box.warn{background:#fff6e0;border-color:#D9A441}.box.danger{background:#fdeaea;border-color:#b42318}
+.tag.demo{background:#fbf0d0;color:#7a5600;border-radius:1.5mm;padding:0 1.5mm;font-size:8pt;font-weight:700}
