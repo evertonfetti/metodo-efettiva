@@ -28,12 +28,12 @@
 
 | Token | Hex | Uso |
 |---|---|---|
-| `navy` | `#0B2545` | Menu lateral, botão primário, títulos, cabeçalho de tabela de documentos |
-| `navy-700` | `#13345E` | Item ativo do menu, hover do primário, botão do cliente ativo |
-| `navy-600` | `#1E3F66` | Divisórias e avatar dentro do menu |
-| `navy-border` | `#3A5A82` | Bordas dentro do menu |
-| `amber` | `#D9A441` | **Somente destaque**: logo, ícone do item ativo, sublinhado de aba ativa, marcador "hoje", anel de seleção. **Nunca** como cor de texto sobre fundo branco (contraste insuficiente) |
-| `amber-50` | `#FDF3DC` | Fundo do selo DEMO e dos marcadores `[PENDENTE]` |
+| `navy` | `#031951` | Menu lateral, botão primário, títulos, cabeçalho de tabela de documentos |
+| `navy-700` | `#0F2C6B` | Item ativo do menu, hover do primário, botão do cliente ativo |
+| `navy-600` | `#1A3A7A` | Divisórias e avatar dentro do menu |
+| `navy-border` | `#3D5A96` | Bordas dentro do menu |
+| `amber` | `#FDAF13` | **Somente destaque**: logo, ícone do item ativo, sublinhado de aba ativa, marcador "hoje", anel de seleção. **Nunca** como cor de texto sobre fundo branco (contraste insuficiente) |
+| `amber-50` | `#FFF3D6` | Fundo do selo DEMO e dos marcadores `[PENDENTE]` |
 | `amber-900` | `#6B4A06` | Texto sobre `amber-50` |
 | `bg` | `#F4F6F9` | Fundo da área de conteúdo |
 | `surface` | `#FFFFFF` | Cards, tabelas, painéis, topbar |

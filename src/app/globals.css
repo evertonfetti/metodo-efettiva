@@ -4,12 +4,12 @@
 @theme {
   --font-sans: var(--font-manrope), system-ui, sans-serif;
 
-  --color-navy: #0b2545;
-  --color-navy-700: #13345e;
-  --color-navy-600: #1e3f66;
-  --color-navy-border: #3a5a82;
-  --color-amber: #d9a441;
-  --color-amber-50: #fdf3dc;
+  --color-navy: #031951;
+  --color-navy-700: #0f2c6b;
+  --color-navy-600: #1a3a7a;
+  --color-navy-border: #3d5a96;
+  --color-amber: #fdaf13;
+  --color-amber-50: #fff3d6;
   --color-amber-900: #6b4a06;
 
   --color-bg: #f4f6f9;
@@ -43,10 +43,10 @@
   --color-blocked: #9a3412;
 
   /* shadcn/ui */
-  --color-primary: #0b2545;
+  --color-primary: #031951;
   --color-primary-foreground: #ffffff;
   --color-accent: #eef2f7;
-  --color-ring: #0b2545;
+  --color-ring: #031951;
   --color-destructive: #991b1b;
 
   --radius-card: 12px;

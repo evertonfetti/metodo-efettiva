@@ -146,7 +146,7 @@ export function BrandForm({ brand, canEdit }: { brand: Brand; canEdit: boolean }
           <Input id="b-logo" name="logo" type="file" accept="image/png,image/jpeg" className="py-1.5" />
         </div>
       </fieldset>
-      <p className="text-xs text-text-subtle">Cores fixas da identidade: navy #0B2545, âmbar #D9A441 (só destaque) e branco; fonte Manrope embutida no PDF.</p>
+      <p className="text-xs text-text-subtle">Cores fixas da identidade: navy #031951, âmbar #FDAF13 (só destaque) e branco; fonte Manrope embutida no PDF.</p>
       <Feedback state={state} />
       {canEdit ? <div><Button type="submit" disabled={pending}>{pending ? "Salvando…" : "Salvar marca"}</Button></div> : null}
     </form>

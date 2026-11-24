@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { audit } from "@/lib/audit";
@@ -313,7 +315,10 @@ export async function runExport(exportId: string, jobClientId: string | null) {
     const rev = await prisma.documentRevision.findFirstOrThrow({ where: { id: exp.revisionId, documentId: doc.id, clientId: exp.clientId } });
     const content = parseContent(rev.contentJson);
     const brand = await getSetting("brand");
-    const logo = brand.logoFileId ? await readSystemFile(brand.logoFileId).then((f) => ({ data: f.data, mime: f.file.mime })).catch(() => null) : null;
+    // Logo enviado em Configurações; na ausência, o logo oficial da Efettiva (kit de identidade visual).
+    const logo =
+      (brand.logoFileId ? await readSystemFile(brand.logoFileId).then((f) => ({ data: f.data, mime: f.file.mime })).catch(() => null) : null) ??
+      (await readFile(path.join(process.cwd(), "public/brand/logo_horizontal.png")).then((data) => ({ data, mime: "image/png" })).catch(() => null));
     const meta: RenderMeta = {
       title: doc.title,
       clientName: doc.client.name,

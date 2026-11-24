@@ -12,14 +12,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="flex min-h-screen items-center justify-center bg-navy px-4 py-10">
       <div className="w-full max-w-[400px] rounded-[12px] bg-surface p-8">
-        <div className="mb-6 flex items-center gap-2.5">
-          <span aria-hidden="true" className="flex size-[34px] items-center justify-center rounded-[8px] bg-amber text-[17px] font-extrabold text-navy">
-            E
-          </span>
-          <span className="flex flex-col">
-            <span className="text-base font-extrabold text-navy">Efettiva OS</span>
-            <span className="text-xs text-text-muted">Uso interno · Efettiva Gestão</span>
-          </span>
+        <div className="mb-6 flex flex-col gap-1">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo_horizontal.png" alt="Efettiva" width={200} height={42} className="h-auto w-[200px]" />
+          <span className="text-xs text-text-muted">Efettiva OS · Uso interno</span>
         </div>
         <h1 className="mb-1 text-[22px] font-extrabold text-navy">Entrar</h1>
         <p className="mb-6 text-sm text-text-muted">Acesso restrito à equipe da Efettiva.</p>

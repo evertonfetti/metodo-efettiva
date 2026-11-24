@@ -60,14 +60,12 @@ export function AppSidebar({ user, clients, onNavigate }: SidebarProps) {
   const activeClient = activeId ? (clients.find((c) => c.id === activeId) ?? null) : null;
   return (
     <div className="flex h-full flex-col gap-7 bg-navy px-4 py-6 text-white">
-      <Link href="/dashboard" onClick={onNavigate} className="flex items-center gap-2.5 px-2">
-        <span aria-hidden="true" className="flex size-[34px] items-center justify-center rounded-[8px] bg-amber text-[17px] font-extrabold text-navy">
-          E
+      <Link href="/dashboard" onClick={onNavigate} className="flex flex-col gap-2 px-2">
+        <span className="flex rounded-[8px] bg-white px-3 py-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo_horizontal.png" alt="Efettiva" width={160} height={34} className="h-auto w-[160px]" />
         </span>
-        <span className="flex flex-col">
-          <span className="text-base font-extrabold">Efettiva OS</span>
-          <span className="text-xs text-on-navy-label">Uso interno</span>
-        </span>
+        <span className="text-xs text-on-navy-label">Efettiva OS · Uso interno</span>
       </Link>
 
       <nav aria-label="Principal" className="flex flex-col gap-0.5">

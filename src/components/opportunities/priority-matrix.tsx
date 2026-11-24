@@ -46,7 +46,7 @@ export function PriorityMatrix({ items, selectedId, hrefFor }: { items: Point[];
           return (
             <Link key={o.id} href={hrefFor(o.id)} aria-label={`${formatCode(o.number)}: ${o.title}`}>
               <g>
-                <circle cx={cx} cy={cy} r={sel ? 13 : 11} fill={FILL[o.status] ?? "#64748b"} stroke={sel ? "#d9a441" : o.criticalRisk ? "#991b1b" : "#fff"} strokeWidth={sel || o.criticalRisk ? 3 : 1.5} />
+                <circle cx={cx} cy={cy} r={sel ? 13 : 11} fill={FILL[o.status] ?? "#64748b"} stroke={sel ? "#fdaf13" : o.criticalRisk ? "#991b1b" : "#fff"} strokeWidth={sel || o.criticalRisk ? 3 : 1.5} />
                 <text x={cx} y={cy + 3.5} textAnchor="middle" fontSize="9" fontWeight="800" fill={o.status === "DISMISSED" ? "#334155" : "#fff"}>{String(o.number).padStart(2, "0")}</text>
               </g>
             </Link>

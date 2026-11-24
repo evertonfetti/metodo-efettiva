@@ -14,7 +14,7 @@ export function MonthlyBars({ points, caption }: { points: { start: Date; value:
           const h = p.value == null ? 0 : (Math.max(p.value, 0) / max) * (H - 20);
           return (
             <g key={i}>
-              <rect x={pad + i * bw + 3} y={H - h} width={Math.max(bw - 6, 2)} height={h} rx="2" fill="#0B2545">
+              <rect x={pad + i * bw + 3} y={H - h} width={Math.max(bw - 6, 2)} height={h} rx="2" fill="#031951">
                 <title>{`${month(p.start)}: ${p.value == null ? "Indisponível" : formatBRL(p.value)}`}</title>
               </rect>
               {points.length <= 12 || i % 2 === 0 ? <text x={pad + i * bw + bw / 2} y={H + 16} textAnchor="middle" fontSize="11" fill="#64748b">{month(p.start)}</text> : null}

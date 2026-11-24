@@ -34,7 +34,7 @@ Web app **interno da Efettiva Gestão**. Uma instalação atende várias empresa
 
 ## UX
 
-Interface pt-BR, visual sóbrio Efettiva: azul-marinho `#0B2545`, âmbar `#D9A441` (só destaque, nunca texto sobre branco), branco, fonte Manrope. Desktop primeiro, responsiva, acessível, com filtros, estados vazios e origem dos indicadores. Tokens, shell, componentes, telas, rótulos de status e checklist de aceite visual: `docs/UI_LAYOUT.md`.
+Interface pt-BR, visual sóbrio Efettiva: azul-marinho `#031951`, âmbar `#FDAF13` (só destaque, nunca texto sobre branco), branco, fonte Manrope. Desktop primeiro, responsiva, acessível, com filtros, estados vazios e origem dos indicadores. Tokens, shell, componentes, telas, rótulos de status e checklist de aceite visual: `docs/UI_LAYOUT.md`.
 
 ## Regras de execução
 
