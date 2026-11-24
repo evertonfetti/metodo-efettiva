@@ -1,5 +1,6 @@
 "use client";
 
+import { PAGE_HELP } from "@/lib/help";
 import { useCallback, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { Info, Paperclip, StickyNote, Trash2, X } from "lucide-react";
@@ -140,7 +141,7 @@ export function AssessmentRunner(props: Props) {
         <SaveIndicator state={save} onRetry={retry} readOnly={readOnly} />
       </Topbar>
       <PageContent>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.diagnosticos}
           title={`Diagnóstico 360° · ${assessment.segmentLabel}`}
           badges={
             <>

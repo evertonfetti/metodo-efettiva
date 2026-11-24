@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -23,7 +24,7 @@ export default async function ImportPage({ params, searchParams }: { params: Pro
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Dados e importações", href: `/clientes/${clientId}/dados` }, { label: "Importar" }]} />
       <PageContent>
-        <PageHeader title="Importar dados" subtitle="Nada é gravado antes da sua confirmação: primeiro mapeamento e validação de todas as linhas." />
+        <PageHeader help={PAGE_HELP.importar} title="Importar dados" subtitle="Nada é gravado antes da sua confirmação: primeiro mapeamento e validação de todas as linhas." />
         <ImportStepper current={1} />
         <Card className="max-w-[960px]">
           <UploadForm clientId={clientId} types={types} defaultType={tipo && IMPORT_TYPES[tipo as keyof typeof IMPORT_TYPES] ? tipo : "CUSTOMERS"} maxMb={prm.uploadMaxMb} />

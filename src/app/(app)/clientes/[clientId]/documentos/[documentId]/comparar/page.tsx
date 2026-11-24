@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -28,7 +29,7 @@ export default async function ComparePage({ params, searchParams }: { params: Pr
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Documentos", href: `/clientes/${clientId}/documentos` }, { label: va.doc.title, href: base }, { label: "Comparar" }]} />
       <PageContent>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.documentoComparar}
           title={`Comparar v${va.revision.version} → v${vb.revision.version}`}
           subtitle={`${changed.length} de ${diffs.length} seções com diferenças. Linhas removidas em vermelho, adicionadas em verde.`}
           actions={<Button asChild variant="secondary"><Link href={`${base}?rev=${vb.revision.id}`}>Voltar ao documento</Link></Button>}

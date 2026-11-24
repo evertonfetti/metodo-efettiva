@@ -35,12 +35,12 @@ export function ProcessEditForm({ code, version, name, objective, active, conten
     <form action={action} className="flex flex-col gap-4 p-6" noValidate>
       <input type="hidden" name="expectedVersion" value={version} />
       <div className="flex flex-col gap-1">
-        <Label htmlFor="p-name">Nome *</Label>
+        <Label htmlFor="p-name" help={{ what: "Nome do processo como aparece na biblioteca e nos projetos. Use um nome que descreva a ação.", example: "Recuperação de inativos" }}>Nome *</Label>
         <Input id="p-name" name="name" defaultValue={name} required aria-invalid={!!err.name} aria-describedby={err.name ? "e-name" : undefined} />
         <FieldError id="e-name" message={err.name} />
       </div>
       <div className="flex flex-col gap-1">
-        <Label htmlFor="p-obj">Objetivo *</Label>
+        <Label htmlFor="p-obj" help={{ what: "Para que o processo existe, em uma frase: o resultado que ele busca.", example: "Reativar clientes que pararam de comprar." }}>Objetivo *</Label>
         <Textarea id="p-obj" name="objective" defaultValue={objective} required aria-invalid={!!err.objective} aria-describedby={err.objective ? "e-obj" : undefined} />
         <FieldError id="e-obj" message={err.objective} />
       </div>

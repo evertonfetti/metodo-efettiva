@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -34,7 +35,7 @@ export default async function ProcessPage({ params, searchParams }: Params) {
     <>
       <Topbar crumbs={[{ label: "Biblioteca de processos", href: "/biblioteca" }, { label: p.code }]} />
       <PageContent wide>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.processo}
           title={`${p.code} · ${snap.name}`}
           badges={
             <>

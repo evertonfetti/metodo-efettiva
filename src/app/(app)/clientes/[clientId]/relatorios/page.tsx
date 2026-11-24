@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LineChart } from "lucide-react";
@@ -26,7 +27,7 @@ export default async function ReportsPage({ params }: { params: Promise<{ client
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Relatórios" }]} />
       <PageContent>
-        <PageHeader title="Relatórios de resultados" badges={<DemoBadge show={client.isDemo} />} subtitle="Relatório periódico com entregas, adoção, indicadores com fonte e limitações; editado, aprovado e exportado como os playbooks." />
+        <PageHeader help={PAGE_HELP.relatorios} title="Relatórios de resultados" badges={<DemoBadge show={client.isDemo} />} subtitle="Relatório periódico com entregas, adoção, indicadores com fonte e limitações; editado, aprovado e exportado como os playbooks." />
         {user.role !== "VIEWER" && projects.length ? <Card aria-labelledby="new-rp"><CardHeader id="new-rp" title="Novo relatório" /><ReportForm clientId={clientId} projects={projects.map((p) => ({ value: p.id, label: p.name }))} defaults={{ start: toISODate(addDays(today, -30)), end: toISODate(today) }} /></Card> : null}
         <Card aria-labelledby="rps">
           <CardHeader id="rps" title="Relatórios por período" />

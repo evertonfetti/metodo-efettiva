@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ClipboardList } from "lucide-react";
@@ -29,7 +30,7 @@ export default async function AssessmentsPage({ params, searchParams }: { params
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Diagnósticos" }]} />
       <PageContent>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.diagnosticos}
           title="Diagnósticos"
           badges={<DemoBadge show={client.isDemo} />}
           subtitle="Questionário-base 360°: 12 áreas, 96 perguntas e perguntas condicionais por segmento."

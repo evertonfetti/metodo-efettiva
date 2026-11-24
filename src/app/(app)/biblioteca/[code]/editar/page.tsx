@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -19,7 +20,7 @@ export default async function EditProcessPage({ params }: { params: Promise<{ co
     <>
       <Topbar crumbs={[{ label: "Biblioteca de processos", href: "/biblioteca" }, { label: p.code, href: `/biblioteca/${p.code}` }, { label: "Editar" }]} />
       <PageContent>
-        <PageHeader title={`Editar ${p.code}`} subtitle="Cada alteração gera uma nova versão imutável no histórico." />
+        <PageHeader help={PAGE_HELP.processoEditar} title={`Editar ${p.code}`} subtitle="Cada alteração gera uma nova versão imutável no histórico." />
         <Card className="max-w-[880px]">
           <ProcessEditForm code={p.code} version={p.currentVersion} name={p.name} objective={p.objective} active={p.active} content={p.content} />
         </Card>

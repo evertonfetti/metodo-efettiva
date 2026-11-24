@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, Search } from "lucide-react";
@@ -33,7 +34,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
     <>
       <Topbar crumbs={[{ label: "Biblioteca de processos" }]} />
       <PageContent wide>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.biblioteca}
           title="Biblioteca de processos"
           subtitle={`${total} processos em 14 áreas. Fichas completas são templates canônicos: valide requisitos, pessoas e sistema antes de aplicar no cliente.`}
         />

@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -75,7 +76,7 @@ export default async function DocumentEditorPage({ params, searchParams }: { par
         {open ? <span className="text-xs font-semibold text-text-muted">✓ Salvo às {formatTime(rev.updatedAt)}</span> : null}
       </Topbar>
       <PageContent wide>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.documento}
           title={doc.title}
           badges={<><StatusBadge context="revision" value={rev.state} suffix={`· v${rev.version}`} /><DemoBadge show={doc.isDemo} /></>}
           subtitle={sourceLine}

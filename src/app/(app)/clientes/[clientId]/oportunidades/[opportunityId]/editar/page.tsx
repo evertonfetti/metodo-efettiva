@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -23,7 +24,7 @@ export default async function EditOpportunityPage({ params }: { params: Promise<
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Oportunidades", href: `/clientes/${clientId}/oportunidades?sel=${o.id}` }, { label: formatCode(o.number) }]} />
       <PageContent>
-        <PageHeader title={`Editar ${formatCode(o.number)}`} subtitle="Alterações ficam registradas na auditoria." />
+        <PageHeader help={PAGE_HELP.oportunidadeEditar} title={`Editar ${formatCode(o.number)}`} subtitle="Alterações ficam registradas na auditoria." />
         <Card className="max-w-[880px]">
           <OpportunityForm
             clientId={clientId}

@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -47,7 +48,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     <>
       <Topbar crumbs={[{ label: "Configurações", href: "/configuracoes" }, { label: current.label }]} />
       <PageContent>
-        <PageHeader title="Configurações" subtitle="Marca, parâmetros, provedor de IA, acessos, backups e saúde do sistema." />
+        <PageHeader help={PAGE_HELP.configuracoes} title="Configurações" subtitle="Marca, parâmetros, provedor de IA, acessos, backups e saúde do sistema." />
         <div className="flex flex-col gap-6 md:flex-row md:items-start">
           <nav aria-label="Seções de configuração" className="flex shrink-0 flex-row flex-wrap gap-1 md:w-64 md:flex-col">
             {(TABS as readonly TabDef[]).map((t) =>

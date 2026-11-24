@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import { Building2, CalendarClock, ListChecks, Cpu } from "lucide-react";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -29,7 +30,7 @@ export default async function DashboardPage() {
         {user.role !== "VIEWER" ? <Button asChild><Link href="/clientes/novo">+ Novo cliente</Link></Button> : null}
       </Topbar>
       <PageContent>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.dashboard}
           title="Visão geral"
           subtitle={`${formatLongDate(new Date())} · fuso ${DEFAULT_TZ}`}
         />

@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -23,7 +24,7 @@ export default async function EditClientPage({ params }: { params: Promise<{ cli
     <>
       <Topbar crumbs={[{ label: "Clientes", href: "/clientes" }, { label: c.name, href: `/clientes/${clientId}` }, { label: "Editar cadastro" }]} />
       <PageContent>
-        <PageHeader title="Editar cadastro" subtitle={c.name} />
+        <PageHeader help={PAGE_HELP.clienteEditar} title="Editar cadastro" subtitle={c.name} />
         <ClientForm
           action={updateClientAction.bind(null, clientId)}
           submitLabel="Salvar alterações"

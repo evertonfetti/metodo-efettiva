@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -44,7 +45,7 @@ export default async function SummaryPage({ params }: { params: Promise<{ client
     <>
       <Topbar crumbs={[{ label: s.client.name, href: `/clientes/${clientId}` }, { label: "Diagnósticos", href: `/clientes/${clientId}/diagnosticos` }, { label: label, href: `/clientes/${clientId}/diagnosticos/${a.id}` }, { label: "Resumo" }]} />
       <PageContent>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.diagnosticoResumo}
           title="Resumo e scores"
           badges={<><StatusBadge context="assessment" value={a.status} /><DemoBadge show={s.client.isDemo} /></>}
           subtitle={`${label} · segmento ${segmentLabel(a.segment)} · ${a.finalizedAt ? `fechado em ${formatDateTime(a.finalizedAt)}` : "rascunho (scores parciais)"}`}

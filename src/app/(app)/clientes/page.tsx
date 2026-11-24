@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Building2, Search } from "lucide-react";
@@ -37,7 +38,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
     <>
       <Topbar crumbs={[{ label: "Clientes" }]} />
       <PageContent>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.clientes}
           title="Clientes"
           subtitle={`${data.total} ${data.total === 1 ? "empresa" : "empresas"}${filtered ? " no filtro atual" : ""}`}
           actions={user.role !== "VIEWER" ? <Button asChild><Link href="/clientes/novo">+ Novo cliente</Link></Button> : null}

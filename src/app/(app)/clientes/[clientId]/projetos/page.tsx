@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FolderKanban } from "lucide-react";
@@ -26,7 +27,7 @@ export default async function ProjectsPage({ params }: { params: Promise<{ clien
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Projetos" }]} />
       <PageContent>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.projetos}
           title="Projetos"
           badges={<DemoBadge show={client.isDemo} />}
           subtitle="Implantação dos processos priorizados com plano 30/60/90, tarefas e critérios de validação."

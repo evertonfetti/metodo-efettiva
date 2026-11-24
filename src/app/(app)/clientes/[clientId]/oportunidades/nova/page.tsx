@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -23,7 +24,7 @@ export default async function NewOpportunityPage({ params, searchParams }: { par
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Oportunidades", href: `/clientes/${clientId}/oportunidades` }, { label: "Registrar achado" }]} />
       <PageContent>
-        <PageHeader title="Registrar achado e oportunidade" subtitle="Achado sempre preliminar: registre evidências e premissas; o valor estimado é opcional." />
+        <PageHeader help={PAGE_HELP.oportunidadeNova} title="Registrar achado e oportunidade" subtitle="Achado sempre preliminar: registre evidências e premissas; o valor estimado é opcional." />
         <Card className="max-w-[880px]">
           <OpportunityForm
             clientId={clientId}

@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ClipboardList, Target, FolderKanban } from "lucide-react";
@@ -73,7 +74,7 @@ export default async function Client360Page({ params }: { params: Promise<{ clie
     <>
       <Topbar crumbs={[{ label: "Clientes", href: "/clientes" }, { label: client.name }]} />
       <PageContent>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.clientePainel}
           title={client.name}
           badges={<><DemoBadge show={client.isDemo} /><StatusBadge context="client" value={client.status} /></>}
           subtitle={subtitle}

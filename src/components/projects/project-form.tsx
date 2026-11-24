@@ -49,7 +49,7 @@ export function ProjectForm({
       <fieldset className="grid gap-4">
         <legend className="mb-1 text-sm font-extrabold text-navy">Projeto</legend>
         <div className="flex flex-col gap-1">
-          <Label htmlFor="p-name">Nome *</Label>
+          <Label htmlFor="p-name" help={{ what: "Nome do projeto, que também aparece nos documentos e relatórios.", example: "Recuperação de inativos – 2º semestre" }}>Nome *</Label>
           <Input id="p-name" name="name" value={v.name} onChange={(e) => setV({ ...v, name: e.target.value })} placeholder="Ex.: Implantação Comercial 90 dias" {...fp("name")} />
           <FieldError id="e-name" message={err.name} />
         </div>
@@ -58,7 +58,7 @@ export function ProjectForm({
           <Textarea id="p-scope" name="scope" value={v.scope} onChange={(e) => setV({ ...v, scope: e.target.value })} />
         </div>
         <div className="flex flex-col gap-1">
-          <Label htmlFor="p-obj">Objetivos (um por linha)</Label>
+          <Label htmlFor="p-obj" help={{ what: "Resultados que o projeto precisa entregar, um por linha. Servem de base para o relatório final.", example: "Reduzir a inatividade de clientes da curva A." }}>Objetivos (um por linha)</Label>
           <Textarea id="p-obj" name="objectives" rows={3} value={v.objectives} onChange={(e) => setV({ ...v, objectives: e.target.value })} />
         </div>
         <div className="grid gap-4 md:grid-cols-2">

@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Topbar, PageContent } from "@/components/shell/topbar";
@@ -30,7 +31,7 @@ export default async function NewProjectPage({ params, searchParams }: { params:
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Projetos", href: `/clientes/${clientId}/projetos` }, { label: "Novo projeto" }]} />
       <PageContent>
-        <PageHeader title="Novo projeto" subtitle="Os processos entram no projeto com a versão atual da ficha (snapshot); edições futuras da biblioteca não alteram este projeto." />
+        <PageHeader help={PAGE_HELP.projetoNovo} title="Novo projeto" subtitle="Os processos entram no projeto com a versão atual da ficha (snapshot); edições futuras da biblioteca não alteram este projeto." />
         <Card className="max-w-[880px]">
           <ProjectForm
             clientId={clientId}

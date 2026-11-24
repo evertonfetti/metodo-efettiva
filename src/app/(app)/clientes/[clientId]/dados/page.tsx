@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Database, Download } from "lucide-react";
@@ -49,7 +50,7 @@ export default async function DataPage({ params }: { params: Promise<{ clientId:
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Dados e importações" }]} />
       <PageContent wide>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.dados}
           title="Dados e importações"
           badges={<DemoBadge show={client.isDemo} />}
           subtitle={m.period ? `Indicadores de ${formatDay(m.period.start)} a ${formatDay(m.period.end)} · base: ${m.quality.kind === "INVOICE" ? "faturamento" : m.quality.kind === "ORDER" ? "pedidos" : "—"} · calculados em ${formatDateTime(m.computedAt)}` : "Importe clientes, produtos, vendas, itens e orçamentos para calcular indicadores com fonte e período."}

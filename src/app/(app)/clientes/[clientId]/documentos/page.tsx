@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText } from "lucide-react";
@@ -32,7 +33,7 @@ export default async function DocumentsPage({ params, searchParams }: { params: 
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Documentos" }]} />
       <PageContent>
-        <PageHeader title="Documentos" badges={<DemoBadge show={client.isDemo} />} subtitle="Playbooks e POPs editáveis por seção, com aprovação, versões imutáveis e exportação DOCX, PDF e MD." />
+        <PageHeader help={PAGE_HELP.documentos} title="Documentos" badges={<DemoBadge show={client.isDemo} />} subtitle="Playbooks e POPs editáveis por seção, com aprovação, versões imutáveis e exportação DOCX, PDF e MD." />
         {canEdit ? (
           <Card aria-labelledby="gen">
             <CardHeader id="gen" title="Gerar documento" />

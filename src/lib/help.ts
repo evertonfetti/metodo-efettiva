@@ -1,0 +1,148 @@
+import type { HelpContent } from "@/components/ui/help-tip";
+
+type PageHelpContent = HelpContent & { steps?: string[] };
+
+/** Ajuda por campo, indexada pelo `htmlFor` do rótulo. O <Label> mostra o “?” automaticamente quando a chave existe. */
+export const FIELD_HELP: Record<string, HelpContent> = {
+  // ── Biblioteca de processos (ficha) ──
+  "p-trigger": { what: "O evento ou condição que faz o processo começar. Responde: “quando devo executar isto?”.", example: "Cliente passa de 1,5× o intervalo típico de compra sem comprar." },
+  "p-inputs": { what: "O que precisa existir ou estar disponível antes de iniciar: dados, listas, acessos, documentos.", example: "Lista de clientes inativos; histórico de compras dos últimos 12 meses." },
+  "p-roles": { what: "Quem executa e quem aprova, por papel (não por nome de pessoa).", example: "Vendedor executa; gerente comercial acompanha." },
+  "p-steps": { what: "A sequência de ações do processo, um passo por linha. Cada passo vira uma tarefa quando o processo entra em um projeto.", example: "Contatar por telefone\nRegistrar o retorno no CRM\nAgendar visita se houver interesse" },
+  "p-approach": { what: "Roteiro ou texto-modelo para o vendedor usar na abordagem. É sugestão, não regra.", example: "Olá, notei que faz um tempo desde o último pedido…" },
+  "p-cadence": { what: "Com que frequência o processo é executado ou revisado.", example: "Semanal, às segundas." },
+  "p-kpis": { what: "Indicadores que medem se o processo funciona. Um por linha, no formato Nome | fórmula.", example: "Taxa de reativação | clientes reativados ÷ clientes contatados", note: "KPI sem fórmula bloqueia a aprovação de playbooks que usem este processo." },
+  "p-exceptions": { what: "Casos que fogem do padrão e como tratá-los, para evitar que o processo seja aplicado onde não cabe.", example: "Cliente em disputa judicial não entra na campanha." },
+  "p-controls": { what: "Verificações que garantem que o processo está sendo seguido (quem confere, com que frequência).", example: "Gerente revisa 10 registros por semana." },
+  "p-validation": { what: "Como saber que o processo foi implantado corretamente. Separe os critérios por ponto e vírgula; viram o checklist da tarefa de validação.", example: "10 contatos feitos; 3 reativações registradas; rotina semanal ativa." },
+  "p-notes": { what: "Explique o que você alterou. Fica no histórico da ficha e permite entender depois por que a versão mudou.", example: "Cadência ajustada ao ciclo de 30 dias.", note: "Salvar nunca sobrescreve: cria uma nova versão e projetos existentes continuam na versão anterior." },
+
+  // ── Cliente ──
+  legalName: { what: "Razão social como consta no CNPJ. Usada em contratos e documentos formais; o nome fantasia aparece no dia a dia." },
+  taxId: { what: "CPF ou CNPJ do cliente. É opcional e fica armazenado cifrado; só os últimos dígitos aparecem na tela.", note: "Em branco ao editar = mantém o valor atual." },
+  industryOther: { what: "Descreva o segmento quando nenhuma opção da lista servir. Ajuda a escolher o perfil de diagnóstico correto." },
+  salesModel: { what: "Como o cliente vende: balcão, equipe externa, televendas, representantes, e-commerce etc. Influencia quais processos fazem sentido." },
+  sellersCount: { what: "Quantas pessoas vendem hoje. Usado para dimensionar metas e a carga das tarefas." },
+  sourceSystem: { what: "Sistema onde ficam as vendas do cliente (ERP/CRM). Define de onde virão os arquivos de importação.", example: "Bling, Omie, planilha própria." },
+  salesCycle: { what: "Tempo médio entre o primeiro contato e o fechamento.", example: "7 dias; 2 a 3 meses." },
+  typicalPurchaseFrequencyDays: { what: "De quantos em quantos dias um cliente típico compra. Base do alerta de inatividade quando não há histórico suficiente nos dados.", example: "30" },
+  mainChallenges: { what: "Dores relatadas pelo cliente, com as palavras dele. Serve de contexto para o diagnóstico e para priorizar oportunidades." },
+  tags: { what: "Etiquetas livres para filtrar a lista de clientes.", example: "atacado, região sul" },
+  "c-lgpd": { what: "Registro da base legal (LGPD) para guardar os dados desta pessoa, como consentimento ou execução de contrato." },
+
+  // ── Diagnóstico ──
+  segment: { what: "Escolhe qual conjunto de perguntas e pesos será usado. Escolha o perfil que mais se parece com o cliente." },
+  periodStart: { what: "Início do período que as respostas descrevem. Permite comparar diagnósticos ao longo do tempo." },
+  periodEnd: { what: "Fim do período de referência das respostas." },
+  "f-type": { what: "Classifica o achado: problema encontrado, ponto forte, risco ou oportunidade." },
+  "f-sev": { what: "Gravidade do achado para o negócio. Ajuda a ordenar o que tratar primeiro." },
+  "f-ev": { what: "De onde vem a informação: documento, relatório, fala registrada. Achado sem evidência tem confiança baixa.", example: "Relatório de vendas jan–jun; entrevista com o gerente em 12/03." },
+
+  // ── Oportunidades ──
+  "o-finding": { what: "Parte de um achado do diagnóstico. Título, explicação e área são preenchidos para você, e o vínculo fica registrado." },
+  "o-title": { what: "Nome curto da oportunidade, que descreve o ganho e não a ação.", example: "Reativar clientes que pararam de comprar." },
+  "o-expl": { what: "Por que isto é uma oportunidade e que fato a sustenta. Cite números e a fonte sempre que existirem." },
+  "o-domain": { what: "Área do método à qual a oportunidade pertence. Define quais processos da biblioteca são sugeridos." },
+  "o-out": { what: "Resultado de negócio esperado se a oportunidade for tratada.", example: "Aumentar a recompra de clientes da curva A." },
+  "o-impactScore": { what: "Tamanho do ganho se der certo: 1 = pequeno, 5 = muito grande." },
+  "o-confidenceScore": { what: "Quanto você confia nos dados e na estimativa: 1 = hipótese, 5 = comprovado." },
+  "o-effortScore": { what: "Esforço para implantar: 1 = simples, 5 = complexo.", note: "Prioridade = Impacto × Confiança ÷ Esforço." },
+  "o-crit": { what: "Quando existe risco crítico (financeiro, legal, perda de cliente-chave), a oportunidade sobe de prioridade. Explique o risco.", note: "Obrigatório se a opção de risco crítico estiver marcada." },
+  "o-urg": { what: "Quão rápido é preciso agir: 1 = pode esperar, 5 = imediato." },
+  "o-tti": { what: "Em quanto tempo o resultado deve aparecer depois da implantação.", example: "30 dias." },
+  "o-cost": { what: "Custo estimado para implantar, em reais. Deixe vazio se não souber: o sistema não inventa valores." },
+  "o-dep": { what: "O que precisa acontecer antes: aprovação, acesso a sistema, contratação.", example: "Exportar vendas do ERP." },
+  "o-over": { what: "Se você alterar a prioridade calculada, explique o motivo. Fica registrado para auditoria." },
+  "o-val": { what: "Valor financeiro estimado da oportunidade, em reais, por período. Deixe vazio se não houver dado confiável." },
+  "o-vtype": { what: "Diz quão sólido é o valor: medido nos dados, estimado com premissas ou apenas hipótese. Aparece junto ao número nos relatórios." },
+  "o-ass": { what: "Suposições usadas para chegar ao valor, uma por linha. Quem lê precisa entender como o número foi obtido.", example: "Recompra média de 20% dos inativos." },
+  "o-ev": { what: "Fatos, documentos ou análises que sustentam a oportunidade, um por linha." },
+  "o-miss": { what: "Dados que fariam falta para confirmar a oportunidade. Evita que uma estimativa pareça certeza." },
+  "o-proc": { what: "Códigos dos processos da biblioteca que resolvem esta oportunidade, separados por vírgula. Entram no projeto quando ele é criado.", example: "COM-012, COM-031" },
+  "f-area": { what: "Filtra por área do método." },
+  "f-origin": { what: "Filtra pela origem: criada manualmente, vinda de achado ou sugerida por regra/IA." },
+  "f-status": { what: "Filtra pela situação da oportunidade no funil." },
+
+  // ── Projetos e tarefas ──
+  "p-scope": { what: "O que está dentro e o que está fora do projeto. Evita expectativas diferentes entre Efettiva e cliente." },
+  "p-start": { what: "Data em que o projeto começa. Prazos das tarefas são calculados a partir dela." },
+  "p-target": { what: "Data em que o projeto deve estar concluído. Tarefas depois dela aparecem como atrasadas." },
+  "p-owner": { what: "Consultor da Efettiva responsável pelo projeto." },
+  "p-sponsor": { what: "Pessoa do cliente que apoia o projeto e destrava decisões." },
+  "p-codes": { what: "Processos extras além dos vindos da oportunidade, por código separados por vírgula." },
+  "t-title": { what: "Ação concreta e verificável, começando com verbo.", example: "Levantar lista de clientes inativos." },
+  "t-status": { what: "Em que ponto a tarefa está. Para marcar como bloqueada é preciso informar o impedimento." },
+  "t-due": { what: "Data limite. Passada a data sem conclusão, a tarefa é marcada como atrasada." },
+  "t-prio": { what: "Importância relativa da tarefa dentro do projeto." },
+  "t-block": { what: "O que impede a tarefa de andar e de quem depende a solução. Fica visível no painel do projeto." },
+  "t-proc": { what: "Processo da biblioteca ao qual a tarefa pertence." },
+  "t-assignee": { what: "Quem na Efettiva executa ou acompanha." },
+  "t-ext": { what: "Quem no cliente executa ou precisa entregar algo." },
+
+  // ── Dados e importação ──
+  "i-src": { what: "Sistema de onde o arquivo foi exportado. Define como as colunas são reconhecidas." },
+  "i-kind": { what: "Tipo de dado do arquivo (vendas, clientes, produtos…). Define quais colunas são obrigatórias." },
+  "i-file": { what: "Arquivo exportado do sistema do cliente, em CSV ou XLSX. Nada é gravado até você revisar e confirmar o mapeamento.", note: "Reenviar o mesmo arquivo não duplica dados." },
+  sheet: { what: "Para planilhas com várias abas, escolha a aba que contém os dados." },
+
+  // ── Resultados ──
+  "snap-end": { what: "Calcula os indicadores até esta data e guarda uma foto, para comparar depois com o que foi medido antes da implantação." },
+  "rev-reason": { what: "Por que o valor está sendo corrigido. A revisão cria um novo registro e preserva o anterior." },
+  "mv-code": { what: "Indicador que será lançado manualmente." },
+  "mv-val": { what: "Valor medido. Use o mesmo formato do indicador (percentual, reais, dias)." },
+  "mv-end": { what: "Data final do período a que o valor se refere." },
+  "mv-src": { what: "De onde veio o número, para que qualquer pessoa consiga conferir.", example: "Relatório de vendas do ERP, 01–31/05." },
+  "mv-just": { what: "Por que este valor está sendo lançado à mão e não calculado dos dados importados." },
+  "ev-date": { what: "Quando o fato aconteceu." },
+  "ev-kind": { what: "Tipo do marco: início de processo, treinamento, mudança de equipe etc. Aparece no gráfico para explicar variações." },
+  "au-chk": { what: "Quantos itens você verificou na amostra." },
+  "au-ok": { what: "Quantos dos itens verificados estavam de acordo com o processo. A conformidade é Conformes ÷ Auditados." },
+  "rp-proj": { what: "Projeto cujos resultados entrarão no relatório." },
+  "rp-start": { what: "Início do período analisado no relatório." },
+  "rp-end": { what: "Fim do período analisado. Os números são calculados somente com dados até esta data." },
+
+  // ── Documentos ──
+  "g-proj": { what: "Projeto de onde o documento tira contexto: cliente, processos e metas." },
+  "g-type": { what: "Playbook (guia do processo para a equipe do cliente), POP (procedimento passo a passo) ou outro tipo disponível." },
+  "g-proc": { what: "Processo da biblioteca que será descrito no documento." },
+  aud: { what: "INTERNO fica só na Efettiva; CLIENTE é a versão que pode ser entregue ao cliente, sem anotações internas." },
+  "sec-vis": { what: "Define se esta seção aparece só na versão interna ou também na do cliente." },
+  "ai-instr": { what: "Instruções para a IA gerar um rascunho (tom, foco, o que evitar). A IA só propõe texto; nada é publicado sem sua revisão." },
+
+  // ── Configurações ──
+  "r-target": { what: "Pergunta do diagnóstico que será afetada por esta regra." },
+  "r-effect": { what: "O que a regra faz quando a condição ocorre: por exemplo, exigir evidência ou reduzir a confiança." },
+  "r-reason": { what: "Texto mostrado ao consultor para explicar por que a regra foi acionada." },
+  "b-logo": { what: "Logo usado nos documentos exportados. Se não enviar, é usado o logo oficial da Efettiva." },
+  "ai-model": { what: "Modelo de IA usado nos rascunhos. Modelos maiores são mais capazes e mais caros." },
+  "ai-effort": { what: "Quanto raciocínio a IA dedica a cada tarefa. Mais esforço = melhor qualidade, mais tempo e custo." },
+  "ai-notes": { what: "Registre o contrato e as condições de tratamento de dados do provedor de IA, para fins de LGPD." },
+  "del-reason": { what: "Base legal ou motivo da exclusão. Fica no registro de auditoria." },
+};
+
+/** Ajuda de tela inteira (botão “Ajuda” no cabeçalho). */
+export const PAGE_HELP: Record<string, PageHelpContent> = {
+  dashboard: { what: "Visão geral da carteira: clientes ativos, diagnósticos, oportunidades e projetos em andamento, com os pontos que pedem atenção.", note: "Todos os números vêm do banco; sem dados, o painel mostra estado vazio em vez de valores inventados." },
+  clientes: { what: "Lista de empresas-clientes. Cada cliente é isolado: seus dados nunca se misturam com os de outro.", steps: ["Use a busca e os filtros para localizar.", "Clique no cliente para abrir o painel dele.", "Use “Novo cliente” para cadastrar."] },
+  clienteNovo: { what: "Cadastro de uma nova empresa-cliente. Só o nome fantasia e o segmento são obrigatórios; o resto pode ser completado depois.", steps: ["Preencha os dados da empresa.", "Informe o contexto comercial (opcional).", "Salve para abrir o painel do cliente."] },
+  clienteEditar: { what: "Edita o cadastro do cliente. Mudanças ficam registradas no histórico de auditoria." },
+  clientePainel: { what: "Painel do cliente: diagnóstico, oportunidades, projetos, dados e documentos num só lugar, seguindo a jornada do método.", steps: ["Comece por um diagnóstico.", "Transforme os achados em oportunidades.", "Abra um projeto a partir da oportunidade escolhida."] },
+  diagnosticos: { what: "Diagnósticos do cliente. Cada um é um questionário respondido em um período, com resumo por área e achados.", steps: ["Crie um novo diagnóstico escolhendo o perfil.", "Responda o questionário (salva sozinho).", "Conclua para gerar o resumo e registrar achados."] },
+  diagnosticoResumo: { what: "Resumo do diagnóstico: nota por área, pontos fortes e fracos e achados registrados. Dele você cria oportunidades." },
+  oportunidades: { what: "Oportunidades de melhoria do cliente, ordenadas por prioridade (Impacto × Confiança ÷ Esforço). A matriz mostra onde está o maior ganho com menor esforço.", steps: ["Filtre por área, origem ou status.", "Abra uma oportunidade para ver evidências e valor.", "Aprove e crie o projeto."] },
+  oportunidadeNova: { what: "Registra um achado e a oportunidade que ele gera. Preencha título, explicação e as três notas (impacto, confiança e esforço); a prioridade é calculada." },
+  oportunidadeEditar: { what: "Edita a oportunidade. Alterar a prioridade calculada exige justificativa, que fica registrada." },
+  projetos: { what: "Projetos de implantação do cliente. Cada projeto reúne processos, tarefas, documentos e resultados." },
+  projetoNovo: { what: "Cria um projeto de implantação, normalmente a partir de uma oportunidade aprovada. Os processos escolhidos viram tarefas.", steps: ["Defina nome, escopo e datas.", "Confirme os processos sugeridos.", "Salve: o plano de tarefas é gerado."] },
+  dados: { what: "Dados comerciais importados do sistema do cliente (vendas, clientes, produtos) e os indicadores calculados a partir deles. Cada indicador mostra a fonte e o período.", note: "Sem dados importados, os indicadores ficam vazios: o sistema nunca preenche com estimativas." },
+  importar: { what: "Importa um arquivo CSV ou XLSX exportado do sistema do cliente.", steps: ["Escolha origem e tipo de dado e envie o arquivo.", "Confira o mapeamento das colunas.", "Revise os erros e confirme a importação."] },
+  importarLote: { what: "Acompanhamento de uma importação: mapeamento de colunas, validação e erros. Nada é gravado nos dados do cliente até você confirmar." },
+  documentos: { what: "Playbooks, POPs e outros documentos do cliente, com versões. Versão aprovada é imutável: alterar cria uma nova revisão.", steps: ["Gere um documento a partir de um projeto e processo.", "Edite as seções e resolva as pendências.", "Aprove e exporte em DOCX, PDF ou MD."] },
+  documento: { what: "Editor do documento. Cada seção pode ser editada e marcada como interna ou do cliente. Pendências precisam ser resolvidas antes da aprovação." },
+  documentoComparar: { what: "Compara duas revisões do mesmo documento, mostrando o que foi acrescentado, removido ou alterado." },
+  relatorios: { what: "Relatórios de resultados de um projeto: indicadores antes e depois, marcos e auditorias, calculados dos dados importados.", steps: ["Escolha projeto e período.", "Gere o relatório.", "Exporte para entregar ao cliente."] },
+  biblioteca: { what: "Catálogo dos processos comerciais da Efettiva. Alguns têm ficha completa (gatilho, passos, KPIs, controles). Os projetos usam estes processos.", steps: ["Busque ou filtre por área.", "Abra um processo para ver a ficha.", "Edite para criar uma nova versão."] },
+  processo: { what: "Ficha do processo: objetivo, gatilho, passos, KPIs e controles, com o histórico de versões." },
+  processoEditar: { what: "Edita a ficha do processo. Salvar cria uma nova versão e preserva as anteriores; projetos existentes não mudam sozinhos.", note: "Clique no “?” ao lado de cada campo para ver o que ele significa." },
+  configuracoes: { what: "Parâmetros globais do sistema: fases do método, escala de notas, regras do diagnóstico, identidade dos documentos, limites de cálculo e IA.", note: "Mudanças afetam novos cálculos e documentos; o que já foi aprovado não é alterado." },
+};

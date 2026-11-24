@@ -1,5 +1,7 @@
+import { PageHelp } from "@/components/ui/help-tip";
+
 /** Cabeçalho de página: h1 + selos + subtítulo à esquerda; até 1 primário e 2 secundários à direita. */
-export function PageHeader({ title, badges, subtitle, actions }: { title: string; badges?: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode }) {
+export function PageHeader({ title, badges, subtitle, actions, help }: { title: string; badges?: React.ReactNode; subtitle?: React.ReactNode; actions?: React.ReactNode; help?: React.ComponentProps<typeof PageHelp>["help"] }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div className="flex min-w-0 flex-col gap-1">
@@ -9,7 +11,12 @@ export function PageHeader({ title, badges, subtitle, actions }: { title: string
         </div>
         {subtitle ? <div className="text-sm text-text-muted">{subtitle}</div> : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions || help ? (
+        <div className="flex flex-wrap items-center gap-2">
+          {actions}
+          {help ? <PageHelp title={`Ajuda: ${title}`} help={help} /> : null}
+        </div>
+      ) : null}
     </div>
   );
 }

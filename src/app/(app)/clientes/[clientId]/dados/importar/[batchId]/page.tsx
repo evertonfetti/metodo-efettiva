@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Download } from "lucide-react";
@@ -37,7 +38,7 @@ export default async function BatchPage({ params }: { params: Promise<{ clientId
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Dados e importações", href: base }, { label: b.originalName }]} />
       <PageContent wide>
         <AutoRefresh active={b.status === "IMPORTING"} />
-        <PageHeader
+        <PageHeader help={PAGE_HELP.importarLote}
           title={`${def.label}: ${b.originalName}`}
           badges={<StatusBadge context="importBatch" value={b.status} />}
           subtitle={`Origem ${b.sourceSystem}${b.recordKind ? ` · ${b.recordKind === "ORDER" ? "pedidos" : "faturamento"}` : ""}${b.sheetName ? ` · aba ${b.sheetName}` : ""} · ${b.totalRows.toLocaleString("pt-BR")} linhas · enviado em ${formatDateTime(b.createdAt)}`}

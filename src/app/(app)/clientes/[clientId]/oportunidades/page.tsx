@@ -1,3 +1,4 @@
+import { PAGE_HELP } from "@/lib/help";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Target } from "lucide-react";
@@ -64,7 +65,7 @@ export default async function OpportunitiesPage({ params, searchParams }: { para
     <>
       <Topbar crumbs={[{ label: client.name, href: `/clientes/${clientId}` }, { label: "Oportunidades" }]} />
       <PageContent wide>
-        <PageHeader
+        <PageHeader help={PAGE_HELP.oportunidades}
           title="Mapa de oportunidades"
           badges={<DemoBadge show={client.isDemo} />}
           subtitle="Score = Impacto × Confiança ÷ Esforço (1–5 cada, máx. 25). Valor auxiliar: risco crítico prevalece sobre o ranking."
