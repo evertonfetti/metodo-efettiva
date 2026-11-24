@@ -24,3 +24,7 @@ td.c{text-align:center;font-weight:700;color:#031951}td.ex{color:#4a5666;font-st
 .box.ok{background:#e8f6ee;border-color:#1f8a4c}.box.ex{background:#eef2f8;border-color:#031951}.box.info{background:#eef5fb;border-color:#2b6cb0}
 .box.warn{background:#fff6e0;border-color:#FDAF13}.box.danger{background:#fdeaea;border-color:#b42318}
 .tag.demo{background:#fbf0d0;color:#7a5600;border-radius:1.5mm;padding:0 1.5mm;font-size:8pt;font-weight:700}
+
+/* Capa com o logo oficial (kit de identidade visual) */
+.cover .logo{display:inline-block;background:#fff;border-radius:10px;padding:10px 16px;margin-bottom:10mm}
+.cover .logo img{height:16mm;display:block}

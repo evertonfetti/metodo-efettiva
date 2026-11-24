@@ -58,6 +58,18 @@ TABLE(["Item do menu", "Onde fica", "Para que serve"], [["Visão geral", "Menu p
 BOX("info", "Isolamento por cliente", "Cada tela de cliente só mostra dados daquele cliente. Mesmo que alguém altere o endereço (URL) manualmente, o servidor verifica o acesso e responde “não encontrado”.")
 END()
 
+# ───────────────────────── Ajuda dentro do sistema
+H1("Ajuda dentro do sistema", "Toda tela e os campos mais complexos têm ajuda embutida, sem precisar abrir esta apostila.")
+H2("Botão “Ajuda” da tela")
+P("No canto superior direito do cabeçalho de cada tela há o botão <b>Ajuda</b>. Ele abre um quadro curto explicando para que serve a tela e, nas telas de fluxo, os passos recomendados. Clique fora do quadro ou pressione <b>Esc</b> para fechar.")
+IMG("ajuda-tela", "Botão Ajuda aberto na tela de nova oportunidade", 70)
+H2("Ponto de interrogação “?” ao lado do campo")
+P("Ao lado do nome dos campos mais importantes ou complexos há um ícone <b>?</b>. Ao clicar (ou ao focar com o teclado e pressionar Enter), abre um balão com <b>o que o campo faz</b>, um <b>exemplo</b> de preenchimento e, quando existe, uma <b>observação</b> sobre regras. Por exemplo, no campo <b>Gatilho</b> da ficha de processo:")
+IMG("ajuda-campo", "Ajuda do campo Gatilho na edição da ficha de processo", 70)
+UL(["Os textos de ajuda ficam em um único arquivo do sistema, o que permite revisá-los e melhorá-los sem alterar as telas.", "Campos obrigatórios continuam marcados com <b>*</b>; o <b>?</b> aparece depois do nome.", "A ajuda funciona por teclado: Tab até o ícone, Enter para abrir, Esc para fechar."])
+END()
+
+
 # ───────────────────────── 3. Visão geral
 H1("Visão geral (painel)", "Primeira tela após o login. Mostra o que exige atenção hoje, sem somar valores de clientes diferentes.")
 IMG("f-dashboard", "Painel Visão geral", 180)
@@ -259,7 +271,7 @@ END()
 
 # ───────────────────────── montar
 css = open(os.path.join(os.path.dirname(__file__), "apostila.css")).read()
-cover = '''<section class="cover"><div class="brand">E</div><h1>Efettiva OS</h1><h2>Apostila de ajuda</h2><p>Menu por menu, campo a campo, com exemplos de configuração e resultado esperado</p><div class="meta">Efettiva Gestão · Uso interno<br>Versão de novembro de 2026</div></section>'''
+cover = '''<section class="cover"><div class="logo"><img src="img/logo_horizontal.png" alt="Efettiva"></div><h1>Efettiva OS</h1><h2>Apostila de ajuda</h2><p>Menu por menu, campo a campo, com exemplos de configuração e resultado esperado</p><div class="meta">Efettiva Gestão · Uso interno<br>Versão de novembro de 2026</div></section>'''
 tocH = '<section class="toc"><h1 class="plain">Sumário</h1>' + "".join(f'<div class="t{l}"><a href="#{i}">{e(t)}</a></div>' for l, i, t in toc) + "</section>"
 open(OUT, "w", encoding="utf-8").write(f'<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Apostila Efettiva OS</title><style>{css}</style></head><body>{cover}{tocH}{"".join(parts)}</body></html>')
 print("ok", OUT, len(parts))
